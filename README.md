@@ -1,6 +1,6 @@
 <p align="center">
   <a href="" rel="noopener">
- <img height=200px src="https://pictshare.net/phhynj.png" alt="PictShare logo"></a>
+ <img height=200px src="https://raw.githubusercontent.com/HaschekSolutions/opentrashmail/master/web/imgs/logo_300.png" alt="Open Trashmail"></a>
 </p>
 
 <h1 align="center">Open Trashmail</h1>
