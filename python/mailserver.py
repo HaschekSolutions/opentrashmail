@@ -36,6 +36,7 @@ class CustomSMTPServer(smtpd.SMTPServer):
             logger.debug('Subject: %s' % subject)
 
             text_parts = []
+            html_parts = []
             attachments = {}
 
             #logger.debug('Headers: %s' % msg.items())
@@ -58,7 +59,7 @@ class CustomSMTPServer(smtpd.SMTPServer):
                     text_parts.append(part.get_payload(decode=True).strip())
                 # ignore html part
                 elif c_type == 'text/html':
-                    continue
+                    html_parts.append(part.get_payload(decode=True).strip())
                 # attachments will be sent as files in the POST request
                 else:
                     filename = part.get_filename()
@@ -70,6 +71,7 @@ class CustomSMTPServer(smtpd.SMTPServer):
                                                                     filecontent)
 
             body = '\n'.join(text_parts)
+            htmlbody = '\n'.join(html_parts)
             
         except:
             logger.exception('Error reading incoming email')
@@ -78,6 +80,7 @@ class CustomSMTPServer(smtpd.SMTPServer):
             edata = {
                 'subject': subject,
                 'body': body,
+                'htmlbody': htmlbody,
                 'from': mailfrom,
                 'attachments':[]
             }
