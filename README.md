@@ -28,13 +28,14 @@
   - [x] Get random email address
   - [x] Download attachments in a safe way
   - [x] Display Text/HTML
+  - [x] API so all features from the site can also be automated and integrated
   - [ ] Automatically check for new emails while on site
   - [ ] Secure HTML so no malicious things can be loaded
   - [ ] Display embedded images inline using Content-ID
   - [ ] Admin overview for all available email addresses
   - [ ] Delete messages
 - [ ] Configurable settings
-  - [ ] Choose domains for random generation
+  - [x] Choose domains for random generation
   - [ ] Choose if out-of-scope emails are discarded
   - [ ] Honeypot mode where all emails are also saved for a catchall account
 - [ ] Docker files and config
