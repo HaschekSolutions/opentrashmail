@@ -5,6 +5,7 @@ import email
 from email.header import decode_header
 from email.Utils import parseaddr
 #import requests
+import ConfigParser
 import time
 import os, sys
 import json
@@ -117,5 +118,16 @@ if __name__ == '__main__':
     logger.setLevel(logging.DEBUG)
     logger.addHandler(ch)
 
-    server = CustomSMTPServer(('0.0.0.0', 2525), None) # use your public IP here
+    if not os.path.isfile("../config.ini"):
+        print "[ERR] Config.ini not found. Rename example.config.ini to config.ini before starting the server :)"
+        sys.exit()
+
+    Config = ConfigParser.ConfigParser()
+    Config.read("../config.ini")
+
+    print "[i] Starting Mailserver on port",int(Config.get("MAILSERVER","PORT"))
+
+    server = CustomSMTPServer(('0.0.0.0', int(Config.get("MAILSERVER","PORT"))), None) # use your public IP here
+    print "[i] Ready to receive Emails"
+    print ""
     asyncore.loop()
