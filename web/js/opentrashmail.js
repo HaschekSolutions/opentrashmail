@@ -1,12 +1,17 @@
 
 var domains = [];
+var lastid = 0;
+var activeemail = '';
+var timer;
 $( document ).ready(function() {
+
+    $.ajaxSetup({ cache: false });
+
     var email = window.location.hash.substr(1);
     if(validateEmail(email))
         loadAccount(email)
 
     $.get("api.php?a=getdoms",function(data){
-        console.log(data)
         domains = data;
     },"json")
 });
@@ -14,7 +19,7 @@ $( document ).ready(function() {
 function loadMail(email,id)
 {
     $.get("api.php?a=load&email="+email+"&id="+id,function(data){
-        //console.log(data);
+        //
         if(data.status=="ok")
         {
             renderEmail(email,id,data.data)
@@ -24,16 +29,15 @@ function loadMail(email,id)
 
 function renderEmail(email,id,data)
 {
-    console.log("rendering")
-    console.log(data)
+    clearInterval(timer);
     var btns = ''
     for(att in data.parsed.attachments)
     {
-        console.log(data.parsed.attachments[att])
         var filename=data.parsed.attachments[att].substr(14)
         btns+='<a class="btn btn-primary" target="_blank" href="api.php?a=attachment&email='+email+'&id='+id+'&filename='+filename+'" role="button">'+filename+'</a>'
     }
     $("#main").html('<h2 class="text-center">'+email+'</h2>\
+        <button onClick="loadAccount(\''+email+'\')" class="btn btn-primary my-2 my-sm-0"><i class="fas fa-backward"></i> Back</button>\
         '+(data.parsed.body?'<pre>'+data.parsed.body+'</pre>':'')+' \
         '+(data.parsed.htmlbody?'<div class="card card-body bg-light">'+data.parsed.htmlbody+'</pre>':'')+' \
         '+(btns!==''?'<h4>Attachments</h4>'+btns:'')+'\
@@ -44,9 +48,12 @@ function loadAccount(email)
 {
     if(validateEmail(email))
     {
-        var index = 1;
+        activeemail = email;
+        
+        lastid = 0;
         changeHash(email)
         $("#main").html('<h2 class="text-center">'+email+'</h2>\
+        <button onClick="loadAccount(\''+email+'\')" class="btn btn-success my-2 my-sm-0"><i class="fas fa-sync-alt"></i> Refresh</button>\
         <table class="table table-hover">\
             <thead>\
                 <tr>\
@@ -61,38 +68,49 @@ function loadAccount(email)
             </table>\
         ')
 
-        $.get("api.php?a=list&email="+email,function(data){
-            console.log(data);
-            if(data.status=="ok")
-            {
-                if(Object.keys(data.emails).length>0)
-                    for(em in data.emails)
-                    {
-                        var date = new Date(parseInt(em))
-                        var datestring = date.getDate()+"."+date.getMonth()+"."+date.getFullYear()+" "+date.getHours()+":"+date.getMinutes();
-                        var ed = data.emails[em]
-                        $("#emailtable").append('\
-                            <tr class="anemail" onClick="loadMail(\''+email+'\','+em+');">\
-                                <th scope="row">'+(index++)+'</th>\
-                                <td >'+datestring+'</td>\
-                                <td>'+ed.from.toHtmlEntities()+'</td>\
-                                <td>'+ed.subject.toHtmlEntities()+'</td>\
-                            </tr>');
-                    }
-                else{
-                    console.log("leider keine post")
-                    $("#emailtable").append('\
-                        <tr>\
-                            <td colspan="4" class="text-center" ><h4>No emails received on this address (yet..)</h4></td>\
-                        </tr>');
-                }
-            }
-        },"json")
+        timer = setInterval(updateEmailTable, 5000); //check for new mail every 5 seconds
+        updateEmailTable(); //and check now
     }
     else
     {
         changeHash("")
     }
+}
+
+function updateEmailTable()
+{
+    var email = activeemail;
+    var index = 1;
+    console.log("Checking mail for "+email)
+
+    $.get("api.php?a=list&email="+email+"&lastid="+lastid,function(data){
+        
+        if(data.status=="ok")
+        {
+            if(Object.keys(data.emails).length>0)
+                for(em in data.emails)
+                {
+                    if(em>lastid) lastid = em;
+                    var date = new Date(parseInt(em))
+                    var datestring = date.getDate()+"."+date.getMonth()+"."+date.getFullYear()+" "+date.getHours()+":"+date.getMinutes();
+                    var ed = data.emails[em]
+                    $("#emailtable").append('\
+                        <tr class="anemail" onClick="loadMail(\''+email+'\','+em+');">\
+                            <th scope="row">'+(index++)+'</th>\
+                            <td >'+datestring+'</td>\
+                            <td>'+ed.from.toHtmlEntities()+'</td>\
+                            <td>'+ed.subject.toHtmlEntities()+'</td>\
+                        </tr>');
+                }
+            else if(lastid==0){
+                console.log("leider keine post")
+                $("#emailtable").append('\
+                    <tr>\
+                        <td colspan="4" class="text-center" ><h4>No emails received on this address (yet..)</h4></td>\
+                    </tr>');
+            }
+        }
+    },"json")
 }
 
 function accessAccount()

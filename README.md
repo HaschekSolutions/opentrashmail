@@ -29,16 +29,19 @@
   - [x] Download attachments in a safe way
   - [x] Display Text/HTML
   - [x] API so all features from the site can also be automated and integrated
-  - [ ] Automatically check for new emails while on site
+  - [x] Automatically check for new emails while on site
   - [ ] Secure HTML so no malicious things can be loaded
   - [ ] Display embedded images inline using Content-ID
   - [ ] Admin overview for all available email addresses
   - [ ] Delete messages
+  - [ ] Make better theme
 - [ ] Configurable settings
   - [x] Choose domains for random generation
   - [ ] Choose if out-of-scope emails are discarded
   - [ ] Honeypot mode where all emails are also saved for a catchall account
-- [ ] Docker files and config
+  - [ ] Optionally secure whole site with a password
+  - [ ] Optinally allow site to be seen only from specific IP Range
+- [ ] Docker files and configs
 
 # Features
 - Python powered mail server that works out of the box for any domain

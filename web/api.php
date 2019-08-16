@@ -60,6 +60,18 @@ switch($action)
         else
         {
             $data = getEmailsOfEmail($email);
+
+            $lastid = $_REQUEST['lastid'];
+            if($lastid && is_numeric($lastid))
+            {
+                foreach($data as $time=>$d)
+                {
+                    if($time>$lastid)
+                        $emails[$time]=$d;
+                }
+                $data = (is_array($emails)?$emails:array());
+            }
+            
             $o = array('status'=>'ok','emails'=>$data);
         }
     break;
