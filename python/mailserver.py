@@ -4,7 +4,7 @@ import logging
 import email
 from email.header import decode_header
 from email.Utils import parseaddr
-import requests
+#import requests
 import time
 import os, sys
 import json
