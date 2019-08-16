@@ -10,7 +10,7 @@
 ![](https://img.shields.io/badge/php-7.1%2B-brightgreen.svg)
 ![](https://img.shields.io/badge/python-2.7%2B-brightgreen.svg)
 [![](https://img.shields.io/docker/pulls/hascheksolutions/opentrashmail?color=brightgreen)](https://hub.docker.com/r/hascheksolutions/opentrashmail)
-![](https://img.shields.io/docker/cloud/build/hascheksolutions/opentrashmail?color=brightgreen)
+[![](https://img.shields.io/docker/cloud/build/hascheksolutions/opentrashmail?color=brightgreen)](https://hub.docker.com/r/hascheksolutions/opentrashmail/builds)
 [![Apache License](https://img.shields.io/badge/license-Apache-blue.svg?style=flat)](https://github.com/HaschekSolutions/opentrashmail/blob/master/LICENSE)
 [![HitCount](http://hits.dwyl.io/HaschekSolutions/opentrashmail.svg)](http://hits.dwyl.io/HaschekSolutions/opentrashmail)
 [![](https://img.shields.io/github/stars/HaschekSolutions/opentrashmail.svg?label=Stars&style=social)](https://github.com/HaschekSolutions/opentrashmail)
