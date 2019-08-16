@@ -124,9 +124,13 @@ function accessAccount()
 
 function generateAccount()
 {
-    var email = makeName()+'@'+domains[Math.floor(Math.random()*domains.length)];
-    
-    loadAccount(email)
+    if(domains===null)
+        alert("No domains configured in settings.ini")
+    else
+    {
+        var email = makeName()+'@'+domains[Math.floor(Math.random()*domains.length)];
+        loadAccount(email)
+    }
 }
 
 function changeHash(val)

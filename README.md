@@ -53,9 +53,22 @@
 
 # Quick start
 
+Simple start with no persistence
 
-```
+```bash
 docker run --it -p 25:25 -p 80:80 hascheksolutions/opentrashmail
+```
+
+Saving data directory on host machine
+
+```bash
+docker run -p 80:80 -p 25:25 -v /path/on/host/where/to/save/data:/var/www/opentrashmail/data hascheksolutions/opentrashmail
+```
+
+Complete example with running as daemon, persistence and auto restart
+
+```bash
+docker run -d --restart=always --name opentrashmail -p 80:80 -p 25:25 -v /path/on/host/where/to/save/data:/var/www/opentrashmail/data hascheksolutions/opentrashmail
 ```
 
 # How it works

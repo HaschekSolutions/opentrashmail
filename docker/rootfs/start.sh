@@ -6,8 +6,6 @@ cd /var/www/opentrashmail
 
 git pull 
 
-
-
 echo ' [+] Starting php'
 php-fpm7
 
@@ -22,8 +20,18 @@ touch /var/log/nginx/opentrashmail/web.error.log
 nginx
 
 
-cd /var/www/opentrashmail/python
+echo ' [+] Setting up config.ini'
 
+echo "[GENERAL]" > /var/www/opentrashmail/config.ini
+if [ "$DOMAINS" != "" ]; then
+	echo "DOMAINS=$DOMAINS" >> /var/www/opentrashmail/config.ini
+    echo "   [i] Active Domain(s): $DOMAINS"
+fi
+
+echo "[MAILSERVER]" >> /var/www/opentrashmail/config.ini
+echo "PORT=25" >> /var/www/opentrashmail/config.ini
+
+cd /var/www/opentrashmail/python
 
 echo ' [+] Starting Mailserver'
 python mailserver.py
