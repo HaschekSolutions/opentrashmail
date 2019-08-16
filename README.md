@@ -9,6 +9,8 @@
 
 ![](https://img.shields.io/badge/php-7.1%2B-brightgreen.svg)
 ![](https://img.shields.io/badge/python-2.7%2B-brightgreen.svg)
+[![](https://img.shields.io/docker/pulls/hascheksolutions/opentrashmail?color=brightgreen)](https://hub.docker.com/r/hascheksolutions/opentrashmail)
+![](https://img.shields.io/docker/cloud/build/hascheksolutions/opentrashmail?color=brightgreen)
 [![Apache License](https://img.shields.io/badge/license-Apache-blue.svg?style=flat)](https://github.com/HaschekSolutions/opentrashmail/blob/master/LICENSE)
 [![HitCount](http://hits.dwyl.io/HaschekSolutions/opentrashmail.svg)](http://hits.dwyl.io/HaschekSolutions/opentrashmail)
 [![](https://img.shields.io/github/stars/HaschekSolutions/opentrashmail.svg?label=Stars&style=social)](https://github.com/HaschekSolutions/opentrashmail)
@@ -23,6 +25,7 @@
 - [x] Mailserver
   - [x] Storing received mails in JSON
   - [x] Storing file attachments
+- [x] Docker files and configs
 - [ ] Web interface
   - [x] Choose email
   - [x] Get random email address
@@ -41,13 +44,19 @@
   - [ ] Honeypot mode where all emails are also saved for a catchall account
   - [ ] Optionally secure whole site with a password
   - [ ] Optinally allow site to be seen only from specific IP Range
-- [ ] Docker files and configs
 
 # Features
 - Python powered mail server that works out of the box for any domain you throw at it
 - Web interface to manage emails
 - Generate random email adresses
 - 100% file based, no database needed
+
+# Quick start
+
+
+```
+docker run --it -p 25:25 -p 80:80 hascheksolutions/opentrashmail
+```
 
 # How it works
 
