@@ -65,10 +65,10 @@ Saving data directory on host machine
 docker run -p 80:80 -p 25:25 -v /path/on/host/where/to/save/data:/var/www/opentrashmail/data hascheksolutions/opentrashmail
 ```
 
-Complete example with running as daemon, persistence and auto restart
+Complete example with running as daemon, persistence, a domain for auto-generation of emails and auto restart
 
 ```bash
-docker run -d --restart=always --name opentrashmail -p 80:80 -p 25:25 -v /path/on/host/where/to/save/data:/var/www/opentrashmail/data hascheksolutions/opentrashmail
+docker run -d --restart=always --name opentrashmail -e "DOMAINS=mydomain.eu" -p 80:80 -p 25:25 -v /path/on/host/where/to/save/data:/var/www/opentrashmail/data hascheksolutions/opentrashmail
 ```
 
 # How it works
