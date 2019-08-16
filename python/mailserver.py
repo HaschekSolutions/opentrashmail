@@ -119,15 +119,18 @@ if __name__ == '__main__':
     logger.addHandler(ch)
 
     if not os.path.isfile("../config.ini"):
-        print "[ERR] Config.ini not found. Rename example.config.ini to config.ini before starting the server :)"
-        sys.exit()
+        print "[ERR] Config.ini not found. Rename example.config.ini to config.ini. Defaulting to port 25"
+        port = 25
+    else :
+        Config = ConfigParser.ConfigParser()
+        Config.read("../config.ini")
+        port = int(Config.get("MAILSERVER","PORT"))
 
-    Config = ConfigParser.ConfigParser()
-    Config.read("../config.ini")
+    
 
-    print "[i] Starting Mailserver on port",int(Config.get("MAILSERVER","PORT"))
+    print "[i] Starting Mailserver on port",port
 
-    server = CustomSMTPServer(('0.0.0.0', int(Config.get("MAILSERVER","PORT"))), None) # use your public IP here
+    server = CustomSMTPServer(('0.0.0.0', port), None) # use your public IP here
     print "[i] Ready to receive Emails"
     print ""
     asyncore.loop()
