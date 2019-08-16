@@ -90,6 +90,8 @@ function updateEmailTable()
             if(Object.keys(data.emails).length>0)
                 for(em in data.emails)
                 {
+                    if($("#nomailyet").length != 0)
+                        $("#nomailyet").remove();
                     if(em>lastid) lastid = em;
                     var date = new Date(parseInt(em))
                     var datestring = date.getDate()+"."+date.getMonth()+"."+date.getFullYear()+" "+date.getHours()+":"+date.getMinutes();
@@ -102,11 +104,10 @@ function updateEmailTable()
                             <td>'+ed.subject.toHtmlEntities()+'</td>\
                         </tr>');
                 }
-            else if(lastid==0){
-                console.log("leider keine post")
+            else if(lastid==0 && $("#nomailyet").length == 0){
                 $("#emailtable").append('\
-                    <tr>\
-                        <td colspan="4" class="text-center" ><h4>No emails received on this address (yet..)</h4></td>\
+                    <tr id="nomailyet">\
+                        <td  colspan="4" class="text-center" ><h4>No emails received on this address (yet..)</h4></td>\
                     </tr>');
             }
         }
