@@ -33,9 +33,10 @@
   - [x] Display Text/HTML
   - [x] API so all features from the site can also be automated and integrated
   - [x] Automatically check for new emails while on site
+  - [x] Admin overview for all available email addresses
   - [ ] Secure HTML so no malicious things can be loaded
   - [ ] Display embedded images inline using Content-ID
-  - [ ] Admin overview for all available email addresses
+
   - [ ] Delete messages
   - [ ] Make better theme
 - [ ] Configurable settings
