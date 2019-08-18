@@ -53,14 +53,38 @@ switch($action)
     break;
 
     case 'list':
+        $settings = loadSettings();
         if(!filter_var($email, FILTER_VALIDATE_EMAIL))
             $o = array('status'=>'err','reason'=>'Invalid Email address');
+        else if($settings['ADMIN'] && $settings['ADMIN']==$email)
+        {
+            $o['status'] = 'ok';
+            $o['type'] = 'admin';
+            $emails = listEmailAdresses();
+            $emaillist = array();
+            
+            if(count($emails))
+            {
+                foreach($emails as $email)
+                {
+                    $emaildata = getEmailsOfEmail($email);
+                    foreach($emaildata as $time=>$d)
+                    {
+                        $emaillist[$time.'-'.$email]=$d;
+                    }
+                }
+                if(is_array($emaillist))
+                    ksort($emaillist);
+                $data = (count($emaillist)?$emaillist:array());
+            }
+
+            $o['emails']=$data;
+        }
         else if(!is_dir(ROOT.DS.'..'.DS.'data'.DS.$email))
             $o = array('status'=>'ok','emails'=>[]);
         else
         {
             $data = getEmailsOfEmail($email);
-
             $lastid = $_REQUEST['lastid'];
             if($lastid && is_numeric($lastid))
             {
@@ -72,7 +96,7 @@ switch($action)
                 $data = (is_array($emails)?$emails:array());
             }
             
-            $o = array('status'=>'ok','emails'=>$data);
+            $o = array('status'=>'ok','emails'=>$data); 
         }
     break;
 }

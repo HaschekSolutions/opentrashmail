@@ -28,6 +28,11 @@ if [ "$DOMAINS" != "" ]; then
     echo "   [i] Active Domain(s): $DOMAINS"
 fi
 
+if [ "$ADMIN" != "" ]; then
+	echo "ADMIN=$ADMIN" >> /var/www/opentrashmail/config.ini
+    echo "   [i] Set admin to: $ADMIN"
+fi
+
 echo "[MAILSERVER]" >> /var/www/opentrashmail/config.ini
 echo "PORT=25" >> /var/www/opentrashmail/config.ini
 

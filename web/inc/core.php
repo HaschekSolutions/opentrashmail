@@ -46,6 +46,21 @@ function getEmailsOfEmail($email)
     return $o;
 }
 
+function listEmailAdresses()
+{
+    $o = array();
+    $o = false;
+    if ($handle = opendir(ROOT.DS.'..'.DS.'data'.DS)) {
+        while (false !== ($entry = readdir($handle))) {
+            if(filter_var($entry, FILTER_VALIDATE_EMAIL))
+                $o[] = $entry;
+        }
+        closedir($handle);
+    }
+
+    return $o;
+}
+
 function loadSettings()
 {
     if(file_exists(ROOT.DS.'..'.DS.'config.ini'))
