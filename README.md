@@ -21,6 +21,15 @@
 
 ![Screenshot of Open Trashmail](https://pictshare.net/shz4tq.png)
 
+# Features
+- Python powered mail server that works out of the box for any domain you throw at it
+- API for integrating it in your own projects. Can be used to give Users individual email adresses and read what they send to it
+- Handles attachments
+- Web interface to manage emails
+- Generates random email adresses
+- 100% file based, no database needed
+- Can be used as Email Honeypot
+
 # Roadmap
 - [x] Mailserver
   - [x] Storing received mails in JSON
@@ -46,12 +55,6 @@
   - [ ] Optionally secure whole site with a password
   - [ ] Optinally allow site to be seen only from specific IP Range
 
-# Features
-- Python powered mail server that works out of the box for any domain you throw at it
-- Web interface to manage emails
-- Generate random email adresses
-- 100% file based, no database needed
-
 # Quick start
 
 Simple start with no persistence
@@ -74,6 +77,4 @@ docker run -d --restart=always --name opentrashmail -e "DOMAINS=mydomain.eu" -p 
 
 # How it works
 
-The heart of Open Trashmail is a **python powered SMTP server** that listens on incoming emails and stores them as json objects. The server doesn't have to know the right Email domain, it will just **catch everything** it receives. You only have to **expose port 25 to the web** and set an **MX record** of your domain pointing to the IP adress of your machine.
-
-The server then saves all received emails as JSON objects and the web interface can access it.
+The heart of Open Trashmail is a **python powered SMTP server** that listens on incoming emails and stores them as json files. The server doesn't have to know the right Email domain, it will just **catch everything** it receives. You only have to **expose port 25 to the web** and set an **MX record** of your domain pointing to the IP adress of your machine.
