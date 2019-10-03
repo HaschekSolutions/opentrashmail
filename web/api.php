@@ -60,6 +60,7 @@ switch($action)
         {
             $o['status'] = 'ok';
             $o['type'] = 'admin';
+			$o['dateformat'] = $settings['DATEFORMAT'];
             $emails = listEmailAdresses();
             $emaillist = array();
             

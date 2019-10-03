@@ -106,8 +106,10 @@ function updateEmailTable()
                     }
                     else dateofemail = em;
                     if(em>lastid) lastid = em;
-                    var date = new Date(parseInt(dateofemail))
-                    var datestring = date.getDate()+"."+date.getMonth()+"."+date.getFullYear()+" "+date.getHours()+":"+date.getMinutes();
+
+                    //var date = new Date(parseInt(dateofemail))
+                    //var datestring = date.getDate()+"."+date.getMonth()+"."+date.getFullYear()+" "+date.getHours()+":"+date.getMinutes();
+					var datestring = moment.unix(parseInt(dateofemail/1000)).format(data.dateformat); // Use moment.js formatting
                     var ed = data.emails[em]
                     $("#emailtable").append('\
                         <tr class="anemail" onClick="loadMail(\''+email+'\','+dateofemail+');">\
