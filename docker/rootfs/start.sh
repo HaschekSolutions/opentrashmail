@@ -34,7 +34,7 @@ if [ "$ADMIN" != "" ]; then
 fi
 
 echo "[MAILSERVER]" >> /var/www/opentrashmail/config.ini
-echo "PORT=25" >> /var/www/opentrashmail/config.ini
+echo "MAILPORT=25" >> /var/www/opentrashmail/config.ini
 
 cd /var/www/opentrashmail/python
 
