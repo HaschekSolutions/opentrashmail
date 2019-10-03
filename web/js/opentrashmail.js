@@ -89,7 +89,7 @@ function updateEmailTable()
             var admin=false;
             if(data.type=="admin")
             {
-                clearInterval(timer);
+                //clearInterval(timer);
                 admin = true;
 				// Do not add the To header if one with the "to" class already exists 
 				if ( $('#tableheader').children(':eq(2)').hasClass("to") === false ) 
