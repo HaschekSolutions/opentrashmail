@@ -74,7 +74,7 @@ switch($action)
                     }
                 }
                 if(is_array($emaillist))
-                    ksort($emaillist);
+                    krsort($emaillist);
                 $data = (count($emaillist)?$emaillist:array());
             }
 
