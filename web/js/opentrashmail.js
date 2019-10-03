@@ -91,9 +91,14 @@ function updateEmailTable()
             {
                 clearInterval(timer);
                 admin = true;
-                $('#tableheader').children(':eq(1)').after('<th scope="col">To</th>');
+				// Do not add the To header if one with the "to" class already exists 
+				if ( $('#tableheader').children(':eq(2)').hasClass("to") === false ) 
+				{
+					$('#tableheader').children(':eq(1)').after('<th scope="col" class="to">To</th>');
+				}
             }
 
+			$("#emailtable tr").remove(); // Empty all <tr> from the table so we don't stack
             if(Object.keys(data.emails).length>0)
                 for(em in data.emails)
                 {
