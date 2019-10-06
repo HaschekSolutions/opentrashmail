@@ -124,7 +124,7 @@ if __name__ == '__main__':
     else :
         Config = ConfigParser.ConfigParser()
         Config.read("../config.ini")
-        port = int(Config.get("MAILSERVER","PORT"))
+        port = int(Config.get("MAILSERVER","MAILPORT"))
 
     
 
