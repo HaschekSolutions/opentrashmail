@@ -30,6 +30,14 @@
 - 100% file based, no database needed
 - Can be used as Email Honeypot
 
+# Configuration
+Just edit the `config.ini` You can use the following settings
+
+- `DOMAINS` -> Comma separated list of domains this mailserver will be receiving emails on. It's just so the web interface can generate random addresses
+- `MAILPORT`-> The port the Python powered SMTP server will listen on. Default 25
+- `ADMIN` -> An email address (doesn't have to exist, just has to be valid) that will list all emails of all addresses the server has received. Kind of a catch-all
+- `DATEFORMAT` -> How should timestamps be shown on the web interface ([moment.js syntax](https://momentjs.com/docs/#/displaying/))
+
 # Roadmap
 - [x] Mailserver
   - [x] Storing received mails in JSON
@@ -45,6 +53,7 @@
   - [x] Admin overview for all available email addresses
   - [ ] Secure HTML so no malicious things can be loaded
   - [ ] Display embedded images inline using Content-ID
+  - [ ] Option to show raw Email
 
   - [ ] Delete messages
   - [ ] Make better theme
@@ -72,7 +81,7 @@ docker run -p 80:80 -p 25:25 -v /path/on/host/where/to/save/data:/var/www/opentr
 Complete example with running as daemon, persistence, a domain for auto-generation of emails and auto restart
 
 ```bash
-docker run -d --restart=always --name opentrashmail -e "DOMAINS=mydomain.eu" -p 80:80 -p 25:25 -v /path/on/host/where/to/save/data:/var/www/opentrashmail/data hascheksolutions/opentrashmail
+docker run -d --restart=always --name opentrashmail -e "DOMAINS=mydomain.eu" -e "DATEFORMAT='D.M.YYYY HH:mm'" -p 80:80 -p 25:25 -v /path/on/host/where/to/save/data:/var/www/opentrashmail/data hascheksolutions/opentrashmail
 ```
 
 # How it works
