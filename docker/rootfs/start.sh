@@ -35,6 +35,8 @@ fi
 
 echo "[MAILSERVER]" >> /var/www/opentrashmail/config.ini
 echo "PORT=25" >> /var/www/opentrashmail/config.ini
+echo "MAILPORT=25" >> /var/www/opentrashmail/config.ini
+
 echo "[DATETIME]" >> /var/www/opentrashmail/config.ini
 echo "DATEFORMAT='D.M.YYYY HH:mm'" >> /var/www/opentrashmail/config.ini
 
