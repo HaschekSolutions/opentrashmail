@@ -25,16 +25,26 @@ echo ' [+] Setting up config.ini'
 echo "[GENERAL]" > /var/www/opentrashmail/config.ini
 if [ "$DOMAINS" != "" ]; then
 	echo "DOMAINS=$DOMAINS" >> /var/www/opentrashmail/config.ini
-    echo "   [i] Active Domain(s): $DOMAINS"
+  echo "   [i] Active Domain(s): $DOMAINS"
 fi
 
 if [ "$ADMIN" != "" ]; then
 	echo "ADMIN=$ADMIN" >> /var/www/opentrashmail/config.ini
-    echo "   [i] Set admin to: $ADMIN"
+  echo "   [i] Set admin to: $ADMIN"
 fi
 
 echo "[MAILSERVER]" >> /var/www/opentrashmail/config.ini
 echo "MAILPORT=25" >> /var/www/opentrashmail/config.ini
+
+echo "[DATETIME]" >> /var/www/opentrashmail/config.ini
+if [ "$DATEFORMAT" != "" ]; then
+	echo "DATEFORMAT=$DATEFORMAT" >> /var/www/opentrashmail/config.ini
+  echo "   [i] Setting up dateformat to: $DATEFORMAT"
+else
+  echo "DATEFORMAT='D.M.YYYY HH:mm'" >> /var/www/opentrashmail/config.ini
+  echo "   [i] Using default dateformat"
+fi
+
 
 cd /var/www/opentrashmail/python
 
