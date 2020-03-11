@@ -98,7 +98,7 @@ function updateEmailTable()
 				}
             }
 
-			$("#emailtable tr").remove(); // Empty all <tr> from the table so we don't stack
+			//$("#emailtable tr").remove(); // Empty all <tr> from the table so we don't stack
             if(Object.keys(data.emails).length>0)
                 for(em in data.emails)
                 {

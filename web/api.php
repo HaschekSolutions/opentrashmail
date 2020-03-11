@@ -48,6 +48,11 @@ switch($action)
         else
         {
             $data = getEmail($email,$id);
+            if($_REQUEST['raw']=='true')
+            {
+                header('Content-Type: text/plain');
+                exit($data['raw']);
+            }
             $o = array('status'=>'ok','data'=>$data);
         }
     break;
