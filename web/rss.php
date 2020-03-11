@@ -1,7 +1,7 @@
 <?php 
 define('DS', DIRECTORY_SEPARATOR);
 define('ROOT', dirname(__FILE__));
-define('DOMAIN',$_SERVER['SERVER_NAME']);
+define('DOMAIN',$_SERVER['HTTP_HOST']);
 
 error_reporting(E_ALL || ~E_NOTICE);
 ini_set('display_errors', 1);
