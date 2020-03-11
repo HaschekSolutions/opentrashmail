@@ -53,6 +53,7 @@ function loadAccount(email)
         lastid = 0;
         changeHash(email)
         $("#main").html('<h2 class="text-center">'+email+'</h2>\
+        <h5 class="text-center">RSS feed: <a href="'+location.protocol + '//' + location.hostname+'/rss/'+email+'/rss.xml">'+location.protocol + '//' + location.hostname+'/rss/'+email+'/rss.xml</a></h5> \
         <button onClick="loadAccount(\''+email+'\')" class="btn btn-success my-2 my-sm-0"><i class="fas fa-sync-alt"></i> Refresh</button>\
         <table class="table table-hover">\
             <thead>\
