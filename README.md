@@ -69,7 +69,7 @@ Just edit the `config.ini` You can use the following settings
 Simple start with no persistence
 
 ```bash
-docker run --it -p 25:25 -p 80:80 hascheksolutions/opentrashmail
+docker run -it -p 25:25 -p 80:80 hascheksolutions/opentrashmail
 ```
 
 Saving data directory on host machine
