@@ -22,38 +22,38 @@
 ![Screenshot of Open Trashmail](https://pictshare.net/shz4tq.png)
 
 # Features
-- Python powered mail server that works out of the box for any domain you throw at it
-- API for integrating it in your own projects. Can be used to give Users individual email adresses and read what they send to it
+- Python-powered mail server that works out of the box for any domain you throw at it
+- API for integrating it in your own projects. Can be used to give users individual email addresses and read what they send to it
 - Handles attachments
 - Web interface to manage emails
-- Generates random email adresses
+- Generates random email addresses
 - 100% file based, no database needed
 - Can be used as Email Honeypot
 
 # Configuration
 Just edit the `config.ini` You can use the following settings
 
-- `DOMAINS` -> Comma separated list of domains this mailserver will be receiving emails on. It's just so the web interface can generate random addresses
-- `MAILPORT`-> The port the Python powered SMTP server will listen on. Default 25
+- `DOMAINS` -> Comma separated list of domains this mail server will be receiving emails on. It's just so the web interface can generate random addresses
+- `MAILPORT`-> The port the Python-powered SMTP server will listen on. `Default: 25`
 - `ADMIN` -> An email address (doesn't have to exist, just has to be valid) that will list all emails of all addresses the server has received. Kind of a catch-all
 - `DATEFORMAT` -> How should timestamps be shown on the web interface ([moment.js syntax](https://momentjs.com/docs/#/displaying/))
 
 # Roadmap
-- [x] Mailserver
+- [x] Mail server
   - [x] Storing received mails in JSON
   - [x] Storing file attachments
 - [x] Docker files and configs
 - [ ] Web interface
   - [x] Choose email
   - [x] Get random email address
-  - [x] Download attachments in a safe way
+  - [x] Download attachments safely
   - [x] Display Text/HTML
   - [x] API so all features from the site can also be automated and integrated
   - [x] Automatically check for new emails while on site
   - [x] Admin overview for all available email addresses
-  - [ ] Secure HTML so no malicious things can be loaded
+  - [ ] Secure HTML, so no malicious things can be loaded
   - [ ] Display embedded images inline using Content-ID
-  - [ ] Option to show raw Email
+  - [ ] Option to show raw email
 
   - [ ] Delete messages
   - [ ] Make better theme
@@ -62,7 +62,7 @@ Just edit the `config.ini` You can use the following settings
   - [ ] Choose if out-of-scope emails are discarded
   - [ ] Honeypot mode where all emails are also saved for a catchall account
   - [ ] Optionally secure whole site with a password
-  - [ ] Optinally allow site to be seen only from specific IP Range
+  - [ ] Optionally allow site to be seen only from specific IP Range
 
 # Quick start
 
@@ -86,4 +86,4 @@ docker run -d --restart=always --name opentrashmail -e "DOMAINS=mydomain.eu" -e 
 
 # How it works
 
-The heart of Open Trashmail is a **python powered SMTP server** that listens on incoming emails and stores them as json files. The server doesn't have to know the right Email domain, it will just **catch everything** it receives. You only have to **expose port 25 to the web** and set an **MX record** of your domain pointing to the IP adress of your machine.
+The heart of Open Trashmail is a **Python-powered SMTP server** that listens on incoming emails and stores them as JSON files. The server doesn't have to know the right email domain, it will just **catch everything** it receives. You only have to **expose port 25 to the web** and set an **MX record** of your domain pointing to the IP address of your machine.
