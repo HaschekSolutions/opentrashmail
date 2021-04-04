@@ -7,8 +7,8 @@ ini_set('display_errors', 1);
 
 include_once(ROOT.DS.'inc'.DS.'core.php');
 
-$action = $_REQUEST['a'];
-$email = $_REQUEST['email'];
+$action = strtolower($_REQUEST['a']);
+$email = strtolower($_REQUEST['email']);
 
 switch($action)
 {
