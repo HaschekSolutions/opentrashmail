@@ -89,7 +89,8 @@ class CustomSMTPServer(smtpd.SMTPServer):
 
             filenamebase = str(int(round(time.time() * 1000)))
 
-            for em.lower() in rcpttos:
+            for em in rcpttos:
+                em = em.lower()
                 if not os.path.exists("../data/"+em):
                     os.mkdir( "../data/"+em, 0755 )
                 
