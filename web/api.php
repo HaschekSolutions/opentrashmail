@@ -19,7 +19,7 @@ switch($action)
     break;
     case 'attachment':
         $id = $_REQUEST['id'];
-        $filename = $_REQUEST['filename'];
+        $filename = basename(realpath($_REQUEST['filename']));
         $filepath = ROOT.DS.'..'.DS.'data'.DS.$email.DS.'attachments'.DS.$id.'-'.$filename;
         if(!filter_var($email, FILTER_VALIDATE_EMAIL))
             $o = array('status'=>'err','reason'=>'Invalid Email address');
