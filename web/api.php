@@ -18,7 +18,7 @@ switch($action)
             $o = explode(',',$settings['DOMAINS']);
     break;
     case 'attachment':
-        $id = $_REQUEST['id'];
+        $id = basename(realpath($_REQUEST['id']));
         $filename = basename(realpath($_REQUEST['filename']));
         $filepath = ROOT.DS.'..'.DS.'data'.DS.$email.DS.'attachments'.DS.$id.'-'.$filename;
         if(!filter_var($email, FILTER_VALIDATE_EMAIL))
