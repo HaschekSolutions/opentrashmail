@@ -8,7 +8,16 @@ ini_set('display_errors', 1);
 include_once(ROOT.DS.'inc'.DS.'core.php');
 
 $action = strtolower($_REQUEST['a']);
-$email = basename(realpath(strtolower($_REQUEST['email'])));
+$email = strtolower($_REQUEST['email']);
+if(!empty($email)){
+  if(!filter_var($email, FILTER_VALIDATE_EMAIL)){
+    // email param provided, but invalid: skip action and show invalid email error
+    $o = array('status'=>'err','reason'=>'Invalid Email address');
+    unset($action);
+  }
+  $dir = getDirForEmail($email);
+  $email = basename($dir);
+}
 
 switch($action)
 {
@@ -20,10 +29,8 @@ switch($action)
     case 'attachment':
         $id = $_REQUEST['id'];
         $filename = basename(realpath($_REQUEST['filename']));
-        $filepath = ROOT.DS.'..'.DS.'data'.DS.$email.DS.'attachments'.DS.$id.'-'.$filename;
-        if(!filter_var($email, FILTER_VALIDATE_EMAIL))
-            $o = array('status'=>'err','reason'=>'Invalid Email address');
-        else if(!is_dir(ROOT.DS.'..'.DS.'data'.DS.$email))
+        $filepath = $dir.DS.'attachments'.DS.$id.'-'.$filename;
+        if(!is_dir($dir))
             $o = array('status'=>'err','reason'=>'No emails received on this address');
         else if(!is_numeric($id) || !emailIDExists($email,$id))
             $o = array('status'=>'err','reason'=>'Invalid Email ID');
@@ -39,9 +46,9 @@ switch($action)
 
     case 'load':
         $id = $_REQUEST['id'];
-        if(!filter_var($email, FILTER_VALIDATE_EMAIL))
-            $o = array('status'=>'err','reason'=>'Invalid Email address');
-        else if(!is_dir(ROOT.DS.'..'.DS.'data'.DS.$email))
+        if(empty($email))
+            $o = array('status'=>'err','reason'=>'No email address provided');
+        else if(!is_dir($dir))
             $o = array('status'=>'err','reason'=>'No emails received on this address');
         else if(!is_numeric($id) || !emailIDExists($email,$id))
             $o = array('status'=>'err','reason'=>'Invalid Email ID');
@@ -58,14 +65,12 @@ switch($action)
     break;
 
     case 'list':
-        $settings = loadSettings();
-        if(!filter_var($email, FILTER_VALIDATE_EMAIL))
-            $o = array('status'=>'err','reason'=>'Invalid Email address');
-        else if($settings['ADMIN'] && $settings['ADMIN']==$email)
+        $settings = loadSettings();        
+        if($settings['ADMIN'] && $settings['ADMIN']==$email)
         {
             $o['status'] = 'ok';
             $o['type'] = 'admin';
-			$o['dateformat'] = $settings['DATEFORMAT'];
+                        $o['dateformat'] = $settings['DATEFORMAT'];
             $emails = listEmailAdresses();
             $emaillist = array();
             
@@ -86,7 +91,7 @@ switch($action)
 
             $o['emails']=$data;
         }
-        else if(!is_dir(ROOT.DS.'..'.DS.'data'.DS.$email))
+        else if(!is_dir($dir))
             $o = array('status'=>'ok','emails'=>[]);
         else
         {
