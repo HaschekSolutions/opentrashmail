@@ -27,7 +27,7 @@ switch($action)
             $o = explode(',',$settings['DOMAINS']);
     break;
     case 'attachment':
-        $id = $_REQUEST['id'];
+        $id = intval($_REQUEST['id']);
         $filename = basename(realpath($_REQUEST['filename']));
         $filepath = $dir.DS.'attachments'.DS.$id.'-'.$filename;
         if(!is_dir($dir))
@@ -45,7 +45,7 @@ switch($action)
     break;
 
     case 'load':
-        $id = $_REQUEST['id'];
+        $id = intval($_REQUEST['id']);
         if(empty($email))
             $o = array('status'=>'err','reason'=>'No email address provided');
         else if(!is_dir($dir))
