@@ -1,5 +1,10 @@
 <?php
 
+function getDirForEmail($email)
+{
+    return realpath(ROOT.DS.'..'.DS.'data'.DS.$email);
+}
+
 function startsWith($haystack, $needle)
 {
      $length = strlen($needle);
@@ -18,22 +23,22 @@ function endsWith($haystack, $needle)
 
 function getEmail($email,$id)
 {
-    return json_decode(file_get_contents(ROOT.DS.'..'.DS.'data'.DS.$email.DS.$id.'.json'),true);
+    return json_decode(file_get_contents(getDirForEmail($email).DS.$id.'.json'),true);
 }
 
 function emailIDExists($email,$id)
 {
-    return file_exists(ROOT.DS.'..'.DS.'data'.DS.$email.DS.$id.'.json');
+    return file_exists(getDirForEmail($email).DS.$id.'.json');
 }
 
 function getEmailsOfEmail($email)
 {
     $o = false;
-    if ($handle = opendir(ROOT.DS.'..'.DS.'data'.DS.$email)) {
+    if ($handle = opendir(getDirForEmail($email))) {
         while (false !== ($entry = readdir($handle))) {
             if (endsWith($entry,'.json')) {
                 $time = substr($entry,0,-5);
-                $json = json_decode(file_get_contents(ROOT.DS.'..'.DS.'data'.DS.$email.DS.$entry),true);
+                $json = json_decode(file_get_contents(getDirForEmail($email).DS.$entry),true);
                 $o[$time] = array('from'=>$json['parsed']['from'],'subject'=>$json['parsed']['subject']);
             }
         }
