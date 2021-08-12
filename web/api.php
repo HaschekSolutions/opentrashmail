@@ -112,5 +112,6 @@ switch($action)
     break;
 }
 
+$o['email'] = $email;
 echo json_encode($o);
 //var_dump($o);
