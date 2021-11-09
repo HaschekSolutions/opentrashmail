@@ -12,6 +12,26 @@ import json
 
 logger = logging.getLogger(__name__)
 
+# globals for settings
+DISCARD_UNKNOWN = False
+DELETE_OLDER_THAN_DAYS = False
+DOMAINS = []
+LAST_CLEANUP = 0
+
+def cleanup():
+    if(DELETE_OLDER_THAN_DAYS == False or time.time() - LAST_CLEANUP < 86400):
+        return
+    logger.info("Cleaning up")
+    rootdir = '../data/'
+    for subdir, dirs, files in os.walk(rootdir):
+        for file in files:
+            if(file.endswith(".json")):
+                filepath = os.path.join(subdir, file)
+                file_modified = os.path.getmtime(filepath)
+                if(time.time() - file_modified > (DELETE_OLDER_THAN_DAYS * 86400)):
+                    os.remove(filepath)
+                    logger.info("Deleted file: " + filepath)
+
 class CustomSMTPServer(smtpd.SMTPServer):
     def process_message(self, peer, mailfrom, rcpttos, data):
         try:
@@ -91,13 +111,19 @@ class CustomSMTPServer(smtpd.SMTPServer):
 
             for em in rcpttos:
                 em = em.lower()
+
+                domain = em.split('@')[1]
+                if(DISCARD_UNKNOWN and not domain in DOMAINS):
+                    logger.info('Discarding email for unknown domain: %s' % domain)
+                    continue
+
                 if not os.path.exists("../data/"+em):
-                    os.mkdir( "../data/"+em, 0755 )
+                    os.mkdir( "../data/"+em, 0o755 )
                 
                 #same attachments if any
                 for att in attachments:
                     if not os.path.exists("../data/"+em+"/attachments"):
-                        os.mkdir( "../data/"+em+"/attachments", 0755 )
+                        os.mkdir( "../data/"+em+"/attachments", 0o755 )
                     attd = attachments[att]
                     file = open("../data/"+em+"/attachments/"+filenamebase+"-"+attd[0], 'wb')
                     file.write(attd[1])
@@ -123,11 +149,18 @@ if __name__ == '__main__':
         print "[ERR] Config.ini not found. Rename example.config.ini to config.ini. Defaulting to port 25"
         port = 25
     else :
-        Config = ConfigParser.ConfigParser()
+        Config = ConfigParser.ConfigParser(allow_no_value=True)
         Config.read("../config.ini")
         port = int(Config.get("MAILSERVER","MAILPORT"))
+        if("discard_unknown" in Config.options("MAILSERVER")):
+            DISCARD_UNKNOWN = (Config.get("MAILSERVER","DISCARD_UNKNOWN").lower() == "true")            
+        DOMAINS = Config.get("GENERAL","DOMAINS").lower().split(",")
 
-    
+        if("CLEANUP" in Config.sections() and "delete_older_than_days" in Config.options("CLEANUP")):
+            DELETE_OLDER_THAN_DAYS = (Config.get("CLEANUP","DELETE_OLDER_THAN_DAYS").lower() == "true")    
+
+    cleanup()
+    quit()
 
     print "[i] Starting Mailserver on port",port
 
