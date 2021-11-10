@@ -39,7 +39,7 @@ function renderEmail(email,id,data)
     $("#main").html('<h2 class="text-center">'+email+'</h2>\
         <button onClick="loadAccount(\''+activeemail+'\')" class="btn btn-primary my-2 my-sm-0"><i class="fas fa-backward"></i> Back</button><br/>\
         '+(data.parsed.body?'<pre>'+data.parsed.body+'</pre>':'')+' \
-        '+(data.parsed.htmlbody?'<div class="card card-body bg-light">'+data.parsed.htmlbody+'</pre>':'')+' \
+        '+(data.parsed.htmlbody?'<div class="card card-body bg-light"><h4>HTML view</h4>'+data.parsed.htmlbody+'</pre></div><br/>':'')+' \
         '+(btns!==''?'<h4>Attachments</h4>'+btns:'')+'\
         <div class="card card-body bg-light">\
         <h4>Raw Email</h4><pre><code>'+data.raw+'</code></pre>\
