@@ -37,10 +37,13 @@ function renderEmail(email,id,data)
         btns+='<a class="btn btn-primary" target="_blank" href="api.php?a=attachment&email='+email+'&id='+id+'&filename='+filename+'" role="button">'+filename+'</a>'
     }
     $("#main").html('<h2 class="text-center">'+email+'</h2>\
-        <button onClick="loadAccount(\''+activeemail+'\')" class="btn btn-primary my-2 my-sm-0"><i class="fas fa-backward"></i> Back</button>\
+        <button onClick="loadAccount(\''+activeemail+'\')" class="btn btn-primary my-2 my-sm-0"><i class="fas fa-backward"></i> Back</button><br/>\
         '+(data.parsed.body?'<pre>'+data.parsed.body+'</pre>':'')+' \
         '+(data.parsed.htmlbody?'<div class="card card-body bg-light">'+data.parsed.htmlbody+'</pre>':'')+' \
         '+(btns!==''?'<h4>Attachments</h4>'+btns:'')+'\
+        <div class="card card-body bg-light">\
+        <h4>Raw Email</h4><pre><code>'+data.raw+'</code></pre>\
+        </div>\
         ')
 }
 
@@ -63,6 +66,7 @@ function loadAccount(email)
                     <th scope="col">Date</th>\
                     <th scope="col">From</th>\
                     <th scope="col">Subject</th>\
+                    <th scope="col">Action</th>\
                 </tr>\
             </thead>\
             <tbody id="emailtable">\
@@ -119,18 +123,19 @@ function updateEmailTable()
 					var datestring = moment.unix(parseInt(dateofemail/1000)).format(data.dateformat); // Use moment.js formatting
                     var ed = data.emails[em]
                     $("#emailtable").append('\
-                        <tr class="anemail" onClick="loadMail(\''+email+'\','+dateofemail+');">\
+                        <tr class="anemail" email="'+email+'" messageid="'+dateofemail+'">\
                             <th scope="row">'+(index++)+'</th>\
                             <td >'+datestring+'</td>\
                             '+(admin===true?'<td>'+email+'</td>':'')+'\
                             <td>'+ed.from.toHtmlEntities()+'</td>\
                             <td>'+ed.subject.toHtmlEntities()+'</td>\
+                            <td><button class="btn btn-success openmailbtn">Open Email</button> <button class="btn btn-danger deletemailbtn">Delete</button></td>\
                         </tr>');
                 }
             else if(lastid==0 && $("#nomailyet").length == 0){
                 $("#emailtable").append('\
                     <tr id="nomailyet">\
-                        <td  colspan="4" class="text-center" ><h4>No emails received on this address (yet..)</h4></td>\
+                        <td  colspan="5" class="text-center" ><h4>No emails received on this address (yet..)</h4></td>\
                     </tr>');
             }
         }
@@ -188,3 +193,31 @@ String.fromHtmlEntities = function(string) {
         return String.fromCharCode(s.match(/\d+/gm)[0]);
     })
 };
+
+$(document).on("click",".deletemailbtn",function(e) {
+    var btn = $(this);
+    var email = $(this).parent().parent().attr("email");
+    var messageid = $(this).parent().parent().attr("messageid");
+
+
+    if(confirm("Do you really want to delete this email?"))
+    {
+        $.get( "api.php?a=del&email="+email+"&mid="+messageid, function( data ) {
+            console.log(data);
+            if(data.status=="ok")
+                btn.parent().parent().fadeOut();
+            else alert("Error deleting email: "+data.reason)
+        },'json');
+    }
+
+    e.preventDefault();
+});
+
+$(document).on("click",".openmailbtn",function(e) {
+    var email = $(this).parent().parent().attr("email");
+    var messageid = $(this).parent().parent().attr("messageid");
+
+    loadMail(email,messageid);
+
+    e.preventDefault();
+});

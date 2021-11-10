@@ -21,6 +21,20 @@ if(!empty($email)){
 
 switch($action)
 {
+    case 'del':
+        $id = intval($_REQUEST['mid']);
+        if(!is_dir($dir))
+            $o = array('status'=>'err','reason'=>'No emails received on this address');
+        else if(!is_numeric($id) || !emailIDExists($email,$id))
+            $o = array('status'=>'err','reason'=>'Invalid Email ID');
+        else
+        {
+            if(unlink($dir.DS.$id.'.json'))
+                $o = array('status'=>'ok');
+            else
+                $o = array('status'=>'err','reason'=>'Could not delete email');
+        }
+    break;
     case 'getdoms':
         $settings = loadSettings();
         if($settings['DOMAINS'])
