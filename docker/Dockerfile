@@ -5,13 +5,13 @@ RUN apk add --no-cache python socat wget php7-fileinfo php7-session curl git php
 RUN mkdir -p /var/www
 WORKDIR /var/www
 
-ADD rootfs/start.sh /etc/start.sh
+ADD docker/rootfs/start.sh /etc/start.sh
 RUN chmod +x /etc/start.sh
 
 RUN git clone https://github.com/HaschekSolutions/opentrashmail.git
 
 # nginx stuff
-ADD rootfs/nginx.conf /etc/nginx/conf.d/default.conf
+ADD docker/rootfs/nginx.conf /etc/nginx/conf.d/default.conf
 RUN mkdir -p /run/nginx
 RUN mkdir -p /var/log/nginx
 RUN sed -i 's/nobody/nginx/g' /etc/php7/php-fpm.d/www.conf
