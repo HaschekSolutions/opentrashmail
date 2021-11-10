@@ -46,6 +46,7 @@ function renderEmail(email,id,data)
 
 function loadAccount(email)
 {
+    clearInterval(timer);
     if(validateEmail(email))
     {
         activeemail = email;
