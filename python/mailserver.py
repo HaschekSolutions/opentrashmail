@@ -135,6 +135,7 @@ class CustomSMTPServer(smtpd.SMTPServer):
                     json.dump(savedata, outfile)
 
             #print edata
+            cleanup()
         return
 
 if __name__ == '__main__':
@@ -158,9 +159,6 @@ if __name__ == '__main__':
 
         if("CLEANUP" in Config.sections() and "delete_older_than_days" in Config.options("CLEANUP")):
             DELETE_OLDER_THAN_DAYS = (Config.get("CLEANUP","DELETE_OLDER_THAN_DAYS").lower() == "true")    
-
-    cleanup()
-    quit()
 
     print "[i] Starting Mailserver on port",port
 
