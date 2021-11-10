@@ -4,6 +4,7 @@ import logging
 import email
 from email.header import decode_header
 from email.Utils import parseaddr
+import re
 #import requests
 import ConfigParser
 import time
@@ -111,6 +112,9 @@ class CustomSMTPServer(smtpd.SMTPServer):
 
             for em in rcpttos:
                 em = em.lower()
+                if not re.match(r"^[A-Za-z0-9\.\+_-]+@[A-Za-z0-9\._-]+\.[a-zA-Z]*$", em):
+                    logger.exception('Invalid recipient: %s' % em)
+                    continue
 
                 domain = em.split('@')[1]
                 if(DISCARD_UNKNOWN and not domain in DOMAINS):
