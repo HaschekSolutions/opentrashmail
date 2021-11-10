@@ -59,7 +59,8 @@ Just edit the `config.ini` You can use the following settings
   - [ ] Make better theme
 - [ ] Configurable settings
   - [x] Choose domains for random generation
-  - [ ] Choose if out-of-scope emails are discarded
+  - [x] Choose if out-of-scope emails are discarded
+  - [x] Automated cleanup of old mails
   - [ ] Honeypot mode where all emails are also saved for a catchall account
   - [ ] Optionally secure whole site with a password
   - [ ] Optionally allow site to be seen only from specific IP Range
@@ -78,10 +79,10 @@ Saving data directory on host machine
 docker run -p 80:80 -p 25:25 -v /path/on/host/where/to/save/data:/var/www/opentrashmail/data hascheksolutions/opentrashmail
 ```
 
-Complete example with running as daemon, persistence, a domain for auto-generation of emails and auto restart
+Complete example with running as daemon, persistence, a domain for auto-generation of emails, acceptng only emails for configured domains, cleanup for mails older than 90 days and auto restart
 
 ```bash
-docker run -d --restart=always --name opentrashmail -e "DOMAINS=mydomain.eu" -e "DATEFORMAT='D.M.YYYY HH:mm'" -p 80:80 -p 25:25 -v /path/on/host/where/to/save/data:/var/www/opentrashmail/data hascheksolutions/opentrashmail
+docker run -d --restart=unless-stopped --name opentrashmail -e "DOMAINS=mydomain.eu" -e "DATEFORMAT='D.M.YYYY HH:mm'" -e "DISCARD_UNKNOWN=false" -e "DELETE_OLDER_THAN_DAYS=90" -p 80:80 -p 25:25 -v /path/on/host/where/to/save/data:/var/www/opentrashmail/data hascheksolutions/opentrashmail
 ```
 
 # How it works

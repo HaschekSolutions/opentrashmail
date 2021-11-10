@@ -35,6 +35,12 @@ fi
 
 echo "[MAILSERVER]" >> /var/www/opentrashmail/config.ini
 echo "MAILPORT=25" >> /var/www/opentrashmail/config.ini
+if [ "$DISCARD_UNKNOWN" != "" ]; then
+	echo "DISCARD_UNKNOWN=$DISCARD_UNKNOWN" >> /var/www/opentrashmail/config.ini
+  echo "   [i] Setting up DISCARD_UNKNOWN to: $DISCARD_UNKNOWN"
+else
+  echo "DISCARD_UNKNOWN=false" >> /var/www/opentrashmail/config.ini
+fi
 
 echo "[DATETIME]" >> /var/www/opentrashmail/config.ini
 if [ "$DATEFORMAT" != "" ]; then
@@ -45,6 +51,11 @@ else
   echo "   [i] Using default dateformat"
 fi
 
+echo "[CLEANUP]" >> /var/www/opentrashmail/config.ini
+if [ "$DELETE_OLDER_THAN_DAYS" != "" ]; then
+	echo "DELETE_OLDER_THAN_DAYS=$DELETE_OLDER_THAN_DAYS" >> /var/www/opentrashmail/config.ini
+  echo "   [i] Setting up cleanup time to $DELETE_OLDER_THAN_DAYS days"
+fi
 
 cd /var/www/opentrashmail/python
 
