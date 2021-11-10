@@ -112,7 +112,7 @@ class CustomSMTPServer(smtpd.SMTPServer):
 
             for em in rcpttos:
                 em = em.lower()
-                if not re.match(r"^[A-Za-z0-9\.\+_-]+@[A-Za-z0-9\._-]+\.[a-zA-Z]*$", em):
+                if not re.match(r"[^@\s]+@[^@\s]+\.[a-zA-Z0-9]+$", em):
                     logger.exception('Invalid recipient: %s' % em)
                     continue
 
