@@ -53,9 +53,8 @@ Just edit the `config.ini` You can use the following settings
   - [x] Admin overview for all available email addresses
   - [ ] Secure HTML, so no malicious things can be loaded
   - [ ] Display embedded images inline using Content-ID
-  - [ ] Option to show raw email
-
-  - [ ] Delete messages
+  - [x] Option to show raw email
+  - [x] Delete messages
   - [ ] Make better theme
 - [ ] Configurable settings
   - [x] Choose domains for random generation
