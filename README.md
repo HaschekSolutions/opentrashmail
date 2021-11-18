@@ -5,8 +5,10 @@
 
 <h1 align="center">Open Trashmail</h1>
 
-<div align="center">
 
+
+<div align="center">
+  
 ![](https://img.shields.io/badge/php-7.1%2B-brightgreen.svg)
 ![](https://img.shields.io/badge/python-2.7%2B-brightgreen.svg)
 [![](https://img.shields.io/docker/pulls/hascheksolutions/opentrashmail?color=brightgreen)](https://hub.docker.com/r/hascheksolutions/opentrashmail)
@@ -15,9 +17,10 @@
 [![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2FHaschekSolutions%2Fopentrashmail&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=hits&edge_flat=false)](https://hits.seeyoufarm.com)
 [![](https://img.shields.io/github/stars/HaschekSolutions/opentrashmail.svg?label=Stars&style=social)](https://github.com/HaschekSolutions/opentrashmail)
 
-#### Host your own `trashmail` solution to use with your own domains or subdomains
-
+#### Selfhosted `trashmail` solution - Receive Emails via `Web UI`, `JSON API` and `RSS feed`
+  
 </div>
+
 
 ![Screenshot of Open Trashmail](https://pictshare.net/shz4tq.png)
 
@@ -51,10 +54,10 @@ Just edit the `config.ini` You can use the following settings
   - [x] API so all features from the site can also be automated and integrated
   - [x] Automatically check for new emails while on site
   - [x] Admin overview for all available email addresses
-  - [ ] Secure HTML, so no malicious things can be loaded
-  - [ ] Display embedded images inline using Content-ID
   - [x] Option to show raw email
   - [x] Delete messages
+  - [ ] Secure HTML, so no malicious things can be loaded
+  - [ ] Display embedded images inline using Content-ID
   - [ ] Make better theme
 - [ ] Configurable settings
   - [x] Choose domains for random generation
