@@ -7,6 +7,13 @@ ini_set('display_errors', 1);
 
 include_once(ROOT.DS.'inc'.DS.'core.php');
 
+if (PHP_SAPI === 'cli-server')
+    $_SERVER['SCRIPT_NAME'] = pathinfo(__FILE__, PATHINFO_BASENAME);
+
+if($_GET['url'])
+    $url = explode('/',ltrim(parse_url($_GET['url'], PHP_URL_PATH),'/'));
+else $url = array_filter(explode('/',ltrim(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH),'/')));
+
 $action = strtolower($_REQUEST['a']);
 $email = strtolower($_REQUEST['email']);
 if(!empty($email)){
@@ -88,15 +95,13 @@ switch($action)
             $emails = listEmailAdresses();
             $emaillist = array();
             
-            if(count($emails))
+            if(count($emails)>0)
             {
                 foreach($emails as $email)
                 {
                     $emaildata = getEmailsOfEmail($email);
                     foreach($emaildata as $time=>$d)
-                    {
                         $emaillist[$time.'-'.$email]=$d;
-                    }
                 }
                 if(is_array($emaillist))
                     krsort($emaillist);
@@ -127,4 +132,3 @@ switch($action)
 }
 
 echo json_encode($o);
-//var_dump($o);

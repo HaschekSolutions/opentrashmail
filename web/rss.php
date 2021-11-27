@@ -10,7 +10,13 @@ include_once(ROOT.DS.'inc'.DS.'core.php');
 
 header("Content-Type: application/rss+xml; charset=UTF8");
 
-$url = explode('/',ltrim($_GET['url'],'/'));
+if (PHP_SAPI === 'cli-server')
+    $_SERVER['SCRIPT_NAME'] = pathinfo(__FILE__, PATHINFO_BASENAME);
+
+if($_GET['url'])
+    $url = explode('/',ltrim(parse_url($_GET['url'], PHP_URL_PATH),'/'));
+else $url = array_filter(explode('/',ltrim(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH),'/')));
+
 array_shift($url);
 
 $email = $url[0];

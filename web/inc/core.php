@@ -33,7 +33,7 @@ function emailIDExists($email,$id)
 
 function getEmailsOfEmail($email)
 {
-    $o = false;
+    $o = [];
     if ($handle = opendir(getDirForEmail($email))) {
         while (false !== ($entry = readdir($handle))) {
             if (endsWith($entry,'.json')) {
@@ -54,7 +54,6 @@ function getEmailsOfEmail($email)
 function listEmailAdresses()
 {
     $o = array();
-    $o = false;
     if ($handle = opendir(ROOT.DS.'..'.DS.'data'.DS)) {
         while (false !== ($entry = readdir($handle))) {
             if(filter_var($entry, FILTER_VALIDATE_EMAIL))
