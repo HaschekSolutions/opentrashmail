@@ -11,7 +11,7 @@ ADD docker/rootfs/start.sh /etc/start.sh
 RUN chmod +x /etc/start.sh
 
 # nginx stuff
-ADD docker/rootfs/nginx.conf /etc/nginx/conf.d/default.conf
+ADD docker/rootfs/nginx.conf /etc/nginx/http.d/default.conf
 RUN mkdir -p /run/nginx
 RUN mkdir -p /var/log/nginx
 RUN sed -i 's/nobody/nginx/g' /etc/php7/php-fpm.d/www.conf
