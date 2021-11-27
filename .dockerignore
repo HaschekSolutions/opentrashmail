@@ -1,0 +1,5 @@
+config.ini
+data/*
+.git
+.github
+docs

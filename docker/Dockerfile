@@ -1,14 +1,14 @@
-FROM alpine:3.10
+FROM alpine:3.14.2
 
 RUN apk add --no-cache python socat wget php7-fileinfo php7-session curl git php php-curl nginx php-openssl php-mbstring php-json php-gd php-dom php-fpm
 #RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin --filename=composer 
-RUN mkdir -p /var/www
-WORKDIR /var/www
+RUN mkdir -p /var/www/opentrashmail
+WORKDIR /var/www/opentrashmail
+
+ADD . /var/www/opentrashmail/.
 
 ADD docker/rootfs/start.sh /etc/start.sh
 RUN chmod +x /etc/start.sh
-
-RUN git clone https://github.com/HaschekSolutions/opentrashmail.git
 
 # nginx stuff
 ADD docker/rootfs/nginx.conf /etc/nginx/conf.d/default.conf
