@@ -26,6 +26,8 @@ echo "[GENERAL]" > /var/www/opentrashmail/config.ini
 if [ "$DOMAINS" != "" ]; then
 	echo "DOMAINS=$DOMAINS" >> /var/www/opentrashmail/config.ini
   echo "   [i] Active Domain(s): $DOMAINS"
+else
+  echo "DOMAINS=localhost" >> /var/www/opentrashmail/config.ini
 fi
 
 if [ "$ADMIN" != "" ]; then
