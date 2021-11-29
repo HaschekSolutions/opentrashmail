@@ -19,7 +19,7 @@ $email = strtolower($_REQUEST['email']);
 // quick hack to get admin email working. 
 // by the time $email is checked its been over written.
 // store a copy in $admincheck to compare later. 
-$admincheck = $email 
+$admincheck = $email;
     
 if(!empty($email)){
   if(!filter_var($email, FILTER_VALIDATE_EMAIL)){
