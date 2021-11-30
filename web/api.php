@@ -16,6 +16,11 @@ else $url = array_filter(explode('/',ltrim(parse_url($_SERVER['REQUEST_URI'], PH
 
 $action = strtolower($_REQUEST['a']);
 $email = strtolower($_REQUEST['email']);
+// quick hack to get admin email working. 
+// by the time $email is checked its been over written.
+// store a copy in $admincheck to compare later. 
+$admincheck = $email;
+    
 if(!empty($email)){
   if(!filter_var($email, FILTER_VALIDATE_EMAIL)){
     // email param provided, but invalid: skip action and show invalid email error
@@ -87,7 +92,7 @@ switch($action)
 
     case 'list':
         $settings = loadSettings();        
-        if($settings['ADMIN'] && $settings['ADMIN']==$email)
+        if($settings['ADMIN'] && $settings['ADMIN']==$admincheck)
         {
             $o['status'] = 'ok';
             $o['type'] = 'admin';
