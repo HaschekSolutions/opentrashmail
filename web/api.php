@@ -42,9 +42,14 @@ switch($action)
         else
         {
             if(unlink($dir.DS.$id.'.json'))
+            {
+                $attachments = listAttachmentsOfMailID($email,$id);
+                foreach($attachments as $attachment)
+                    unlink($dir.DS.'attachments'.DS.$attachment);
                 $o = array('status'=>'ok');
+            }
             else
-                $o = array('status'=>'err','reason'=>'Could not delete email');
+                $o = array('status'=>'err','reason'=>'Could not delete email. Permission problem?');
         }
     break;
     case 'getdoms':

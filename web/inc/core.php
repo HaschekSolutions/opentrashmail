@@ -65,6 +65,22 @@ function listEmailAdresses()
     return $o;
 }
 
+function listAttachmentsOfMailID($email,$id)
+{
+    $o = array();
+    if ($handle = opendir(getDirForEmail($email).DS.'attachments')) {
+        while (false !== ($entry = readdir($handle))) {
+            if (startsWith($entry,$id.'-')) {
+                $o[] = $entry;
+            }
+        }
+        closedir($handle);
+    }
+
+    return $o;
+}
+
+
 function loadSettings()
 {
     if(file_exists(ROOT.DS.'..'.DS.'config.ini'))
