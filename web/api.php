@@ -54,7 +54,7 @@ switch($action)
     break;
     case 'attachment':
         $id = intval($_REQUEST['id']);
-        $filename = basename(realpath($_REQUEST['filename']));
+        $filename = basename($_REQUEST['filename']);
         $filepath = $dir.DS.'attachments'.DS.$id.'-'.$filename;
         if(!is_dir($dir))
             $o = array('status'=>'err','reason'=>'No emails received on this address');
