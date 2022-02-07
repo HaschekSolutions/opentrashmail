@@ -12,7 +12,9 @@ $( document ).ready(function() {
         loadAccount(email)
 
     $.get("api.php?a=getdoms",function(data){
-        domains = data;
+        if(data.length>0)
+            domains = data;
+        else $("#btn-gen-random").hide();
     },"json")
 });
 

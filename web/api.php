@@ -56,6 +56,7 @@ switch($action)
         $settings = loadSettings();
         if($settings['DOMAINS'])
             $o = explode(',',$settings['DOMAINS']);
+        else $o = [];
     break;
     case 'attachment':
         $id = intval($_REQUEST['id']);
