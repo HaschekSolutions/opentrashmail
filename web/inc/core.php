@@ -87,6 +87,15 @@ function listAttachmentsOfMailID($email,$id)
     return $o;
 }
 
+function deleteEmail($email,$id)
+{
+    $dir = getDirForEmail($email);
+    $attachments = listAttachmentsOfMailID($email,$id);
+    foreach($attachments as $attachment)
+        unlink($dir.DS.'attachments'.DS.$attachment);
+    unlink($dir.DS.$id.'.json');
+}
+
 
 function loadSettings()
 {

@@ -41,13 +41,9 @@ switch($action)
             $o = array('status'=>'err','reason'=>'Invalid Email ID');
         else
         {
-            if(unlink($dir.DS.$id.'.json'))
-            {
-                $attachments = listAttachmentsOfMailID($email,$id);
-                foreach($attachments as $attachment)
-                    unlink($dir.DS.'attachments'.DS.$attachment);
+            
+            if(deleteEmail($email,$id))
                 $o = array('status'=>'ok');
-            }
             else
                 $o = array('status'=>'err','reason'=>'Could not delete email. Permission problem?');
         }
