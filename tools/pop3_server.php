@@ -109,6 +109,7 @@ while(1)
 
                             break;
                         case 'PASS':
+                            // we'll accept any password
                             $message_count = count($messages);
                             $write_buffer .= "+OK mailbox has $message_count message(s)\r\n";
                             break;
@@ -163,6 +164,9 @@ while(1)
                             $write_buffer .= ".\r\n";
                             break;
                         case 'DELE':
+                            $message_id = (int) $argument;
+                            $msg = array_values(array_slice($messages, ($message_id-1), 1, true))[0];
+                            deleteEmail($msg['email'],$msg['id']);
                             $write_buffer .= "+OK\r\n";
                             break;
                         case 'NOOP':
