@@ -26,6 +26,13 @@ function getEmail($email,$id)
     return json_decode(file_get_contents(getDirForEmail($email).DS.$id.'.json'),true);
 }
 
+function getRawEmail($email,$id)
+{
+    $data = json_decode(file_get_contents(getDirForEmail($email).DS.$id.'.json'),true);
+
+    return $data['raw'];
+}
+
 function emailIDExists($email,$id)
 {
     return file_exists(getDirForEmail($email).DS.$id.'.json');
@@ -39,7 +46,7 @@ function getEmailsOfEmail($email)
             if (endsWith($entry,'.json')) {
                 $time = substr($entry,0,-5);
                 $json = json_decode(file_get_contents(getDirForEmail($email).DS.$entry),true);
-                $o[$time] = array('from'=>$json['parsed']['from'],'subject'=>$json['parsed']['subject']);
+                $o[$time] = array('email'=>$email,'id'=>$time,'from'=>$json['parsed']['from'],'subject'=>$json['parsed']['subject'],'md5'=>md5($time.$json['raw']),'maillen'=>strlen($json['raw']));
             }
         }
         closedir($handle);
