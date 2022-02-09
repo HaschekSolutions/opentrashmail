@@ -93,8 +93,9 @@ switch($action)
     break;
 
     case 'list':
+        $settings = loadSettings();
         /*
-        $settings = loadSettings();        
+        
         if($settings['ADMIN'] && $settings['ADMIN']==$admincheck)
         {
             $o['status'] = 'ok';
@@ -118,10 +119,13 @@ switch($action)
 
             $o['emails']=$data;
         }
-        else */if(!is_dir($dir))
+        else */
+        
+        if(!is_dir($dir) && $settings['ADMIN']!=$admincheck)
             $o = array('status'=>'ok','emails'=>[]);
         else
         {
+            if(!$email) $email = $admincheck;
             $data = getEmailsOfEmail($email);
             $lastid = $_REQUEST['lastid'];
             if($lastid && is_numeric($lastid))
