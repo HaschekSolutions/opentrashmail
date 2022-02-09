@@ -41,15 +41,40 @@ function emailIDExists($email,$id)
 function getEmailsOfEmail($email)
 {
     $o = [];
-    if ($handle = opendir(getDirForEmail($email))) {
-        while (false !== ($entry = readdir($handle))) {
-            if (endsWith($entry,'.json')) {
-                $time = substr($entry,0,-5);
-                $json = json_decode(file_get_contents(getDirForEmail($email).DS.$entry),true);
-                $o[$time] = array('email'=>$email,'id'=>$time,'from'=>$json['parsed']['from'],'subject'=>$json['parsed']['subject'],'md5'=>md5($time.$json['raw']),'maillen'=>strlen($json['raw']));
+    $settings = loadSettings();
+
+    if($settings['ADMIN'] && $settings['ADMIN']==$email)
+    {
+        $emails = listEmailAdresses();
+        if(count($emails)>0)
+        {
+            foreach($emails as $email)
+            {
+                if ($handle = opendir(getDirForEmail($email))) {
+                    while (false !== ($entry = readdir($handle))) {
+                        if (endsWith($entry,'.json')) {
+                            $time = substr($entry,0,-5);
+                            $json = json_decode(file_get_contents(getDirForEmail($email).DS.$entry),true);
+                            $o[$time] = array('email'=>$email,'id'=>$time,'from'=>$json['parsed']['from'],'subject'=>$json['parsed']['subject'],'md5'=>md5($time.$json['raw']),'maillen'=>strlen($json['raw']));
+                        }
+                    }
+                    closedir($handle);
+                }
             }
         }
-        closedir($handle);
+    }
+    else
+    {
+        if ($handle = opendir(getDirForEmail($email))) {
+            while (false !== ($entry = readdir($handle))) {
+                if (endsWith($entry,'.json')) {
+                    $time = substr($entry,0,-5);
+                    $json = json_decode(file_get_contents(getDirForEmail($email).DS.$entry),true);
+                    $o[$time] = array('email'=>$email,'id'=>$time,'from'=>$json['parsed']['from'],'subject'=>$json['parsed']['subject'],'md5'=>md5($time.$json['raw']),'maillen'=>strlen($json['raw']));
+                }
+            }
+            closedir($handle);
+        }
     }
 
     if(is_array($o))

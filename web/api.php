@@ -93,6 +93,7 @@ switch($action)
     break;
 
     case 'list':
+        /*
         $settings = loadSettings();        
         if($settings['ADMIN'] && $settings['ADMIN']==$admincheck)
         {
@@ -117,7 +118,7 @@ switch($action)
 
             $o['emails']=$data;
         }
-        else if(!is_dir($dir))
+        else */if(!is_dir($dir))
             $o = array('status'=>'ok','emails'=>[]);
         else
         {
