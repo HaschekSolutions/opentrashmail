@@ -4,8 +4,6 @@ echo 'Starting Open Trashmail'
 
 cd /var/www/opentrashmail
 
-git pull 
-
 echo ' [+] Starting php'
 php-fpm7
 
