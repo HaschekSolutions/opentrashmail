@@ -114,7 +114,7 @@ function updateEmailTable()
                         $("#nomailyet").remove();
                     if(admin===true)
                     {
-                        dateofemail=em.split("-")[0];
+                        //dateofemail=em.split("-")[0];
                         email = em.substring(em.indexOf('-') + 1);
                     }
                     else dateofemail = em;
@@ -124,6 +124,7 @@ function updateEmailTable()
                     //var datestring = date.getDate()+"."+date.getMonth()+"."+date.getFullYear()+" "+date.getHours()+":"+date.getMinutes();
 					var datestring = moment.unix(parseInt(dateofemail/1000)).format(data.dateformat); // Use moment.js formatting
                     var ed = data.emails[em]
+                    email = ed.email;
                     $("#emailtable").append('\
                         <tr class="anemail" email="'+email+'" messageid="'+dateofemail+'">\
                             <th scope="row">'+(index++)+'</th>\
