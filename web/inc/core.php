@@ -55,7 +55,13 @@ function getEmailsOfEmail($email)
                         if (endsWith($entry,'.json')) {
                             $time = substr($entry,0,-5);
                             $json = json_decode(file_get_contents(getDirForEmail($email).DS.$entry),true);
-                            $o[$time] = array('email'=>$email,'id'=>$time,'from'=>$json['parsed']['from'],'subject'=>$json['parsed']['subject'],'md5'=>md5($time.$json['raw']),'maillen'=>strlen($json['raw']));
+                            $o[$time] = array(
+                                'email'=>$email,'id'=>$time,
+                                'from'=>$json['parsed']['from'],
+                                'subject'=>$json['parsed']['subject'],
+                                'md5'=>md5($time.$json['raw']),
+                                'maillen'=>strlen($json['raw'])
+                            );
                         }
                     }
                     closedir($handle);
