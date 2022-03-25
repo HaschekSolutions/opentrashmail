@@ -57,10 +57,7 @@ if [ "$DELETE_OLDER_THAN_DAYS" != "" ]; then
   echo "   [i] Setting up cleanup time to $DELETE_OLDER_THAN_DAYS days"
 fi
 
-cd /var/www/opentrashmail/python
+chown -R nginx:nginx /var/www/opentrashmail/data
 
 echo ' [+] Starting Mailserver'
-python mailserver.py
-#nohup python /var/www/opentrashmail/python/mailserver.py &
-
-#tail -n 1 -f /var/log/nginx/*.log
+su - nginx -s /bin/ash -c 'cd /var/www/opentrashmail/python;python mailserver.py'
