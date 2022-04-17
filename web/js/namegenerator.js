@@ -3,6 +3,11 @@ function makeName()
     return adjectives[Math.floor(Math.random()*adjectives.length)]+(Math.round(Math.random())?'.':'-')+nouns[Math.floor(Math.random()*nouns.length)];;
 }
 
+function adjectivePlease()
+{
+    return adjectives[Math.floor(Math.random()*adjectives.length)];
+}
+
 var nouns = ["aardvark",
 "abyssinian",
 "accelerator",

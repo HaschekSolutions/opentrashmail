@@ -159,7 +159,11 @@ function generateAccount()
         alert("No domains configured in settings.ini")
     else
     {
-        var email = makeName()+'@'+domains[Math.floor(Math.random()*domains.length)];
+        var dom = domains[Math.floor(Math.random()*domains.length)];
+        if(dom.includes("*"))
+            dom = dom.replace("*",adjectivePlease());
+        console.log(dom);
+        var email = makeName()+'@'+dom;
         loadAccount(email)
     }
 }
