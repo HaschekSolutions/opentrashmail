@@ -124,7 +124,7 @@ function deleteEmail($email,$id)
     $attachments = listAttachmentsOfMailID($email,$id);
     foreach($attachments as $attachment)
         unlink($dir.DS.'attachments'.DS.$attachment);
-    unlink($dir.DS.$id.'.json');
+    return unlink($dir.DS.$id.'.json');
 }
 
 
