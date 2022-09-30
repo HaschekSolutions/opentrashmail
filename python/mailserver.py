@@ -121,6 +121,8 @@ class CustomSMTPServer(smtpd.SMTPServer):
                 for x in DOMAINS:
                     if  "*" in x and domain.endswith(x.replace('*', '')):
                         found = True
+                    elif domain == x:
+                        found = True
                 if(DISCARD_UNKNOWN and found==False):
                     logger.info('Discarding email for unknown domain: %s' % domain)
                     continue
