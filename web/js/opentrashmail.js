@@ -49,6 +49,25 @@ function renderEmail(email,id,data)
         ')
 }
 
+function listAddresses(e)
+{
+    clearInterval(timer);
+    e = e || window.event;
+    e.preventDefault();
+
+    $.get("api.php?a=list-addresses", function(data) {
+        if (data.status == "ok") {
+            accounts = data.addresses;
+            $("#main").html(`<h2 class="text-center">Accounts</h2>
+                <button onClick="loadAccount('${activeemail}')" class="btn btn-primary my-2 my-sm-0"><i class="fas fa-backward"></i> Back</button><br/>
+                <ul>` +
+                accounts.map(a => `<li><a href="#" onClick="loadAccount('${a}')">${a}</a></li>`).join('') +
+                `</ul>`)
+        } else
+            alert("Unable to fetch list of accounts")
+    },"json")
+}
+
 function loadAccount(email)
 {
     clearInterval(timer);

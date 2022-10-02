@@ -141,6 +141,9 @@ switch($action)
             $o = array('status'=>'ok','emails'=>$data); 
         }
     break;
+    case 'list-addresses':
+        $o = array('status'=>'ok','addresses'=>listEmailAdresses());
+    break;
 }
 
 echo json_encode($o);
