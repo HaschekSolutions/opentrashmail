@@ -28,6 +28,26 @@ else
   echo "DOMAINS=localhost" >> /var/www/opentrashmail/config.ini
 fi
 
+if [ "$FAKENAME_GENERATOR" != "" ]; then
+  echo "   [i] Enabled fake name generator"
+	echo "; Generate fake usernames from https://randomuser.me/" >> /var/www/opentrashmail/config.ini
+  echo "FAKENAME_GENERATOR=$FAKENAME_GENERATOR" >> /var/www/opentrashmail/config.ini
+  echo "; Customise the username using the options available at https://randomuser.me/documentation" >> /var/www/opentrashmail/config.ini
+  echo ";   - These options will be added after the '?' eg: https://randomuser.me/api/?{FAKENAME_SUFFIX}" >> /var/www/opentrashmail/config.ini
+  if [ "$FAKENAME_SUFFIX" != "" ]; then
+    echo "     [i] With suffix: $FAKENAME_SUFFIX "
+    echo "FAKENAME_SUFFIX=\"$FAKENAME_SUFFIX\"" >> /var/www/opentrashmail/config.ini
+  else
+    echo "; FAKENAME_SUFFIX=\"gender=male\"" >> /var/www/opentrashmail/config.ini
+  fi
+else
+  echo "; Generate fake usernames from https://randomuser.me/" >> /var/www/opentrashmail/config.ini
+  echo "; FAKENAME_GENERATOR=true" >> /var/www/opentrashmail/config.ini
+  echo "; Customise the username using the options available at https://randomuser.me/documentation" >> /var/www/opentrashmail/config.ini
+  echo ";   - These options will be added after the '?' eg: https://randomuser.me/api/?{FAKENAME_SUFFIX}" >> /var/www/opentrashmail/config.ini
+  echo "; FAKENAME_SUFFIX=\"gender=male\"" >> /var/www/opentrashmail/config.ini
+fi
+
 if [ "$ADMIN" != "" ]; then
 	echo "ADMIN=$ADMIN" >> /var/www/opentrashmail/config.ini
   echo "   [i] Set admin to: $ADMIN"

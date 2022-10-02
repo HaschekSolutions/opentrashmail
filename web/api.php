@@ -141,6 +141,14 @@ switch($action)
             $o = array('status'=>'ok','emails'=>$data); 
         }
     break;
+    case 'fakename-enabled':
+        $settings = loadSettings();
+        $o = $settings['FAKENAME_GENERATOR'];
+    break;
+    case 'fakename-suffix':
+        $settings = loadSettings();
+        $o = $settings['FAKENAME_SUFFIX'];
+    break;
 }
 
 echo json_encode($o);
