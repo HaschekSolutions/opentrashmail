@@ -16,6 +16,11 @@ $( document ).ready(function() {
             domains = data;
         else $("#btn-gen-random").hide();
     },"json")
+
+    $.get("api.php?a=show-list",function(data){
+        if (!data)
+            $("#btn-list-addresses").hide();
+    },"json")
 });
 
 function loadMail(email,id)
