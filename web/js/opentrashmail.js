@@ -16,6 +16,11 @@ $( document ).ready(function() {
             domains = data;
         else $("#btn-gen-random").hide();
     },"json")
+
+    $.get("api.php?a=show-list",function(data){
+        if (data)
+            $("#btn-list-addresses").show();
+    },"json")
 });
 
 function loadMail(email,id)
@@ -47,6 +52,25 @@ function renderEmail(email,id,data)
         <h4>Raw Email</h4><pre><code>'+data.raw+'</code></pre>\
         </div>\
         ')
+}
+
+function listAddresses(e)
+{
+    clearInterval(timer);
+    e = e || window.event;
+    e.preventDefault();
+
+    $.get("api.php?a=list-addresses", function(data) {
+        if (data.status == "ok") {
+            accounts = data.addresses;
+            $("#main").html(`<h2 class="text-center">Accounts</h2>
+                <button onClick="loadAccount('${activeemail}')" class="btn btn-primary my-2 my-sm-0"><i class="fas fa-backward"></i> Back</button><br/>
+                <ul>` +
+                accounts.map(a => `<li><a href="#" onClick="loadAccount('${a}')">${a}</a></li>`).join('') +
+                `</ul>`)
+        } else
+            alert("Unable to fetch list of accounts")
+    },"json")
 }
 
 function loadAccount(email)

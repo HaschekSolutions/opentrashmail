@@ -28,6 +28,11 @@ else
   echo "DOMAINS=localhost" >> /var/www/opentrashmail/config.ini
 fi
 
+if [ "$SHOW_ACCOUNT_LIST" != "" ]; then
+	echo "SHOW_ACCOUNT_LIST=$SHOW_ACCOUNT_LIST" >> /var/www/opentrashmail/config.ini
+  echo "   [i] Set show account list to: $SHOW_ACCOUNT_LIST"
+fi
+
 if [ "$ADMIN" != "" ]; then
 	echo "ADMIN=$ADMIN" >> /var/www/opentrashmail/config.ini
   echo "   [i] Set admin to: $ADMIN"

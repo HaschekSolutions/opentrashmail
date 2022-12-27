@@ -141,6 +141,17 @@ switch($action)
             $o = array('status'=>'ok','emails'=>$data); 
         }
     break;
+    case 'show-list':
+        $settings = loadSettings();
+        $o = $settings['SHOW_ACCOUNT_LIST'];
+    break;
+    case 'list-addresses':
+        $settings = loadSettings();
+        $o = array('status'=>'ok','addresses'=>[]);
+        
+        if ($settings['SHOW_ACCOUNT_LIST']) 
+            $o['addresses'] = listEmailAdresses();
+    break;
 }
 
 echo json_encode($o);
