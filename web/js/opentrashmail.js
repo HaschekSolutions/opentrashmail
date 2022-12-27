@@ -18,8 +18,8 @@ $( document ).ready(function() {
     },"json")
 
     $.get("api.php?a=show-list",function(data){
-        if (!data)
-            $("#btn-list-addresses").hide();
+        if (data)
+            $("#btn-list-addresses").show();
     },"json")
 });
 
