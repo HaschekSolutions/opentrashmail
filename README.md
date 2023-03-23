@@ -72,19 +72,19 @@ Just edit the `config.ini` You can use the following settings
 Simple start with no persistence
 
 ```bash
-docker run -it -p 25:25 -p 80:80 hascheksolutions/opentrashmail
+docker run -it -p 25:25 -p 80:80 ghcr.io/hascheksolutions/opentrashmail
 ```
 
 Saving data directory on host machine
 
 ```bash
-docker run -p 80:80 -p 25:25 -v /path/on/host/where/to/save/data:/var/www/opentrashmail/data hascheksolutions/opentrashmail
+docker run -p 80:80 -p 25:25 -v /path/on/host/where/to/save/data:/var/www/opentrashmail/data ghcr.io/hascheksolutions/opentrashmail
 ```
 
 Complete example with running as daemon, persistence, a domain for auto-generation of emails, acceptng only emails for configured domains, cleanup for mails older than 90 days and auto restart
 
 ```bash
-docker run -d --restart=unless-stopped --name opentrashmail -e "DOMAINS=mydomain.eu" -e "DATEFORMAT='D.M.YYYY HH:mm'" -e "DISCARD_UNKNOWN=false" -e "DELETE_OLDER_THAN_DAYS=90" -p 80:80 -p 25:25 -v /path/on/host/where/to/save/data:/var/www/opentrashmail/data hascheksolutions/opentrashmail
+docker run -d --restart=unless-stopped --name opentrashmail -e "DOMAINS=mydomain.eu" -e "DATEFORMAT='D.M.YYYY HH:mm'" -e "DISCARD_UNKNOWN=false" -e "DELETE_OLDER_THAN_DAYS=90" -p 80:80 -p 25:25 -v /path/on/host/where/to/save/data:/var/www/opentrashmail/data ghcr.io/hascheksolutions/opentrashmail
 ```
 
 # How it works
