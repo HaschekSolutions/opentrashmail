@@ -33,6 +33,10 @@
 - 100% file based, no database needed
 - Can be used as Email Honeypot
 
+
+## [INFO] March '23
+Since Docker Hub won't allow team Organizations anymore, we moved our images to GitHub Container Registry. So if you want to use the latest version, please use the new image ghcr.io/hascheksolutions/opentrashmail instead of hascheksolutions/opentrashmail
+
 # Configuration
 Just edit the `config.ini` You can use the following settings
 
