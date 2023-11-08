@@ -6,14 +6,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="/css/pico.min.css">
   <link rel="stylesheet" href="/css/opentrashmail.css">
-  <title>Hello, world!</title>
+  <title>Open Trashmail</title>
 </head>
 
 <body>
   <div class="container-fluid">
     <nav>
       <ul>
-        <li><img src="imgs/logo_300_light.png" width="50px" /> Open Trashmail</li>
+        <li><img src="/imgs/logo_300_light.png" width="50px" /> Open Trashmail</li>
         <li><form id="emailform"><input name="email" type="email" placeholder="email address" aria-label="email address"></form></li>
         <li><button hx-post="/api/address" hx-include="#emailform" hx-target="#main" ><i class="fas fa-arrow-left"></i><i class="fas fa-envelope"></i> Access account</button></li>
         <li><button onClick="generateAccount()" id="btn-gen-random" class="btn btn-secondary my-2 my-sm-0"><i class="fas fa-random"></i> Generate random</button></li>

@@ -145,3 +145,13 @@ function escape($str)
 {
     return htmlspecialchars($str, ENT_QUOTES, 'UTF-8');
 }
+
+function array2ul($array)
+{
+    $out = "<ul>";
+    foreach ($array as $key => $elem) {
+        $out .= "<li>$elem</li>";
+    }
+    $out .= "</ul>";
+    return $out;
+}
