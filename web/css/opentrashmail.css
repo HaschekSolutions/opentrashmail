@@ -1,7 +1,19 @@
-body {
-    padding-top: 5rem;
-  }
-  .starter-template {
-    padding: 3rem 1.5rem;
+form {
+    margin: 0;
+    padding: 0;
+    display: inline;
+}
+
+tr.htmx-swapping td {
+    opacity: 0;
+    transition: opacity 1s ease-out;
+}
+
+.badge {
+    background-color: #999;
+    color: white;
+    padding: 4px 8px;
+    margin: 2px;
     text-align: center;
-  }
+    border-radius: 5px;
+}

@@ -103,6 +103,11 @@ function listEmailAdresses()
     return $o;
 }
 
+function attachmentExists($email,$id,$attachment)
+{
+    return file_exists(getDirForEmail($email).DS.'attachments'.DS.$id.'-'.$attachment);
+}
+
 function listAttachmentsOfMailID($email,$id)
 {
     $o = array();
@@ -133,4 +138,10 @@ function loadSettings()
     if(file_exists(ROOT.DS.'..'.DS.'config.ini'))
         return parse_ini_file(ROOT.DS.'..'.DS.'config.ini');
     return false;
+}
+
+
+function escape($str)
+{
+    return htmlspecialchars($str, ENT_QUOTES, 'UTF-8');
 }
