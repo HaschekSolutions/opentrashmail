@@ -1,12 +1,22 @@
+<nav aria-label="breadcrumb">
+  <ul>
+    <li><a href="/address/<?= $email ?>" hx-get="/api/address/<?= $email ?>" hx-target="#main"><?= escape($email) ?></a></li>
+    <li><?= escape($emaildata['parsed']['subject']) ?></li>
+  </ul>
+</nav>
+
 <article>
-    <header>Subject: <?= escape($emaildata['parsed']['subject']) ?></header>
     <header>
-        Reciepients:
-        <div>
+        <p>Subject: <?= escape($emaildata['parsed']['subject']) ?></p>
+
+        <p>Received: <span id="date2-<?= $mailid ?>"><script>document.getElementById('date2-<?= $mailid ?>').innerHTML = moment.unix(parseInt(<?=$mailid?>/1000)).format('<?= $dateformat; ?>');</script></span></p>
+
+        <p>
+            Reciepients:
             <?php foreach ($emaildata['rcpts'] as $to) : ?>
                 <small class="badge"><?= escape($to) ?></small>
             <?php endforeach; ?>
-        </div>
+        </p>
     </header>
     <?= nl2br(escape($emaildata['parsed']['body'])) ?>
     <footer>
@@ -33,4 +43,4 @@
 </article>
 
 
-<script>history.pushState({email:"<?= $email ?>"}, "", "/eml/<?= $email ?>/<?= $mailid ?>");</script>
+<script>history.pushState({email:"<?= $email ?>",id:"<?= $mailid ?>"}, "", "/read/<?= $email ?>/<?= $mailid ?>");</script>

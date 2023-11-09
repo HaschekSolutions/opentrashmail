@@ -1,4 +1,9 @@
-<h3>Emails of <?= $email; ?></h3>
+<nav aria-label="breadcrumb">
+  <ul>
+    <li><?= escape($email) ?></li>
+    <li><a href="/rss/<?= $email ?>">RSS Feed</a></li>
+  </ul>
+</nav>
 
 <table role="grid">
   <thead>
@@ -38,4 +43,4 @@
     <?php endforeach; ?>
 </table>
 
-<script>history.pushState({email:"<?= $email ?>"}, "", "/eml/<?= $email ?>");</script>
+<script>history.pushState({email:"<?= $email ?>"}, "", "/address/<?= $email ?>");</script>

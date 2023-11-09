@@ -17,13 +17,17 @@ class OpenTrashmailBackend{
                 case 'address':
                     return $this->listAccount($_REQUEST['email']?:$this->url[2]);
                 case 'read':
-                    return $this->readMail($_REQUEST['email'],$_REQUEST['id']);
+                    return $this->readMail($_REQUEST['email']?:$this->url[2],$_REQUEST['id']?:$this->url[3]);
                 case 'raw':
                     return $this->getRawMail($this->url[2],$this->url[3]);
                 case 'attachment':
                     return $this->getAttachment($this->url[2],$this->url[3]);
                 case 'delete':
                     return $this->deleteMail($_REQUEST['email'],$_REQUEST['id']);
+                case 'random':
+                    $addr = generateRandomEmail();
+                    //add header HX-Redirect
+                    return $this->listAccount($addr);
                 default:
                     return false;
             }
@@ -46,6 +50,18 @@ class OpenTrashmailBackend{
         }
 
         else return false;
+    }
+
+    function deleteMail($email,$id)
+    {
+        if(!filter_var($email, FILTER_VALIDATE_EMAIL))
+            return $this->error('Invalid email address');
+        else if(!ctype_digit($id))
+            return $this->error('Invalid id');
+        else if(!emailIDExists($email,$id))
+            return $this->error('Email not found');
+        deleteEmail($email,$id);
+        return '';
     }
 
     function getRawMail($email,$id)
@@ -95,11 +111,12 @@ class OpenTrashmailBackend{
         //$email['raw'] = file_get_contents(getDirForEmail($email['email']).DS.$email['id'].'.json');
         //$email['parsed'] = json_decode($email['raw'],true);
 
-        var_dump($emaildata);
+        //var_dump($emaildata);
         return $this->renderTemplate('email.html',[
             'emaildata'=>$emaildata,
             'email'=>$email,
             'mailid'=>$id,
+            'dateformat'=>$this->settings['DATEFORMAT']
         ]);
 
     }
@@ -109,7 +126,7 @@ class OpenTrashmailBackend{
         if(!filter_var($email, FILTER_VALIDATE_EMAIL))
             return $this->error('Invalid email address');
         $emails = getEmailsOfEmail($email);
-        var_dump($emails);
+        //var_dump($emails);
         return $this->renderTemplate('email-table.html',[
             'email'=>$email,
             'emails'=>$emails,
