@@ -7,14 +7,16 @@ include_once(ROOT.DS.'inc'.DS.'core.php');
 
 $url = array_filter(explode('/',ltrim(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH),'/')));
 
+$backend = new OpenTrashmailBackend($url);
+
 if($_SERVER['HTTP_HX_REQUEST']!='true')
 {
     if(count($url)==0 || !file_exists(ROOT.DS.implode('/', $url)))
         if($url[0]!='api' && $url[0]!='rss')
-            exit(file_get_contents(ROOT.DS.'index.html'));
+            exit($backend->renderTemplate('index.html'));
 }
 
-$backend = new OpenTrashmailBackend($url);
+
 $answer = $backend->run();
 
 

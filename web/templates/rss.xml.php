@@ -20,9 +20,8 @@
             $parts = explode('-', $filename);
             $fid = $parts[0];
             $fn = $parts[1];
-            $url = 'https://' . $url . '/api.php?a=attachment&email=' . $email . '&id=' . $fid . '&filename=' . $fn;
-            //$encl[] = '<enclosure url="'.rawurlencode($url).'" length="'.filesize($filepath).'" type="'.mime_content_type($filepath).'" />';
-            $att_text[] = "<a href='$url' target='_blank'>$fn</a>";
+            $att_url = $url . '/api/attachment/' . $email . '/' . $filename;
+            $att_text[] = "<a href='$att_url' target='_blank'>$fn</a>";
         }
   ?>
     <item>
@@ -34,7 +33,7 @@
             Email from: <?= escape($d['from']) ?><br/>
             Email to: <?= escape(implode(';',$data['rcpts'])) ?><br/>
             <?= ((count($att_text) > 0) ? 'Attachments:<br/>' . array2ul($att_text) . '<br/>' : '') ?>
-            <a href="<?= $url ?>api/eml/test@0xv.eu/1699459401553/raw">View raw email</a> <br/>
+            <a href="<?= $url ?>api/raw/test@0xv.eu/1699459401553">View raw email</a> <br/>
             <br/>---------<br/><br/>
             <?= ($data['parsed']['htmlbody'] ? $data['parsed']['htmlbody'] : nl2br(htmlentities($data['parsed']['body']))) ?>
             ]]>

@@ -38,4 +38,4 @@
     <?php endforeach; ?>
 </table>
 
-<div hx-push-url="/eml/<?= $email ?>" hx-trigger="load">
+<script>history.pushState({email:"<?= $email ?>"}, "", "/eml/<?= $email ?>");</script>

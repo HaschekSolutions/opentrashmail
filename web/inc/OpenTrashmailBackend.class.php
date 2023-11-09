@@ -18,8 +18,10 @@ class OpenTrashmailBackend{
                     return $this->listAccount($_REQUEST['email']?:$this->url[2]);
                 case 'read':
                     return $this->readMail($_REQUEST['email'],$_REQUEST['id']);
+                case 'raw':
+                    return $this->getRawMail($this->url[2],$this->url[3]);
                 case 'attachment':
-                    return $this->getAttachment($this->url[2],$this->url[3],$this->url[4]);
+                    return $this->getAttachment($this->url[2],$this->url[3]);
                 case 'delete':
                     return $this->deleteMail($_REQUEST['email'],$_REQUEST['id']);
                 default:
@@ -36,7 +38,7 @@ class OpenTrashmailBackend{
                 http_response_code(404);
                 exit('Error: Email not found');
             }
-            return $this->renderPartial('rss.xml',[
+            return $this->renderTemplate('rss.xml',[
                 'email'=>$email,
                 'emaildata'=>getEmailsOfEmail($email),
                 'url'=>$this->settings['URL'],
@@ -46,8 +48,24 @@ class OpenTrashmailBackend{
         else return false;
     }
 
-    function getAttachment($email,$id,$attachment)
+    function getRawMail($email,$id)
     {
+        if(!filter_var($email, FILTER_VALIDATE_EMAIL))
+            return $this->error('Invalid email address');
+        else if(!ctype_digit($id))
+            return $this->error('Invalid id');
+        else if(!emailIDExists($email,$id))
+            return $this->error('Email not found');
+        $emaildata = getEmail($email,$id);
+        header('Content-Type: text/plain');
+        echo $emaildata['raw'];
+        exit;
+    }
+
+    function getAttachment($email,$attachment)
+    {
+        $id = substr($attachment,0,13);
+        $attachment = substr($attachment,14);
         if(!filter_var($email, FILTER_VALIDATE_EMAIL))
             return $this->error('Invalid email address');
         else if(!ctype_digit($id))
@@ -73,12 +91,13 @@ class OpenTrashmailBackend{
             return $this->error('Invalid id');
         else if(!emailIDExists($email,$id))
             return $this->error('Email not found');
-        $email = getEmail($email,$id);
+        $emaildata = getEmail($email,$id);
         //$email['raw'] = file_get_contents(getDirForEmail($email['email']).DS.$email['id'].'.json');
         //$email['parsed'] = json_decode($email['raw'],true);
 
-        var_dump($email);
-        return $this->renderPartial('email.html',[
+        var_dump($emaildata);
+        return $this->renderTemplate('email.html',[
+            'emaildata'=>$emaildata,
             'email'=>$email,
             'mailid'=>$id,
         ]);
@@ -91,7 +110,7 @@ class OpenTrashmailBackend{
             return $this->error('Invalid email address');
         $emails = getEmailsOfEmail($email);
         var_dump($emails);
-        return $this->renderPartial('email-table.html',[
+        return $this->renderTemplate('email-table.html',[
             'email'=>$email,
             'emails'=>$emails,
             'dateformat'=>$this->settings['DATEFORMAT']
@@ -103,13 +122,15 @@ class OpenTrashmailBackend{
         return '<h1>'.$text.'</h1>';
     }
 
-    public function renderPartial($partialname,$variables=[])
+    public function renderTemplate($templatename,$variables=[])
     {
         ob_start();
         if(is_array($variables))
             extract($variables);
-        if(file_exists(ROOT.DS.'partials'.DS.$partialname.'.php'))
-            include(ROOT.DS.'partials'.DS.$partialname.'.php');
+        if(file_exists(ROOT.DS.'templates'.DS.$templatename.'.php'))
+            include(ROOT.DS.'templates'.DS.$templatename.'.php');
+        else if(file_exists(ROOT.DS.'templates'.DS.$templatename))
+            include(ROOT.DS.'templates'.DS.$templatename);
         $rendered = ob_get_contents();
         ob_end_clean();
     
