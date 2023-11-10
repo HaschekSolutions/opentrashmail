@@ -22,6 +22,8 @@
     </nav>
   </div>
 
+  <button class="htmx-indicator" aria-busy="true">Loading…</button>
+
   <main id="main" class="container" hx-get="/api/<?= $url ?>" hx-trigger="load">
 
   </main>

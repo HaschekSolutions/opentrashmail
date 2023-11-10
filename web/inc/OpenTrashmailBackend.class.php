@@ -23,7 +23,7 @@ class OpenTrashmailBackend{
                 case 'attachment':
                     return $this->getAttachment($this->url[2],$this->url[3]);
                 case 'delete':
-                    return $this->deleteMail($_REQUEST['email'],$_REQUEST['id']);
+                    return $this->deleteMail($_REQUEST['email']?:$this->url[2],$_REQUEST['id']?:$this->url[3]);
                 case 'random':
                     $addr = generateRandomEmail();
                     //add header HX-Redirect

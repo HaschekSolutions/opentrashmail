@@ -30,17 +30,13 @@
             <td><?= escape($ed['from']) ?></td>
             <td><?= escape($ed['subject']) ?></td>
             <td>
-                <form>
-                    <input type="hidden" name="email" value="<?= $email ?>">
-                    <input type="hidden" name="id" value="<?= $ed['id'] ?>">
-                    <div class="grid">
-                        <div><input type="submit" value="Read" hx-post="/api/read" hx-target="#main"></div>
-                        <div><input type="submit" value="Delete" hx-post="/api/delete" hx-confirm="Are you sure?" hx-target="closest tr" hx-swap="outerHTML swap:1s"></div>
-                    </div>
-                </form>
+              <div class="grid">
+                  <div><input type="submit" value="Read" hx-get="/api/read/<?= $email ?>/<?= $ed['id'] ?>" hx-push-url="/read/<?= $email ?>/<?= $ed['id'] ?>" hx-target="#main"></div>
+                  <div><input type="submit" value="Delete" hx-get="/api/delete/<?= $email ?>/<?= $ed['id'] ?>" hx-confirm="Are you sure?" hx-target="closest tr" hx-swap="outerHTML swap:1s"></div>
+              </div>
             </td>
         </tr>
     <?php endforeach; ?>
 </table>
 
-<script>history.pushState({email:"<?= $email ?>"}, "", "/address/<?= $email ?>");</script>
+<script>history.pushState({urlpath:"/address/<?= $email ?>"}, "", "/address/<?= $email ?>");</script>

@@ -17,3 +17,7 @@ tr.htmx-swapping td {
     text-align: center;
     border-radius: 5px;
 }
+
+.htmx-indicator{
+    display:none;
+}
