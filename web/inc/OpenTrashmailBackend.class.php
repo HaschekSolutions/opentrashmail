@@ -80,7 +80,7 @@ class OpenTrashmailBackend{
                     http_response_code(404);
                     exit(json_encode(['error'=>'Email ID not found']));
                 }
-                else if(!ctype_digit($id))
+                else if(!is_numeric($id))
                 {
                     http_response_code(400);
                     exit(json_encode(['error'=>'Invalid ID']));
@@ -117,7 +117,7 @@ class OpenTrashmailBackend{
     {
         if(!filter_var($email, FILTER_VALIDATE_EMAIL))
             return $this->error('Invalid email address');
-        else if(!ctype_digit($id))
+        else if(!is_numeric($id))
             return $this->error('Invalid id');
         else if(!emailIDExists($email,$id))
             return $this->error('Email not found');
@@ -129,7 +129,7 @@ class OpenTrashmailBackend{
     {
         if(!filter_var($email, FILTER_VALIDATE_EMAIL))
             return $this->error('Invalid email address');
-        else if(!ctype_digit($id))
+        else if(!is_numeric($id))
             return $this->error('Invalid id');
         else if(!emailIDExists($email,$id))
             return $this->error('Email not found');
@@ -147,7 +147,7 @@ class OpenTrashmailBackend{
         $attachment = substr($attachment,14);
         if(!filter_var($email, FILTER_VALIDATE_EMAIL))
             return $this->error('Invalid email address');
-        else if(!ctype_digit($id))
+        else if(!is_numeric($id))
             return $this->error('Invalid id');
         else if(!emailIDExists($email,$id))
             return $this->error('Email not found');
@@ -166,7 +166,7 @@ class OpenTrashmailBackend{
     {
         if(!filter_var($email, FILTER_VALIDATE_EMAIL))
             return $this->error('Invalid email address');
-        else if(!ctype_digit($id))
+        else if(!is_numeric($id))
             return $this->error('Invalid id');
         else if(!emailIDExists($email,$id))
             return $this->error('Email not found');
