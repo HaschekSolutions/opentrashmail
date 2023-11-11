@@ -1,0 +1,14 @@
+HELO localhost
+MAIL FROM:<system@example.com>
+RCPT TO:<random.user@rand.domain.tld>
+DATA
+Subject: Test Message
+
+Hi there! This is supposed to be an email...
+
+Have a good day!
+-- System
+
+
+.
+QUIT

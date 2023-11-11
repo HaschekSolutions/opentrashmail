@@ -171,6 +171,8 @@ if __name__ == '__main__':
             DELETE_OLDER_THAN_DAYS = (Config.get("CLEANUP","DELETE_OLDER_THAN_DAYS").lower() == "true")    
 
     print "[i] Starting Mailserver on port",port
+    print "[i] Discard unknown domains:",DISCARD_UNKNOWN
+    print "[i] Listening for domains:",DOMAINS
 
     server = CustomSMTPServer(('0.0.0.0', port), None) # use your public IP here
     print "[i] Ready to receive Emails"

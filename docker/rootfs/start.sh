@@ -28,6 +28,13 @@ else
   echo "DOMAINS=localhost" >> /var/www/opentrashmail/config.ini
 fi
 
+if [ "$URL" != "" ]; then
+	echo "URL=$URL" >> /var/www/opentrashmail/config.ini
+  echo "   [i] URL of GUI is set to: $URL"
+else
+  echo "URL=http://localhost:8080" >> /var/www/opentrashmail/config.ini
+fi
+
 if [ "$SHOW_ACCOUNT_LIST" != "" ]; then
 	echo "SHOW_ACCOUNT_LIST=$SHOW_ACCOUNT_LIST" >> /var/www/opentrashmail/config.ini
   echo "   [i] Set show account list to: $SHOW_ACCOUNT_LIST"
