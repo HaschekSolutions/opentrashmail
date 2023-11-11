@@ -18,6 +18,9 @@ if($_SERVER['HTTP_HX_REQUEST']!='true')
                 'settings'=>loadSettings(),
             ]));
 }
+else if(count($url)==1 && $url[0] == 'api') {
+    exit($backend->renderTemplate('intro.html'));
+}
 
 
 $answer = $backend->run();

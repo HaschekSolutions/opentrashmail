@@ -21,6 +21,7 @@ jobs:
         id: prep
         run: |
           DOCKER_IMAGE="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}"
+          DOCKER_IMAGE_HUB="docker.io/${{ env.IMAGE_NAME }}"
           VERSION=latest
           SHORTREF=${GITHUB_SHA::8}
 
@@ -29,17 +30,22 @@ jobs:
             VERSION=${GITHUB_REF#refs/tags/v}
           fi
           TAGS="${DOCKER_IMAGE}:${VERSION},${DOCKER_IMAGE}:${SHORTREF}"
+          TAGS_HUB="${DOCKER_IMAGE_HUB}:${VERSION},${DOCKER_IMAGE_HUB}:${SHORTREF}"
 
           # If the VERSION looks like a version number, assume that
           # this is the most recent version of the image and also
           # tag it 'latest'.
           if [[ $VERSION =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
             TAGS="$TAGS,${DOCKER_IMAGE}:latest"
+            TAGS_HUB="$TAGS_HUB,${DOCKER_IMAGE_HUB}:latest"
           fi
 
           # Set output parameters.
           echo ::set-output name=tags::${TAGS}
           echo ::set-output name=docker_image::${DOCKER_IMAGE}
+
+          echo ::set-output name=tags_hub::${TAGS_HUB}
+          echo ::set-output name=docker_image_hub::${DOCKER_IMAGE_HUB}
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@master
@@ -50,14 +56,21 @@ jobs:
         id: buildx
         uses: docker/setup-buildx-action@master
 
-      - name: Log in to the Container registry
+      - name: Log in to Github Packages
         uses: docker/login-action@v2
         with:
-          registry: ${{ env.REGISTRY }}
+          registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          registry: docker.io
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and push to GHCR
         uses: docker/build-push-action@v2
         with:
           builder: ${{ steps.buildx.outputs.name }}
@@ -66,3 +79,13 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: ${{ steps.prep.outputs.tags }}
+
+      - name: Build and push to Docker Hub
+        uses: docker/build-push-action@v2
+        with:
+          builder: ${{ steps.buildx.outputs.name }}
+          context: .
+          file: docker/Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.prep.outputs.tags_hub }}
