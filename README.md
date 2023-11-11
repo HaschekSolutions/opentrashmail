@@ -9,8 +9,9 @@
 
 <div align="center">
   
-![](https://img.shields.io/badge/php-7.1%2B-brightgreen.svg)
+![](https://img.shields.io/badge/php-7%2B-brightgreen.svg)
 ![](https://img.shields.io/badge/python-2.7%2B-brightgreen.svg)
+![](https://img.shields.io/badge/made%20with-htmx-brightgreen.svg)
 [![](https://img.shields.io/docker/pulls/hascheksolutions/opentrashmail?color=brightgreen)](https://hub.docker.com/r/hascheksolutions/opentrashmail)
 [![](https://github.com/hascheksolutions/opentrashmail/actions/workflows/build-docker.yml/badge.svg?color=brightgreen)](https://github.com/HaschekSolutions/opentrashmail/actions)
 [![Apache License](https://img.shields.io/badge/license-Apache-blue.svg?style=flat)](https://github.com/HaschekSolutions/opentrashmail/blob/master/LICENSE)

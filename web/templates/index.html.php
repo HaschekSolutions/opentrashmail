@@ -29,8 +29,6 @@
   </main>
 
   <script src="/js/htmx.min.js"></script>
-  <script src="/js/namegenerator.js"></script>
-  <!-- <script src="/js/opentrashmail.js"></script> -->
   <script src="/js/moment-with-locales.min.js"></script>
 </body>
 
