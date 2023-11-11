@@ -10,7 +10,7 @@ And check if it works on http://localhost:3000
 
 ## Sending debug emails from the command line
 
-Using the text file `tools/testmail.txt` and the following line of bash you can send emails to your server and test if it's acceping emails like you want.
+Using the text file `tools/testmail.txt` and the following line of bash you can send emails to your python mailserver and test if it's acceping emails like you want.
 
 Note that if you change cour config.ini, the mail server needs to be restarted before it takes effect.
 

@@ -7,7 +7,6 @@ on:
     branches: [ master ]
 
 env:
-  REGISTRY: ghcr.io
   IMAGE_NAME: $(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]')
 
 jobs:
@@ -20,7 +19,7 @@ jobs:
       - name: Prepare
         id: prep
         run: |
-          DOCKER_IMAGE="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}"
+          DOCKER_IMAGE="ghcr.io/${{ env.IMAGE_NAME }}"
           DOCKER_IMAGE_HUB="docker.io/${{ env.IMAGE_NAME }}"
           VERSION=latest
           SHORTREF=${GITHUB_SHA::8}
