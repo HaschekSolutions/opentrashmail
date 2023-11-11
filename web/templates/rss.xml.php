@@ -14,6 +14,7 @@
   <?php foreach ($emaildata as $id => $d): 
     $data = getEmail($email, $id);
     $time = substr($id, 0, -3);
+    $att_text = [];
     if (is_array($data['parsed']['attachments']))
         foreach ($data['parsed']['attachments'] as $filename) {
             $filepath = ROOT . DS . '..' . DS . 'data' . DS . $email . DS . 'attachments' . DS . $filename;

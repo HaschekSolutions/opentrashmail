@@ -1,9 +1,16 @@
 <nav aria-label="breadcrumb">
   <ul>
     <li><?= escape($email) ?></li>
-    <li><a href="/rss/<?= $email ?>">RSS Feed</a></li>
+    <li></li>
+    <li></li>
   </ul>
 </nav>
+
+<div>
+  <a role="button" class="outline" href="#" id="copyemailbtn" onclick="copyEmailToClipboard();return false;"><i class="far fa-clipboard"></i> Copy address to clipboard</a>
+  <a role="button" class="outline" href="/rss/<?= $email ?>" target="_blank"><i class="fas fa-rss"></i> RSS Feed</a>
+  <a role="button" class="outline" href="/json/<?= $email ?>" target="_blank"><i class="fas fa-file-code"></i> JSON API</a>
+</div>
 
 <table role="grid">
   <thead>
@@ -30,13 +37,17 @@
             <td><?= escape($ed['from']) ?></td>
             <td><?= escape($ed['subject']) ?></td>
             <td>
-              <div class="grid">
-                  <div><input type="submit" value="Read" hx-get="/api/read/<?= $email ?>/<?= $ed['id'] ?>" hx-push-url="/read/<?= $email ?>/<?= $ed['id'] ?>" hx-target="#main"></div>
-                  <div><input type="submit" value="Delete" hx-get="/api/delete/<?= $email ?>/<?= $ed['id'] ?>" hx-confirm="Are you sure?" hx-target="closest tr" hx-swap="outerHTML swap:1s"></div>
-              </div>
+                  <a href="/read/<?= $email ?>/<?= $ed['id'] ?>" hx-get="/api/read/<?= $email ?>/<?= $ed['id'] ?>" hx-push-url="/read/<?= $email ?>/<?= $ed['id'] ?>" hx-target="#main" role="button">Open</a>
+                  <a href="#" hx-get="/api/delete/<?= $email ?>/<?= $ed['id'] ?>" hx-confirm="Are you sure?" hx-target="closest tr" hx-swap="outerHTML swap:1s" role="button">Delete</a>
             </td>
         </tr>
     <?php endforeach; ?>
 </table>
 
 <script>history.pushState({urlpath:"/address/<?= $email ?>"}, "", "/address/<?= $email ?>");</script>
+<script>
+  function copyEmailToClipboard(){
+    navigator.clipboard.writeText("<?= $email ?>");
+    document.getElementById('copyemailbtn').innerHTML = '<i class="fas fa-check-circle" style="color: green;"></i> Copied!';
+  }
+</script>

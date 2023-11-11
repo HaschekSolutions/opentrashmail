@@ -57,6 +57,41 @@ class OpenTrashmailBackend{
             ]);
         }
 
+        //json api
+        else if($this->url[0]=='json')
+        {
+            header("Content-Type: application/json; charset=UTF8");
+            if($this->url[1]=='listaccounts')
+            {
+                if($this->settings['SHOW_ACCOUNT_LIST'])
+                    return json_encode(listEmailAdresses());
+                else exit(json_encode(['error'=>'403 Forbidden']));
+            }
+            $email = $this->url[1];
+            if (!$email || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                http_response_code(404);
+                exit(json_encode(['error'=>'Email not found']));
+            }
+            $id = $this->url[2];
+            if($id) //user wants a specific email ID
+            {
+                if(!emailIDExists($email,$id))
+                {
+                    http_response_code(404);
+                    exit(json_encode(['error'=>'Email ID not found']));
+                }
+                else if(!ctype_digit($id))
+                {
+                    http_response_code(400);
+                    exit(json_encode(['error'=>'Invalid ID']));
+                }
+                else
+                    return json_encode(getEmail($email,$id));
+            }
+            else
+                return json_encode(getEmailsOfEmail($email,true,true));
+        }
+
         else return false;
     }
     

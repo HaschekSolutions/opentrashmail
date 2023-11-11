@@ -38,7 +38,7 @@ function emailIDExists($email,$id)
     return file_exists(getDirForEmail($email).DS.$id.'.json');
 }
 
-function getEmailsOfEmail($email)
+function getEmailsOfEmail($email,$includebody=false,$includeattachments=false)
 {
     $o = [];
     $settings = loadSettings();
@@ -62,6 +62,15 @@ function getEmailsOfEmail($email)
                                 'md5'=>md5($time.$json['raw']),
                                 'maillen'=>strlen($json['raw'])
                             );
+                            if($includebody==true)
+                                $o[$time]['body'] = $json['parsed']['body'];
+                                if($includeattachments==true)
+                                {
+                                    $o[$time]['attachments'] = $json['parsed']['attachments'];
+                                    //add url to attachments
+                                    foreach($o[$time]['attachments'] as $k=>$v)
+                                        $o[$time]['attachments'][$k] = $settings['URL'].'/api/attachment/'.$email.'/'. $v;
+                                }
                         }
                     }
                     closedir($handle);
@@ -76,8 +85,23 @@ function getEmailsOfEmail($email)
                 if (endsWith($entry,'.json')) {
                     $time = substr($entry,0,-5);
                     $json = json_decode(file_get_contents(getDirForEmail($email).DS.$entry),true);
-                    $o[$time] = array('email'=>$email,'id'=>$time,'from'=>$json['parsed']['from'],'subject'=>$json['parsed']['subject'],'md5'=>md5($time.$json['raw']),'maillen'=>strlen($json['raw']));
-                }
+                    $o[$time] = array(
+                                        'email'=>$email,
+                                        'id'=>$time,
+                                        'from'=>$json['parsed']['from'],
+                                        'subject'=>$json['parsed']['subject'],
+                                        'md5'=>md5($time.$json['raw']),'maillen'=>strlen($json['raw'])
+                                    );
+                                    if($includebody==true)
+                                        $o[$time]['body'] = $json['parsed']['body'];
+                                    if($includeattachments==true)
+                                    {
+                                        $o[$time]['attachments'] = $json['parsed']['attachments'];
+                                        //add url to attachments
+                                        foreach($o[$time]['attachments'] as $k=>$v)
+                                            $o[$time]['attachments'][$k] = $settings['URL'].'/api/attachment/'.$email.'/'. $v;
+                                    }
+                }                   
             }
             closedir($handle);
         }
