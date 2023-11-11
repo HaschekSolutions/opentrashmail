@@ -33,6 +33,9 @@
 - 100% file based, no database needed
 - Can be used as Email Honeypot
 
+# JSON API
+
+
 
 ## [INFO] March '23
 Since Docker Hub won't allow team Organizations anymore, we moved our images to GitHub Container Registry. So if you want to use the latest version, please use the new image ghcr.io/hascheksolutions/opentrashmail instead of hascheksolutions/opentrashmail
@@ -60,9 +63,9 @@ Just edit the `config.ini` You can use the following settings
   - [x] Admin overview for all available email addresses
   - [x] Option to show raw email
   - [x] Delete messages
-  - [ ] Secure HTML, so no malicious things can be loaded
+  - [x] Make better theme
+  - [x] Secure HTML, so no malicious things can be loaded
   - [ ] Display embedded images inline using Content-ID
-  - [ ] Make better theme
 - [ ] Configurable settings
   - [x] Choose domains for random generation
   - [x] Choose if out-of-scope emails are discarded

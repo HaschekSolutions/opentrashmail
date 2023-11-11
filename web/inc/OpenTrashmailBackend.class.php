@@ -18,6 +18,12 @@ class OpenTrashmailBackend{
                     return $this->listAccount($_REQUEST['email']?:$this->url[2]);
                 case 'read':
                     return $this->readMail($_REQUEST['email']?:$this->url[2],$_REQUEST['id']?:$this->url[3]);
+                case 'listaccounts':
+                    if($this->settings['SHOW_ACCOUNT_LIST'])
+                        return $this->listAccounts();
+                    else return '403 Forbidden';
+                case 'raw-html':
+                    return $this->getRawMail($this->url[2],$this->url[3],true);
                 case 'raw':
                     return $this->getRawMail($this->url[2],$this->url[3]);
                 case 'attachment':
@@ -28,6 +34,8 @@ class OpenTrashmailBackend{
                     $addr = generateRandomEmail();
                     //add header HX-Redirect
                     return $this->listAccount($addr);
+                case 'deleteaccount':
+                    return $this->deleteAccount($_REQUEST['email']?:$this->url[2]);
                 default:
                     return false;
             }
@@ -51,6 +59,24 @@ class OpenTrashmailBackend{
 
         else return false;
     }
+    
+    function deleteAccount($email)
+    {
+        if(!filter_var($email, FILTER_VALIDATE_EMAIL))
+            return $this->error('Invalid email address');
+        $path = getDirForEmail($email);
+        if(is_dir($path))
+            delTree($path);
+    }
+
+    function listAccounts()
+    {
+        $accounts = listEmailAdresses();
+        return $this->renderTemplate('account-list.html',[
+            'emails'=>$accounts,
+            'dateformat'=>$this->settings['DATEFORMAT']
+        ]);
+    }
 
     function deleteMail($email,$id)
     {
@@ -64,7 +90,7 @@ class OpenTrashmailBackend{
         return '';
     }
 
-    function getRawMail($email,$id)
+    function getRawMail($email,$id,$htmlbody=false)
     {
         if(!filter_var($email, FILTER_VALIDATE_EMAIL))
             return $this->error('Invalid email address');
@@ -73,6 +99,8 @@ class OpenTrashmailBackend{
         else if(!emailIDExists($email,$id))
             return $this->error('Email not found');
         $emaildata = getEmail($email,$id);
+        if($htmlbody)
+            exit($emaildata['parsed']['htmlbody']);
         header('Content-Type: text/plain');
         echo $emaildata['raw'];
         exit;

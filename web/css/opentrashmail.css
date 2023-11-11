@@ -21,3 +21,11 @@ tr.htmx-swapping td {
 .htmx-indicator{
     display:none;
 }
+
+
+/* pico css overrides */
+
+:root {
+    --form-element-spacing-vertical: 0.15rem;
+    --form-element-spacing-horizontal: 1rem;
+}

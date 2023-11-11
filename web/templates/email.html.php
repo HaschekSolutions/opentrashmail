@@ -8,7 +8,6 @@
 <article>
     <header>
         <p>Subject: <?= escape($emaildata['parsed']['subject']) ?></p>
-
         <p>Received: <span id="date2-<?= $mailid ?>"><script>document.getElementById('date2-<?= $mailid ?>').innerHTML = moment.unix(parseInt(<?=$mailid?>/1000)).format('<?= $dateformat; ?>');</script></span></p>
 
         <p>
@@ -18,7 +17,14 @@
             <?php endforeach; ?>
         </p>
     </header>
-    <?= nl2br(escape($emaildata['parsed']['body'])) ?>
+    
+    <div id="emailbody">
+        <?php if($emaildata['parsed']['htmlbody']): ?>
+            <a href="#" hx-confirm="Warning: HTML may contain tracking functionality or scripts. Do you want to proceed?" hx-get="/api/raw-html/<?= $email ?>/<?= $mailid ?>" hx-target="#emailbody" role="button" class="secondary outline">Render email in HTML</a>
+        <?php endif; ?>
+        <hr>
+        <pre><?= nl2br(escape($emaildata['parsed']['body'])) ?></pre>
+    </div>
     <footer>
         Attachments
         <div>

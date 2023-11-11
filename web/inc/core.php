@@ -178,3 +178,41 @@ function generateRandomEmail()
 
     return $adjectives[array_rand($adjectives)] . '.' . $nouns[array_rand($nouns)].'@'.$dom;
 }
+
+function removeScriptsFromHtml($html) {
+    // Remove script tags
+    $html = preg_replace('/<script\b[^>]*>(.*?)<\/script>/is', "", $html);
+
+    // Remove event attributes that execute scripts
+    $html = preg_replace('/\bon\w+="[^"]*"/i', "", $html);
+
+    // Remove href attributes that execute scripts
+    $html = preg_replace('/\bhref="javascript[^"]*"/i', "", $html);
+
+    // Remove any other attributes that execute scripts
+    $html = preg_replace('/\b\w+="[^"]*\bon\w+="[^"]*"[^>]*>/i', "", $html);
+
+    return $html;
+}
+
+function countEmailsOfAddress($email)
+{
+    $count = 0;
+    if ($handle = opendir(getDirForEmail($email))) {
+        while (false !== ($entry = readdir($handle)))
+            if (endsWith($entry,'.json'))
+                $count++;
+    }
+    closedir($handle);
+    return $count;
+}
+
+function delTree($dir) {
+
+    $files = array_diff(scandir($dir), array('.','..'));
+     foreach ($files as $file) {
+       (is_dir("$dir/$file")) ? delTree("$dir/$file") : unlink("$dir/$file");
+     }
+     return rmdir($dir);
+ 
+   }

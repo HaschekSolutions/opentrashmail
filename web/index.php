@@ -14,7 +14,8 @@ if($_SERVER['HTTP_HX_REQUEST']!='true')
     if(count($url)==0 || !file_exists(ROOT.DS.implode('/', $url)))
         if($url[0]!='api' && $url[0]!='rss')
             exit($backend->renderTemplate('index.html',[
-                'url'=>implode('/', $url)
+                'url'=>implode('/', $url),
+                'settings'=>loadSettings(),
             ]));
 }
 
