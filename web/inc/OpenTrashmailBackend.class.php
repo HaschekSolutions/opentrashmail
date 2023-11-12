@@ -191,6 +191,7 @@ class OpenTrashmailBackend{
         $emails = getEmailsOfEmail($email);
         //var_dump($emails);
         return $this->renderTemplate('email-table.html',[
+            'isadmin'=>($this->settings['ADMIN']==$email),
             'email'=>$email,
             'emails'=>$emails,
             'dateformat'=>$this->settings['DATEFORMAT']
