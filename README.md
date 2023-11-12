@@ -91,24 +91,59 @@ Just edit the `config.ini` You can use the following settings
 
 # Quick start
 
+## Set the MX Records
+
+In your DNS panel create a MX record for your domain pointing to the IP of the server hosting OpenTrashmail.
+
+The following example will allow you to send emails to example.com
+
+```zonefile
+mail.example.com.	IN	A		93.184.216.34
+example.com.    14400   IN      MX      10      mail.example.com.
+```
+
+This advanced example will allow you to use a wildcard domain:
+
+```zonefile
+mail.example.com.	IN	A		93.184.216.34
+*.example.com.    14400   IN      MX      10      mail.example.com.
+```
+
+This in combination with the configuration option "DOMAINS" (eg docker parameter `-e DOMAINS="*.example.com"`) will allow you to use any address with any subdomain of example.com (eg test@robot.example.com, john@lynn.example.com, etc..)
+
+## Running in docker (preferred)
+
 Simple start with no persistence
 
 ```bash
-docker run -it -p 25:25 -p 80:80 ghcr.io/hascheksolutions/opentrashmail
+docker run -it -p 25:25 -p 80:80 -e URL="https://localhost:80" hascheksolutions/opentrashmail
 ```
 
 Saving data directory on host machine
 
 ```bash
-docker run -p 80:80 -p 25:25 -v /path/on/host/where/to/save/data:/var/www/opentrashmail/data ghcr.io/hascheksolutions/opentrashmail
+docker run -p 80:80 -p 25:25 -e URL="https://localhost:80" -v /path/on/host/where/to/save/data:/var/www/opentrashmail/data hascheksolutions/opentrashmail
 ```
 
 Complete example with running as daemon, persistence, a domain for auto-generation of emails, acceptng only emails for configured domains, cleanup for mails older than 90 days and auto restart
 
 ```bash
-docker run -d --restart=unless-stopped --name opentrashmail -e "DOMAINS=mydomain.eu" -e "DATEFORMAT='D.M.YYYY HH:mm'" -e "DISCARD_UNKNOWN=false" -e "DELETE_OLDER_THAN_DAYS=90" -p 80:80 -p 25:25 -v /path/on/host/where/to/save/data:/var/www/opentrashmail/data ghcr.io/hascheksolutions/opentrashmail
+docker run -d --restart=unless-stopped --name opentrashmail -e "DOMAINS=mydomain.eu" -e "DATEFORMAT='D.M.YYYY HH:mm'" -e "DISCARD_UNKNOWN=false" -e "DELETE_OLDER_THAN_DAYS=90" -p 80:80 -p 25:25 -v /path/on/host/where/to/save/data:/var/www/opentrashmail/data hascheksolutions/opentrashmail
 ```
 
 # How it works
 
 The heart of Open Trashmail is a **Python-powered SMTP server** that listens on incoming emails and stores them as JSON files. The server doesn't have to know the right email domain, it will just **catch everything** it receives. You only have to **expose port 25 to the web** and set an **MX record** of your domain pointing to the IP address of your machine.
+
+# Configuration
+
+In Docker you can use the following environment variables:
+
+| ENV var | What it does | Example values |
+| --------|--------------|----------|
+| DISCARD_UNKNOWN | Tells the Mailserver to wether or not delete emails that are addressed to domains that are not configured | true, false |
+| DOMAINS | The whitelisted Domains the server will listen for. If DISCARD_UNKNOWN is set to false, this will only be used to generate random emails in the webinterface |
+| URL | The URL of the web interface. Used by the API and RSS feed | http://localhost:8080 |
+| SHOW_ACCOUNT_LIST | If set to `true`, all accounts that have previously received emails can be listed via API or webinterface | true,false |
+| ADMIN | If set to a valid email address and this address is entered in the API or webinterface, will show all emails of all accounts. Kind-of catch-all | test@test.com
+| DATEFORMAT  | Will format the received date in the web interface based on [moment.js](https://momentjs.com/) syntax | "MMMM Do YYYY, h:mm:ss a" |
