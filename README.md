@@ -35,13 +35,23 @@
 - 100% file based, no database needed
 - Can be used as Email Honeypot
 
+# General API calls and functions
+
+| Endpoint                   | Explanation                                                                                                                                                                                           | Example output                   |
+|----------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------|
+| /rss/`[email-address]`     | Renders RSS XML for rss clients to render emails | [![](https://pictshare.net/ysu5qp.png)](https://pictshare.net/ysu5qp.png) |
+| /api/raw/`[email-address]/[id]`     | Returns the raw email of the address. Warning: Output can be as large as the email itself so might be up to 20mb for mails with large attachments | [![](https://pictshare.net/pkb49p.png)](https://pictshare.net/pkb49p.png) |
+| /api/attachment`[email-address]/[attachment-id]` | Returns the attachment with the correct mime type as header | |
+| /api/delete/`[email-address]/[id]`  | Deletes a specific email message and their attachments | |
+| /api/deleteaccount/`[email-address]`| Deletes all messages and attachments of this email account | |
+
 # JSON API
 
 | Endpoint                   | Explanation                                                                                                                                                                                           | Example output                   |
 |----------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------|
-| /json/`[email-address]`      | Returns an array of received emails with links to the attachments and the parsed text based body of the email. If `ADMIN` email is entered, will return all emails of all accounts                    | [![](https://pictshare.net/100x100/sflw6t.png)](https://pictshare.net/sflw6t.png) |
-| /json/`[email-address]/[id]` | To see all the data of a received email, take the ID from the previous call and poll this to get the raw and HTML body of the email. Can be huge since the body can contain all attachments in base64 | [![](https://pictshare.net/100x100/eltku4.png)](https://pictshare.net/eltku4.png) |
-| /json/listaccounts         | If `SHOW_ACCOUNT_LIST` is set to true in the config.ini, this endpoint will return an array of all email addresses which have received at least one email                                             | [![](https://pictshare.net/100x100/u6agji.png)](https://pictshare.net/u6agji.png) |
+| /json/`[email-address]`       | Returns an array of received emails with links to the attachments and the parsed text based body of the email. If `ADMIN` email is entered, will return all emails of all accounts                    | [![](https://pictshare.net/100x100/sflw6t.png)](https://pictshare.net/sflw6t.png) |
+| /json/`[email-address]/[id]`  | To see all the data of a received email, take the ID from the previous call and poll this to get the raw and HTML body of the email. Can be huge since the body can contain all attachments in base64 | [![](https://pictshare.net/100x100/eltku4.png)](https://pictshare.net/eltku4.png) |
+| /json/listaccounts            | If `SHOW_ACCOUNT_LIST` is set to true in the config.ini, this endpoint will return an array of all email addresses which have received at least one email                                             | [![](https://pictshare.net/100x100/u6agji.png)](https://pictshare.net/u6agji.png) |
 
 
 # Configuration

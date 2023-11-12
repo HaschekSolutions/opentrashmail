@@ -32,7 +32,6 @@ class OpenTrashmailBackend{
                     return $this->deleteMail($_REQUEST['email']?:$this->url[2],$_REQUEST['id']?:$this->url[3]);
                 case 'random':
                     $addr = generateRandomEmail();
-                    //add header HX-Redirect
                     return $this->listAccount($addr);
                 case 'deleteaccount':
                     return $this->deleteAccount($_REQUEST['email']?:$this->url[2]);
