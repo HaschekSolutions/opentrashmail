@@ -32,7 +32,6 @@ class OpenTrashmailBackend{
                     return $this->deleteMail($_REQUEST['email']?:$this->url[2],$_REQUEST['id']?:$this->url[3]);
                 case 'random':
                     $addr = generateRandomEmail();
-                    //add header HX-Redirect
                     return $this->listAccount($addr);
                 case 'deleteaccount':
                     return $this->deleteAccount($_REQUEST['email']?:$this->url[2]);
@@ -80,7 +79,7 @@ class OpenTrashmailBackend{
                     http_response_code(404);
                     exit(json_encode(['error'=>'Email ID not found']));
                 }
-                else if(!ctype_digit($id))
+                else if(!is_numeric($id))
                 {
                     http_response_code(400);
                     exit(json_encode(['error'=>'Invalid ID']));
@@ -117,7 +116,7 @@ class OpenTrashmailBackend{
     {
         if(!filter_var($email, FILTER_VALIDATE_EMAIL))
             return $this->error('Invalid email address');
-        else if(!ctype_digit($id))
+        else if(!is_numeric($id))
             return $this->error('Invalid id');
         else if(!emailIDExists($email,$id))
             return $this->error('Email not found');
@@ -129,7 +128,7 @@ class OpenTrashmailBackend{
     {
         if(!filter_var($email, FILTER_VALIDATE_EMAIL))
             return $this->error('Invalid email address');
-        else if(!ctype_digit($id))
+        else if(!is_numeric($id))
             return $this->error('Invalid id');
         else if(!emailIDExists($email,$id))
             return $this->error('Email not found');
@@ -147,7 +146,7 @@ class OpenTrashmailBackend{
         $attachment = substr($attachment,14);
         if(!filter_var($email, FILTER_VALIDATE_EMAIL))
             return $this->error('Invalid email address');
-        else if(!ctype_digit($id))
+        else if(!is_numeric($id))
             return $this->error('Invalid id');
         else if(!emailIDExists($email,$id))
             return $this->error('Email not found');
@@ -166,7 +165,7 @@ class OpenTrashmailBackend{
     {
         if(!filter_var($email, FILTER_VALIDATE_EMAIL))
             return $this->error('Invalid email address');
-        else if(!ctype_digit($id))
+        else if(!is_numeric($id))
             return $this->error('Invalid id');
         else if(!emailIDExists($email,$id))
             return $this->error('Email not found');
@@ -191,6 +190,7 @@ class OpenTrashmailBackend{
         $emails = getEmailsOfEmail($email);
         //var_dump($emails);
         return $this->renderTemplate('email-table.html',[
+            'isadmin'=>($this->settings['ADMIN']==$email),
             'email'=>$email,
             'emails'=>$emails,
             'dateformat'=>$this->settings['DATEFORMAT']
