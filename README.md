@@ -25,6 +25,8 @@
 
 ![Screenshot of Open Trashmail](https://pictshare.net/9tim7k.png)
 
+# [Changelog](/CHANGELOG.md)
+
 # Features
 - Python-powered mail server that works out of the box for any domain you throw at it
 - RSS feed for every email address
