@@ -1,12 +1,25 @@
-# Quick testing
+# Local dev
 
-From the main directory run
+## Web UI
+
+For testing the web UI you need to have php installed. From within the `web/` directory run `php -S localhost:8080 index.php` then you will be able to access the UI via http://localhost:8080
+
+Since OpenTrashmail does not use a database, it will work right away but you won't be able to receive emails without running the python SMTP server. 
+
+## Mailserver
+
+In combination with the PHP command from above you can use docker to run the mail server (since you probably don't have python2 installed on your machine).
+
+From the root directory run:
 
 ```bash
-docker build -f docker/Dockerfile -t opentrashmail . && docker run --rm -it --name trashmail -p 3000:80 -p 2525:25 opentrashmail
+docker build -f docker/Dockerfile -t opentrashmail .
+docker run --rm -it --name trashmail -p 2525:25 \
+-v $( pwd )/data:/var/www/opentrashmail/data \
+-v $( pwd )/config.ini:/var/www/opentrashmail/config.ini:ro opentrashmail
 ```
 
-And check if it works on http://localhost:3000
+This binds the mailserver on port 2525 and also mounts the local data directory and your `config.ini` to the container. So emails you receive will show up in your `data` folder.
 
 ## Sending debug emails from the command line
 
