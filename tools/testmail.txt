@@ -1,14 +1,38 @@
-HELO localhost
-MAIL FROM:<system@example.com>
-RCPT TO:<random.user@rand.domain.tld>
+EHLO example.com
+MAIL FROM: <sender@example.com>
+RCPT TO: <recipient@example.com>
 DATA
-Subject: Test Message
+Subject: Your Subject
+From: sender@example.com
+To: recipient@example.com
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="boundary-string"
 
-Hi there! This is supposed to be an email...
+--boundary-string
+Content-Type: multipart/alternative; boundary="alternative-boundary"
 
-Have a good day!
--- System
+--alternative-boundary
+Content-Type: text/plain
 
+This is the plaintext part of the email.
 
+--alternative-boundary
+Content-Type: text/html
+
+<html>
+  <body>
+    <p>This is the HTML part of the email.</p>
+  </body>
+</html>
+
+--alternative-boundary--
+
+--boundary-string
+Content-Type: application/octet-stream
+Content-Disposition: attachment; filename="example.txt"
+
+(Attach the contents of your file here)
+
+--boundary-string--
 .
 QUIT
