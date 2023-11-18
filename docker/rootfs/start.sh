@@ -72,4 +72,4 @@ fi
 chown -R nginx:nginx /var/www/opentrashmail/data
 
 echo ' [+] Starting Mailserver'
-su - nginx -s /bin/ash -c 'cd /var/www/opentrashmail/python;python mailserver.py'
+su - nginx -s /bin/ash -c 'cd /var/www/opentrashmail/python;python mailserver.py > /var/www/opentrashmail/logs/mailserver.log 2>&1 '

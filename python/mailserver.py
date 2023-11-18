@@ -98,7 +98,6 @@ class CustomSMTPServer(smtpd.SMTPServer):
         except:
             logger.exception('Error reading incoming email')
         else:
-            # this data will be sent as POST data
             edata = {
                 'subject': subject,
                 'body': body,

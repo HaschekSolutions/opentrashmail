@@ -65,6 +65,19 @@ Just edit the `config.ini` You can use the following settings
 - `ADMIN` -> An email address (doesn't have to exist, just has to be valid) that will list all emails of all addresses the server has received. Kind of a catch-all
 - `DATEFORMAT` -> How should timestamps be shown on the web interface ([moment.js syntax](https://momentjs.com/docs/#/displaying/))
 
+## Docker env vars
+In Docker you can use the following environment variables:
+
+| ENV var | What it does | Example values |
+| --------|--------------|----------|
+| URL | The URL of the web interface. Used by the API and RSS feed | http://localhost:8080 |
+| DISCARD_UNKNOWN | Tells the Mailserver to wether or not delete emails that are addressed to domains that are not configured | true, false |
+| DOMAINS | The whitelisted Domains the server will listen for. If DISCARD_UNKNOWN is set to false, this will only be used to generate random emails in the webinterface |
+| SHOW_ACCOUNT_LIST | If set to `true`, all accounts that have previously received emails can be listed via API or webinterface | true,false |
+| ADMIN | If set to a valid email address and this address is entered in the API or webinterface, will show all emails of all accounts. Kind-of catch-all | test@test.com
+| DATEFORMAT  | Will format the received date in the web interface based on [moment.js](https://momentjs.com/) syntax | "MMMM Do YYYY, h:mm:ss a" |
+
+
 # Roadmap
 - [x] Mail server
   - [x] Storing received mails in JSON
@@ -136,16 +149,3 @@ docker run -d --restart=unless-stopped --name opentrashmail -e "DOMAINS=mydomain
 # How it works
 
 The heart of Open Trashmail is a **Python-powered SMTP server** that listens on incoming emails and stores them as JSON files. The server doesn't have to know the right email domain, it will just **catch everything** it receives. You only have to **expose port 25 to the web** and set an **MX record** of your domain pointing to the IP address of your machine.
-
-# Configuration
-
-In Docker you can use the following environment variables:
-
-| ENV var | What it does | Example values |
-| --------|--------------|----------|
-| DISCARD_UNKNOWN | Tells the Mailserver to wether or not delete emails that are addressed to domains that are not configured | true, false |
-| DOMAINS | The whitelisted Domains the server will listen for. If DISCARD_UNKNOWN is set to false, this will only be used to generate random emails in the webinterface |
-| URL | The URL of the web interface. Used by the API and RSS feed | http://localhost:8080 |
-| SHOW_ACCOUNT_LIST | If set to `true`, all accounts that have previously received emails can be listed via API or webinterface | true,false |
-| ADMIN | If set to a valid email address and this address is entered in the API or webinterface, will show all emails of all accounts. Kind-of catch-all | test@test.com
-| DATEFORMAT  | Will format the received date in the web interface based on [moment.js](https://momentjs.com/) syntax | "MMMM Do YYYY, h:mm:ss a" |

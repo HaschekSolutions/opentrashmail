@@ -21,8 +21,8 @@ RUN sed -i 's/nobody/nginx/g' /etc/php7/php-fpm.d/www.conf
 WORKDIR /var/www/opentrashmail
 
 # Volumes to mount
-#VOLUME /var/lib/influxdb
 VOLUME /var/www/opentrashmail/data
+VOLUME /var/www/opentrashmail/logs
 
 EXPOSE 80 25
 
