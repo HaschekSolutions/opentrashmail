@@ -1,14 +1,16 @@
 import asyncio
 from aiosmtpd.controller import Controller
-import email
-from email.header import decode_header
-from email.utils import parseaddr
-import configparser
-import json
+from email.parser import BytesParser
+from email import policy
+import os
 import re
-import logging
-import os, sys
 import time
+import json
+import uuid
+import configparser
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+import logging
 
 logger = logging.getLogger(__name__)
 
@@ -18,83 +20,57 @@ DELETE_OLDER_THAN_DAYS = False
 DOMAINS = []
 LAST_CLEANUP = 0
 
-class TrashmailHandler:
+class CustomHandler:
     async def handle_DATA(self, server, session, envelope):
         peer = session.peer
-        mailfrom = envelope.mail_from
-        rcpttos = envelope.rcpt_tos
-        data = envelope.content.decode('utf8', errors='replace')                
+        rcpts = []
+        for rcpt in envelope.rcpt_tos:
+            rcpts.append(rcpt)
+        
+        logger.debug('Receiving message from: %s:%d' % peer)
+        logger.debug('Message addressed from: %s' % envelope.mail_from)
+        logger.debug('Message addressed to: %s' % str(rcpts))
 
-        try:
-            mailfrom = parseaddr(mailfrom)[1]
-            logger.debug('Receiving message from: %s:%d' % peer)
-            logger.debug('Message addressed from: %s' % mailfrom)
-            logger.debug('Message addressed to: %s' % str(rcpttos))
+        # Get the raw email data
+        raw_email = envelope.content.decode('utf-8')
 
-            msg = email.message_from_bytes(envelope.content) 
-            #print("head -> ",msg)
-            subject = ''
-            for encoded_string, charset in decode_header(msg.get('Subject')):
-                try:
-                    if charset is not None:
-                        subject += encoded_string.decode(charset)
-                    else:
-                        subject += encoded_string
-                except:
-                    logger.exception('Error reading part of subject: %s charset %s' %
-                                     (encoded_string, charset))
-                    return '500 Could not process your message'
+        # Parse the email
+        message = BytesParser(policy=policy.default).parsebytes(envelope.content)
 
-            logger.debug('Subject: %s' % subject)
+        # Separate HTML and plaintext parts
+        plaintext = ''
+        html = ''
+        attachments = {}
+        for part in message.walk():
+            if part.get_content_type() == 'text/plain':
+                plaintext += part.get_payload()
+            elif part.get_content_type() == 'text/html':
+                html += part.get_payload()
 
-            text_parts = []
-            html_parts = []
-            attachments = {}
+        # Save attachments
+        for part in message.iter_attachments():
+            filename = part.get_filename()
+            if filename is None:
+                filename = 'untitled'
+            attachments['file%d' % len(attachments)] = (filename,part.get_payload(decode=True))
 
-            for part in msg.walk():
-                if part.get_content_maintype() == 'multipart':
-                    continue
-
-                c_type = part.get_content_type()
-                c_disp = part.get('Content-Disposition')
-
-                # text parts will be appended to text_parts
-                if c_type == 'text/plain' and c_disp == None:
-                    text_parts.append(str(part.get_payload(decode=True).strip().decode('utf8', errors='replace')))
-                # ignore html part
-                elif c_type == 'text/html':
-                    html_parts.append(str(part.get_payload(decode=True).strip().decode('utf8', errors='replace')))
-                # attachments will be sent as files in the POST request
-                else:
-                    filename = part.get_filename()
-                    filecontent = part.get_payload(decode=True)
-                    if filecontent is not None:
-                        if filename is None:
-                            filename = 'untitled'
-                        attachments['file%d' % len(attachments)] = (filename,
-                                                                    filecontent)
-
-            body = '\n'.join(text_parts)
-            htmlbody = '\n'.join(html_parts)            
-
-        except:
-            logger.exception('Error reading incoming email')
-            return '500 Could not process your message'
-
-        else:
-            # this data will be sent as POST data
-            edata = {
-                'subject': subject,
-                'body': body,
-                'htmlbody': htmlbody,
-                'from': mailfrom,
+        edata = {
+                'subject': message['subject'],
+                'body': plaintext,
+                'htmlbody': html,
+                'from': message['from'],
                 'attachments':[]
             }
-            savedata = {'sender_ip':peer[0],'from':mailfrom,'rcpts':rcpttos,'raw':data,'parsed':edata}
+        savedata = {'sender_ip':peer[0],
+                    'from':message['from'],
+                    'rcpts':rcpts,
+                    'raw':raw_email,
+                    'parsed':edata
+                    }
+        
+        filenamebase = str(int(round(time.time() * 1000)))
 
-            filenamebase = str(int(round(time.time() * 1000)))
-
-            for em in rcpttos:
+        for em in rcpts:
                 em = em.lower()
                 if not re.match(r"[^@\s]+@[^@\s]+\.[a-zA-Z0-9]+$", em):
                     logger.exception('Invalid recipient: %s' % em)
@@ -127,9 +103,7 @@ class TrashmailHandler:
                 # save actual json data
                 with open("../data/"+em+"/"+filenamebase+".json", "w") as outfile:
                     json.dump(savedata, outfile)
-        
-        # if error_occurred:
-        #     return '500 Could not process your message'
+
         return '250 OK'
 
 def cleanup():
@@ -145,6 +119,18 @@ def cleanup():
                 if(time.time() - file_modified > (DELETE_OLDER_THAN_DAYS * 86400)):
                     os.remove(filepath)
                     logger.info("Deleted file: " + filepath)
+
+async def run(port):
+    controller = Controller(CustomHandler(), hostname='0.0.0.0', port=port)
+    controller.start()
+    print("[i] Ready to receive Emails")
+    print("")
+
+    try:
+        while True:
+            await asyncio.sleep(1)
+    except KeyboardInterrupt:
+        controller.stop()
 
 if __name__ == '__main__':
     ch = logging.StreamHandler()
@@ -171,19 +157,6 @@ if __name__ == '__main__':
     print("[i] Starting Mailserver on port",port)
     print("[i] Discard unknown domains:",DISCARD_UNKNOWN)
     print("[i] Listening for domains:",DOMAINS)
-
-
-    handler = TrashmailHandler()
-    controller = Controller(handler, hostname='0.0.0.0', port=port)
-    # Run the event loop in a separate thread.
-    controller.start()
-    print("[i] Ready to receive Emails")
-    print("")
-
-    while True:
-        try:
-            time.sleep(3600)
-            cleanup()
-        except KeyboardInterrupt:
-            break
     
+
+    asyncio.run(run(port))
