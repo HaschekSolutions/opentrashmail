@@ -8,20 +8,22 @@
 
 <h2>Mailserver log</h2>
 <div>
-    <pre><code><?= file_exists($mailserverlogfile)?tailShell($mailserverlogfile, $lines):'- Mailserver log file not found -' ?></code><pre>
+    <pre><code class="language-log"><?= file_exists($mailserverlogfile)?tailShell($mailserverlogfile, $lines):'- Mailserver log file not found -' ?></code><pre>
 </div>
 
 <h2>Webserver error log</h2>
 <div>
-    <pre><code><?= file_exists($webservererrorlogfile)?tailShell($webservererrorlogfile, $lines):'- Webserver error log file not found -' ?></code><pre>
+    <pre><code class="language-log"><?= file_exists($webservererrorlogfile)?tailShell($webservererrorlogfile, $lines):'- Webserver error log file not found -' ?></code><pre>
 </div>
 
 <h2>Webserver access log</h2>
 <div>
-    <pre><code><?= file_exists($webserveraccesslogfile)?tailShell($webserveraccesslogfile, $lines):'- Webserver access log file not found -' ?></code><pre>
+    <pre><code class="language-log"><?= file_exists($webserveraccesslogfile)?tailShell($webserveraccesslogfile, $lines):'- Webserver access log file not found -' ?></code><pre>
 </div>
 
 <h2>Current config</h2>
 <div>
-    <pre><code><?= file_exists($configfile)?file_get_contents($configfile):'- Config file not found -' ?></code><pre>
+    <pre><code class="language-ini"><?= file_exists($configfile)?file_get_contents($configfile):'- Config file not found -' ?></code><pre>
 </div>
+
+<script src="/js/prism.js"></script>
