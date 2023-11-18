@@ -6,8 +6,7 @@ services:
       dockerfile: docker/Dockerfile
 
     volumes:
-      - './data:/var/www/opentrashmail/data'
-      - './logs:/var/www/opentrashmail/logs'
+      - './:/var/www/opentrashmail'
     environment:
       - URL=http://localhost:8080
       - DOMAINS=example.com
