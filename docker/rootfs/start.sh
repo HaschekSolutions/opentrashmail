@@ -1,4 +1,4 @@
-#!/bin/ash
+#!/bin/bash
 
 echo 'Starting Open Trashmail'
 
@@ -7,7 +7,11 @@ cd /var/www/opentrashmail
 echo ' [+] Starting php'
 php-fpm7
 
-chown -R nginx:nginx /var/www/
+if [[ ${SKIP_FILEPERMISSIONS:=false} != true ]]; then
+  chown -R nginx:nginx /var/www/
+  chown -R nginx:nginx /var/www/opentrashmail/data
+fi
+
 
 echo ' [+] Starting nginx'
 
@@ -20,56 +24,28 @@ nginx
 
 echo ' [+] Setting up config.ini'
 
-echo "[GENERAL]" > /var/www/opentrashmail/config.ini
-if [ "$DOMAINS" != "" ]; then
-	echo "DOMAINS=$DOMAINS" >> /var/www/opentrashmail/config.ini
-  echo "   [i] Active Domain(s): $DOMAINS"
-else
-  echo "DOMAINS=localhost" >> /var/www/opentrashmail/config.ini
-fi
 
-if [ "$URL" != "" ]; then
-	echo "URL=$URL" >> /var/www/opentrashmail/config.ini
-  echo "   [i] URL of GUI is set to: $URL"
-else
-  echo "URL=http://localhost:8080" >> /var/www/opentrashmail/config.ini
-fi
 
-if [ "$SHOW_ACCOUNT_LIST" != "" ]; then
-	echo "SHOW_ACCOUNT_LIST=$SHOW_ACCOUNT_LIST" >> /var/www/opentrashmail/config.ini
-  echo "   [i] Set show account list to: $SHOW_ACCOUNT_LIST"
-fi
+_buildConfig() {
+    echo "[GENERAL]"
+    echo "DOMAINS=${DOMAINS:-localhost}"
+    echo "URL='${URL:-http://localhost:8080}'"
+    echo "SHOW_ACCOUNT_LIST=${SHOW_ACCOUNT_LIST:-false}"
+    echo "ADMIN=${ADMIN:-}"
+    echo "SHOW_LOGS=${SHOW_LOGS:-false}"
 
-if [ "$ADMIN" != "" ]; then
-	echo "ADMIN=$ADMIN" >> /var/www/opentrashmail/config.ini
-  echo "   [i] Set admin to: $ADMIN"
-fi
+    echo "[MAILSERVER]"
+    echo "MAILPORT=${MAILPORT:-25}"
+    echo "DISCARD_UNKNOWN=${DISCARD_UNKNOWN:-true}"
 
-echo "[MAILSERVER]" >> /var/www/opentrashmail/config.ini
-echo "MAILPORT=25" >> /var/www/opentrashmail/config.ini
-if [ "$DISCARD_UNKNOWN" != "" ]; then
-	echo "DISCARD_UNKNOWN=$DISCARD_UNKNOWN" >> /var/www/opentrashmail/config.ini
-  echo "   [i] Setting up DISCARD_UNKNOWN to: $DISCARD_UNKNOWN"
-else
-  echo "DISCARD_UNKNOWN=false" >> /var/www/opentrashmail/config.ini
-fi
+    echo "[DATETIME]"
+    echo "DATEFORMAT='${DATEFORMAT:-D.M.YYYY HH:mm}'"
 
-echo "[DATETIME]" >> /var/www/opentrashmail/config.ini
-if [ "$DATEFORMAT" != "" ]; then
-	echo "DATEFORMAT=$DATEFORMAT" >> /var/www/opentrashmail/config.ini
-  echo "   [i] Setting up dateformat to: $DATEFORMAT"
-else
-  echo "DATEFORMAT='D.M.YYYY HH:mm'" >> /var/www/opentrashmail/config.ini
-  echo "   [i] Using default dateformat"
-fi
+    echo "[CLEANUP]"
+    echo "DELETE_OLDER_THAN_DAYS=${DELETE_OLDER_THAN_DAYS:-false}"
+}
 
-echo "[CLEANUP]" >> /var/www/opentrashmail/config.ini
-if [ "$DELETE_OLDER_THAN_DAYS" != "" ]; then
-	echo "DELETE_OLDER_THAN_DAYS=$DELETE_OLDER_THAN_DAYS" >> /var/www/opentrashmail/config.ini
-  echo "   [i] Setting up cleanup time to $DELETE_OLDER_THAN_DAYS days"
-fi
-
-chown -R nginx:nginx /var/www/opentrashmail/data
+_buildConfig > /var/www/opentrashmail/config.ini
 
 echo ' [+] Starting Mailserver'
-su - nginx -s /bin/ash -c 'cd /var/www/opentrashmail/python;python mailserver.py > /var/www/opentrashmail/logs/mailserver.log 2>&1 '
+su - nginx -s /bin/ash -c 'cd /var/www/opentrashmail/python;python -u mailserver.py > /var/www/opentrashmail/logs/mailserver.log 2>&1 '

@@ -35,6 +35,16 @@ class OpenTrashmailBackend{
                     return $this->listAccount($addr);
                 case 'deleteaccount':
                     return $this->deleteAccount($_REQUEST['email']?:$this->url[2]);
+                case 'logs':
+                    if($this->settings['SHOW_LOGS'])
+                        return $this->renderTemplate('logs.html',[
+                            'lines' => (is_numeric($this->url[2])&&$this->url[2]>0)?$this->url[2]:100,
+                            'mailserverlogfile'=>ROOT.DS.'../logs'.DS.'mailserver.log',
+                            'webservererrorlogfile'=>ROOT.DS.'../logs'.DS.'web.error.log',
+                            'webserveraccesslogfile'=>ROOT.DS.'../logs'.DS.'web.access.log',
+                            'configfile' => ROOT.DS.'../config.ini',
+                        ]);
+                    else return '403 Forbidden';
                 default:
                     return false;
             }

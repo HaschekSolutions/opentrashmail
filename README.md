@@ -76,6 +76,7 @@ In Docker you can use the following environment variables:
 | SHOW_ACCOUNT_LIST | If set to `true`, all accounts that have previously received emails can be listed via API or webinterface | true,false |
 | ADMIN | If set to a valid email address and this address is entered in the API or webinterface, will show all emails of all accounts. Kind-of catch-all | test@test.com
 | DATEFORMAT  | Will format the received date in the web interface based on [moment.js](https://momentjs.com/) syntax | "MMMM Do YYYY, h:mm:ss a" |
+| SKIP_FILEPERMISSIONS | If set to `true`, won't fix file permissions for the code data folder in the container. Useful for local dev. Default `false` | true,false |
 
 
 # Roadmap

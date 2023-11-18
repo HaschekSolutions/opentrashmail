@@ -1,0 +1,22 @@
+version: '3.9'
+services:
+  opentrashmail:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+
+    volumes:
+      - './data:/var/www/opentrashmail/data'
+      - './logs:/var/www/opentrashmail/logs'
+    environment:
+      - URL=http://localhost:8080
+      - DOMAINS=example.com
+      - DATEFORMAT=D.M.YYYY HH:mm
+      - SKIP_FILEPERMISSIONS=true
+      - DISCARD_UNKNOWN=false
+      - SHOW_ACCOUNT_LIST=true
+      - SHOW_LOGS=true
+
+    ports:
+      - '2525:25'
+      - '8080:80'
