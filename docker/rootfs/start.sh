@@ -5,7 +5,7 @@ echo 'Starting Open Trashmail'
 cd /var/www/opentrashmail
 
 echo ' [+] Starting php'
-php-fpm7
+php-fpm81
 
 if [[ ${SKIP_FILEPERMISSIONS:=false} != true ]]; then
   chown -R nginx:nginx /var/www/
@@ -48,4 +48,4 @@ _buildConfig() {
 _buildConfig > /var/www/opentrashmail/config.ini
 
 echo ' [+] Starting Mailserver'
-su - nginx -s /bin/ash -c 'cd /var/www/opentrashmail/python;python -u mailserver.py >> /var/www/opentrashmail/logs/mailserver.log 2>&1 '
+su - nginx -s /bin/ash -c 'cd /var/www/opentrashmail/python;python3 -u mailserver3.py >> /var/www/opentrashmail/logs/mailserver.log 2>&1 '
