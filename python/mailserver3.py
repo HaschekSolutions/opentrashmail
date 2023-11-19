@@ -42,17 +42,21 @@ class CustomHandler:
         html = ''
         attachments = {}
         for part in message.walk():
+            if part.get_content_maintype() == 'multipart':
+                continue
+            print ("aktueller part ist vom typ",part.get_content_type())
             if part.get_content_type() == 'text/plain':
                 plaintext += part.get_payload()
             elif part.get_content_type() == 'text/html':
                 html += part.get_payload()
+            else:
+                print("!!!attachment found!!!")
+                filename = part.get_filename()
+                if filename is None:
+                    filename = 'untitled'
+                attachments['file%d' % len(attachments)] = (filename,part.get_payload(decode=True))
 
-        # Save attachments
-        for part in message.iter_attachments():
-            filename = part.get_filename()
-            if filename is None:
-                filename = 'untitled'
-            attachments['file%d' % len(attachments)] = (filename,part.get_payload(decode=True))
+        print(attachments)
 
         edata = {
                 'subject': message['subject'],
@@ -123,8 +127,8 @@ def cleanup():
 async def run(port):
     controller = Controller(CustomHandler(), hostname='0.0.0.0', port=port)
     controller.start()
-    print("[i] Ready to receive Emails")
-    print("")
+    logger.info("[i] Ready to receive Emails")
+    logger.info("")
 
     try:
         while True:
@@ -141,22 +145,21 @@ if __name__ == '__main__':
     logger.addHandler(ch)
 
     if not os.path.isfile("../config.ini"):
-        print("[ERR] Config.ini not found. Rename example.config.ini to config.ini. Defaulting to port 25")
+        logger.info("[ERR] Config.ini not found. Rename example.config.ini to config.ini. Defaulting to port 25")
         port = 25
-    else :
+    else:
         Config = configparser.ConfigParser(allow_no_value=True)
         Config.read("../config.ini")
-        port = int(Config.get("MAILSERVER","MAILPORT"))
+        port = int(Config.get("MAILSERVER", "MAILPORT"))
         if("discard_unknown" in Config.options("MAILSERVER")):
-            DISCARD_UNKNOWN = (Config.get("MAILSERVER","DISCARD_UNKNOWN").lower() == "true")            
-        DOMAINS = Config.get("GENERAL","DOMAINS").lower().split(",")
+            DISCARD_UNKNOWN = (Config.get("MAILSERVER", "DISCARD_UNKNOWN").lower() == "true")
+        DOMAINS = Config.get("GENERAL", "DOMAINS").lower().split(",")
 
         if("CLEANUP" in Config.sections() and "delete_older_than_days" in Config.options("CLEANUP")):
-            DELETE_OLDER_THAN_DAYS = (Config.get("CLEANUP","DELETE_OLDER_THAN_DAYS").lower() == "true")    
+            DELETE_OLDER_THAN_DAYS = (Config.get("CLEANUP", "DELETE_OLDER_THAN_DAYS").lower() == "true")
 
-    print("[i] Starting Mailserver on port",port)
-    print("[i] Discard unknown domains:",DISCARD_UNKNOWN)
-    print("[i] Listening for domains:",DOMAINS)
-    
+    logger.info("[i] Starting Mailserver on port " + str(port))
+    logger.info("[i] Discard unknown domains: " + str(DISCARD_UNKNOWN))
+    logger.info("[i] Listening for domains: " + str(DOMAINS))
 
     asyncio.run(run(port))
