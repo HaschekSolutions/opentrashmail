@@ -19,6 +19,7 @@ DISCARD_UNKNOWN = False
 DELETE_OLDER_THAN_DAYS = False
 DOMAINS = []
 LAST_CLEANUP = 0
+URL = ""
 
 class CustomHandler:
     async def handle_DATA(self, server, session, envelope):
@@ -30,6 +31,8 @@ class CustomHandler:
         logger.debug('Receiving message from: %s:%d' % peer)
         logger.debug('Message addressed from: %s' % envelope.mail_from)
         logger.debug('Message addressed to: %s' % str(rcpts))
+
+        filenamebase = str(int(round(time.time() * 1000)))
 
         # Get the raw email data
         raw_email = envelope.content.decode('utf-8')
@@ -50,25 +53,11 @@ class CustomHandler:
                 html += part.get_payload()
             else:
                 filename = part.get_filename()
+                cid = part.get('Content-ID')
+                logger.debug('Handling attachment: "%s" of type "%s" with CID "%s"',filename, part.get_content_type(), cid)
                 if filename is None:
                     filename = 'untitled'
-                attachments['file%d' % len(attachments)] = (filename,part.get_payload(decode=True))
-
-        edata = {
-                'subject': message['subject'],
-                'body': plaintext,
-                'htmlbody': html,
-                'from': message['from'],
-                'attachments':[]
-            }
-        savedata = {'sender_ip':peer[0],
-                    'from':message['from'],
-                    'rcpts':rcpts,
-                    'raw':raw_email,
-                    'parsed':edata
-                    }
-        
-        filenamebase = str(int(round(time.time() * 1000)))
+                attachments['file%d' % len(attachments)] = (filename,part.get_payload(decode=True),cid)
 
         for em in rcpts:
                 em = em.lower()
@@ -89,6 +78,22 @@ class CustomHandler:
 
                 if not os.path.exists("../data/"+em):
                     os.mkdir( "../data/"+em, 0o755 )
+
+
+                edata = {
+                    'subject': message['subject'],
+                    'body': plaintext,
+                    'htmlbody': self.replace_cid_with_attachment_id(html, attachments,filenamebase,em),
+                    'from': message['from'],
+                    'attachments':[],
+                    'attachments_details':[]
+                }
+                savedata = {'sender_ip':peer[0],
+                    'from':message['from'],
+                    'rcpts':rcpts,
+                    'raw':raw_email,
+                    'parsed':edata
+                }
                 
                 #same attachments if any
                 for att in attachments:
@@ -99,12 +104,32 @@ class CustomHandler:
                     file.write(attd[1])
                     file.close()
                     edata["attachments"].append(filenamebase+"-"+attd[0])
+                    edata["attachments_details"].append({
+                            "filename":attd[0],
+                            "cid":attd[2][1:-1],
+                            "id":filenamebase+"-"+attd[0],
+                            "download_url":URL+"/api/attachment/"+em+"/"+filenamebase+"-"+attd[0],
+                            "size":len(attd[1])
+                        })
 
                 # save actual json data
                 with open("../data/"+em+"/"+filenamebase+".json", "w") as outfile:
                     json.dump(savedata, outfile)
 
         return '250 OK'
+    
+    def replace_cid_with_attachment_id(self, html_content, attachments,filenamebase,email):
+        # Replace cid references with attachment filename
+        for attachment_id in attachments:
+            attachment = attachments[attachment_id]
+            filename = attachment[0]
+            cid = attachment[2]
+            if cid is None:
+                continue
+            cid = cid[1:-1]
+            if cid is not None:
+                html_content = html_content.replace('cid:' + cid, "/api/attachment/"+email+"/"+filenamebase+"-"+filename)
+        return html_content
 
 def cleanup():
     if(DELETE_OLDER_THAN_DAYS == False or time.time() - LAST_CLEANUP < 86400):
@@ -150,6 +175,7 @@ if __name__ == '__main__':
         if("discard_unknown" in Config.options("MAILSERVER")):
             DISCARD_UNKNOWN = (Config.get("MAILSERVER", "DISCARD_UNKNOWN").lower() == "true")
         DOMAINS = Config.get("GENERAL", "DOMAINS").lower().split(",")
+        URL = Config.get("GENERAL", "URL")
 
         if("CLEANUP" in Config.sections() and "delete_older_than_days" in Config.options("CLEANUP")):
             DELETE_OLDER_THAN_DAYS = (Config.get("CLEANUP", "DELETE_OLDER_THAN_DAYS").lower() == "true")

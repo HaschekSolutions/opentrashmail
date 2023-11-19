@@ -29,7 +29,7 @@ echo ' [+] Setting up config.ini'
 _buildConfig() {
     echo "[GENERAL]"
     echo "DOMAINS=${DOMAINS:-localhost}"
-    echo "URL='${URL:-http://localhost:8080}'"
+    echo "URL=${URL:-http://localhost:8080}"
     echo "SHOW_ACCOUNT_LIST=${SHOW_ACCOUNT_LIST:-false}"
     echo "ADMIN=${ADMIN:-}"
     echo "SHOW_LOGS=${SHOW_LOGS:-false}"
@@ -39,7 +39,7 @@ _buildConfig() {
     echo "DISCARD_UNKNOWN=${DISCARD_UNKNOWN:-true}"
 
     echo "[DATETIME]"
-    echo "DATEFORMAT='${DATEFORMAT:-D.M.YYYY HH:mm}'"
+    echo "DATEFORMAT=${DATEFORMAT:-D.M.YYYY HH:mm}"
 
     echo "[CLEANUP]"
     echo "DELETE_OLDER_THAN_DAYS=${DELETE_OLDER_THAN_DAYS:-false}"

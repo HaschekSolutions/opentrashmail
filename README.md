@@ -84,7 +84,7 @@ In Docker you can use the following environment variables:
   - [x] Storing received mails in JSON
   - [x] Storing file attachments
 - [x] Docker files and configs
-- [ ] Web interface
+- [x] Web interface
   - [x] Choose email
   - [x] Get random email address
   - [x] Download attachments safely
@@ -96,7 +96,7 @@ In Docker you can use the following environment variables:
   - [x] Delete messages
   - [x] Make better theme
   - [x] Secure HTML, so no malicious things can be loaded
-  - [ ] Display embedded images inline using Content-ID
+  - [x] Display embedded images inline using Content-ID
 - [ ] Configurable settings
   - [x] Choose domains for random generation
   - [x] Choose if out-of-scope emails are discarded
