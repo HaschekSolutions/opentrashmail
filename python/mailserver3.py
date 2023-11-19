@@ -44,19 +44,15 @@ class CustomHandler:
         for part in message.walk():
             if part.get_content_maintype() == 'multipart':
                 continue
-            print ("aktueller part ist vom typ",part.get_content_type())
             if part.get_content_type() == 'text/plain':
                 plaintext += part.get_payload()
             elif part.get_content_type() == 'text/html':
                 html += part.get_payload()
             else:
-                print("!!!attachment found!!!")
                 filename = part.get_filename()
                 if filename is None:
                     filename = 'untitled'
                 attachments['file%d' % len(attachments)] = (filename,part.get_payload(decode=True))
-
-        print(attachments)
 
         edata = {
                 'subject': message['subject'],
