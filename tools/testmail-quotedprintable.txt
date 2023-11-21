@@ -1,0 +1,30 @@
+EHLO example.com
+MAIL FROM: <sender@example.com>
+RCPT TO: <recipient@example.com>
+DATA
+From: me <me@example.org>
+To: you <recipient@example.net>
+Subject: MIME encapsulation demo
+Mime-Version: 1.0
+Content-type: multipart/alternative; boundary="covfefe"
+
+--covfefe
+Content-type: text/plain; charset="utf-8"
+Content-transfer-encoding: quoted-printable
+
+You had me at "H=
+ello."
+
+--covfefe
+Content-type: text/html; charset="utf-8"
+Content-transfer-encoding: base64
+
+PGh0bWw+PGhlYWQ+PHRpdGxlPkhlbGxvLCBpcyBpdCBtZSB5b3UncmUgbG9va2luZyBmb3I/PC
+90aXRsZT48L2hlYWQ+PGJvZHk+PHA+VGhlIGNvdiBpbiB0aGUgZmUgZmU8L3A+PC9ib2R5Pjwv
+aHRtbD4K
+
+--covfefe--
+
+.
+
+QUIT

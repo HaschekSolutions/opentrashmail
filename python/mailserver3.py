@@ -54,6 +54,12 @@ class CustomHandler:
             else:
                 filename = part.get_filename()
                 cid = part.get('Content-ID')
+                if cid is not None:
+                    cid = cid[1:-1]
+                elif part.get('Content-ID') is not None:
+                    cid = part.get('Content-ID')
+                else:
+                    cid = str(uuid.uuid4())
                 logger.debug('Handling attachment: "%s" of type "%s" with CID "%s"',filename, part.get_content_type(), cid)
                 if filename is None:
                     filename = 'untitled'
@@ -106,7 +112,7 @@ class CustomHandler:
                     edata["attachments"].append(filenamebase+"-"+attd[0])
                     edata["attachments_details"].append({
                             "filename":attd[0],
-                            "cid":attd[2][1:-1],
+                            "cid":attd[2],
                             "id":filenamebase+"-"+attd[0],
                             "download_url":URL+"/api/attachment/"+em+"/"+filenamebase+"-"+attd[0],
                             "size":len(attd[1])
