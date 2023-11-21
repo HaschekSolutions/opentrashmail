@@ -152,18 +152,12 @@ class OpenTrashmailBackend{
 
     function getAttachment($email,$attachment)
     {
-        $id = substr($attachment,0,13);
-        $attachment = substr($attachment,14);
         if(!filter_var($email, FILTER_VALIDATE_EMAIL))
             return $this->error('Invalid email address');
-        else if(!is_numeric($id))
-            return $this->error('Invalid id');
-        else if(!emailIDExists($email,$id))
-            return $this->error('Email not found');
-        else if(!attachmentExists($email,$id,$attachment))
+        else if(!attachmentExists($email,$attachment))
             return $this->error('Attachment not found');
         $dir = getDirForEmail($email);
-        $file = $dir.DS.'attachments'.DS.$id.'-'.$attachment;
+        $file = $dir.DS.'attachments'.DS.$attachment;
         $mime = mime_content_type($file);
         header('Content-Type: '.$mime);
         header('Content-Length: ' . filesize($file));

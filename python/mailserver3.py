@@ -6,7 +6,7 @@ import os
 import re
 import time
 import json
-import uuid
+import hashlib
 import configparser
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -48,22 +48,15 @@ class CustomHandler:
             if part.get_content_maintype() == 'multipart':
                 continue
             if part.get_content_type() == 'text/plain':
-                plaintext += part.get_payload()
+                #if it's a file
+                if part.get_filename() is not None:
+                    attachments['file%d' % len(attachments)] = self.handleAttachment(part)
+                else:
+                    plaintext += part.get_payload()
             elif part.get_content_type() == 'text/html':
                 html += part.get_payload()
             else:
-                filename = part.get_filename()
-                cid = part.get('Content-ID')
-                if cid is not None:
-                    cid = cid[1:-1]
-                elif part.get('Content-ID') is not None:
-                    cid = part.get('Content-ID')
-                else:
-                    cid = str(uuid.uuid4())
-                logger.debug('Handling attachment: "%s" of type "%s" with CID "%s"',filename, part.get_content_type(), cid)
-                if filename is None:
-                    filename = 'untitled'
-                attachments['file%d' % len(attachments)] = (filename,part.get_payload(decode=True),cid)
+                attachments['file%d' % len(attachments)] = self.handleAttachment(part)
 
         for em in rcpts:
                 em = em.lower()
@@ -106,15 +99,16 @@ class CustomHandler:
                     if not os.path.exists("../data/"+em+"/attachments"):
                         os.mkdir( "../data/"+em+"/attachments", 0o755 )
                     attd = attachments[att]
-                    file = open("../data/"+em+"/attachments/"+filenamebase+"-"+attd[0], 'wb')
+                    file_id = attd[3]
+                    file = open("../data/"+em+"/attachments/"+file_id, 'wb')
                     file.write(attd[1])
                     file.close()
-                    edata["attachments"].append(filenamebase+"-"+attd[0])
+                    edata["attachments"].append(file_id)
                     edata["attachments_details"].append({
                             "filename":attd[0],
                             "cid":attd[2],
-                            "id":filenamebase+"-"+attd[0],
-                            "download_url":URL+"/api/attachment/"+em+"/"+filenamebase+"-"+attd[0],
+                            "id":attd[3],
+                            "download_url":URL+"/api/attachment/"+em+"/"+file_id,
                             "size":len(attd[1])
                         })
 
@@ -123,6 +117,22 @@ class CustomHandler:
                     json.dump(savedata, outfile)
 
         return '250 OK'
+
+    def handleAttachment(self, part):
+        filename = part.get_filename()
+        if filename is None:
+            filename = 'untitled'
+        cid = part.get('Content-ID')
+        if cid is not None:
+            cid = cid[1:-1]
+        elif part.get('X-Attachment-Id') is not None:
+            cid = part.get('X-Attachment-Id')
+        else: # else create a unique id using md5 of the attachment
+            cid = hashlib.md5(part.get_payload(decode=True)).hexdigest()
+        fid = hashlib.md5(filename.encode('utf-8')).hexdigest()+filename
+        logger.debug('Handling attachment: "%s" (ID: "%s") of type "%s" with CID "%s"',filename, fid,part.get_content_type(), cid)
+
+        return (filename,part.get_payload(decode=True),cid,fid)
     
     def replace_cid_with_attachment_id(self, html_content, attachments,filenamebase,email):
         # Replace cid references with attachment filename

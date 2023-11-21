@@ -127,9 +127,9 @@ function listEmailAdresses()
     return $o;
 }
 
-function attachmentExists($email,$id,$attachment)
+function attachmentExists($email,$id,$attachment=false)
 {
-    return file_exists(getDirForEmail($email).DS.'attachments'.DS.$id.'-'.$attachment);
+    return file_exists(getDirForEmail($email).DS.'attachments'.DS.$id.(($attachment)?'-'.$attachment:''));
 }
 
 function listAttachmentsOfMailID($email,$id)

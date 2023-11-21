@@ -1,6 +1,13 @@
 # Changelog
 
-## Nov 19th 2023 - V1.1.3
+## V1.1.5
+- Added support for plaintext file attachments
+- Updated the way attachments are stored. Now it's md5 + filename
+
+## V1.1.4
+- Fixed crash when email contains attachment
+
+## V1.1.3
 - Switched SMTP server to Python3 and aiosmptd
 - Switched PHP backend to PHP8.1
 - Implemented content-id replacement with smart link to API so embedded images will now work
@@ -8,7 +15,7 @@
 - Removed quotes from ini settings
 - Made docker start script more neat
 
-## Nov 13th 2023 - V1.0.0
+## V1.0.0
 - Launch of V1.0.0
 - Complete rewrite of the GUI
 - Breaking: New API (/rss, /json, /api) instead of old `api.php` calls
