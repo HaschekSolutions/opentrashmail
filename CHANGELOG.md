@@ -1,5 +1,8 @@
 # Changelog
 
+## V1.1.6
+- Reworked the navbar header to look better on smaller screens
+
 ## V1.1.5
 - Added support for plaintext file attachments
 - Updated the way attachments are stored. Now it's md5 + filename

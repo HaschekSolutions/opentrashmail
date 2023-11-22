@@ -18,8 +18,8 @@ tr.htmx-swapping td {
     border-radius: 5px;
 }
 
-.htmx-indicator{
-    display:none;
+.htmx-indicator {
+    display: none;
 }
 
 .text-center {
@@ -32,4 +32,52 @@ tr.htmx-swapping td {
 :root {
     --form-element-spacing-vertical: 0.15rem;
     --form-element-spacing-horizontal: 1rem;
+}
+
+/** dynamic nav bar **/
+
+.topnav {
+    overflow: hidden;
+}
+
+.topnav a {
+    float: left;
+    display: block;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+    font-size: 17px;
+}
+
+.topnav .icon {
+    display: none;
+}
+
+@media screen and (max-width: 775px) {
+    .topnav a:not(:first-child) {
+        display: none;
+    }
+
+    .topnav a.icon {
+        float: right;
+        display: block;
+    }
+}
+
+@media screen and (max-width: 775px) {
+    .topnav.responsive {
+        position: relative;
+    }
+
+    .topnav.responsive a.icon {
+        position: absolute;
+        right: 0;
+        top: 0;
+    }
+
+    .topnav.responsive a {
+        float: none;
+        display: block;
+        text-align: left;
+    }
 }
