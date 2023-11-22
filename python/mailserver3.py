@@ -17,6 +17,7 @@ logger = logging.getLogger(__name__)
 # globals for settings
 DISCARD_UNKNOWN = False
 DELETE_OLDER_THAN_DAYS = False
+ATTACHMENTS_MAX_SIZE = 0
 DOMAINS = []
 LAST_CLEANUP = 0
 URL = ""
@@ -50,13 +51,19 @@ class CustomHandler:
             if part.get_content_type() == 'text/plain':
                 #if it's a file
                 if part.get_filename() is not None:
-                    attachments['file%d' % len(attachments)] = self.handleAttachment(part)
+                    att = self.handleAttachment(part)
+                    if(att == False):
+                        return '500 Attachment too large. Max size: ' + str(ATTACHMENTS_MAX_SIZE/1000000)+"MB"
+                    attachments['file%d' % len(attachments)] = att
                 else:
                     plaintext += part.get_payload()
             elif part.get_content_type() == 'text/html':
                 html += part.get_payload()
             else:
-                attachments['file%d' % len(attachments)] = self.handleAttachment(part)
+                att = self.handleAttachment(part)
+                if(att == False):
+                    return '500 Attachment too large. Max size: ' + str(ATTACHMENTS_MAX_SIZE/1000000)+"MB"
+                attachments['file%d' % len(attachments)] = att
 
         for em in rcpts:
                 em = em.lower()
@@ -132,6 +139,10 @@ class CustomHandler:
         fid = hashlib.md5(filename.encode('utf-8')).hexdigest()+filename
         logger.debug('Handling attachment: "%s" (ID: "%s") of type "%s" with CID "%s"',filename, fid,part.get_content_type(), cid)
 
+        if(ATTACHMENTS_MAX_SIZE > 0 and len(part.get_payload(decode=True)) > ATTACHMENTS_MAX_SIZE):
+            logger.info("Attachment too large: " + filename)
+            return False
+
         return (filename,part.get_payload(decode=True),cid,fid)
     
     def replace_cid_with_attachment_id(self, html_content, attachments,filenamebase,email):
@@ -192,12 +203,15 @@ if __name__ == '__main__':
             DISCARD_UNKNOWN = (Config.get("MAILSERVER", "DISCARD_UNKNOWN").lower() == "true")
         DOMAINS = Config.get("GENERAL", "DOMAINS").lower().split(",")
         URL = Config.get("GENERAL", "URL")
+        if("attachments_max_size" in Config.options("MAILSERVER")):
+            ATTACHMENTS_MAX_SIZE = int(Config.get("MAILSERVER", "ATTACHMENTS_MAX_SIZE"))
 
         if("CLEANUP" in Config.sections() and "delete_older_than_days" in Config.options("CLEANUP")):
             DELETE_OLDER_THAN_DAYS = (Config.get("CLEANUP", "DELETE_OLDER_THAN_DAYS").lower() == "true")
 
     logger.info("[i] Starting Mailserver on port " + str(port))
     logger.info("[i] Discard unknown domains: " + str(DISCARD_UNKNOWN))
+    logger.info("[i] Max size of attachments: " + str(ATTACHMENTS_MAX_SIZE))
     logger.info("[i] Listening for domains: " + str(DOMAINS))
 
     asyncio.run(run(port))

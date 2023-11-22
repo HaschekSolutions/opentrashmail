@@ -1,7 +1,10 @@
 # Changelog
 
-## V1.1.6
-- Reworked the navbar header to look better on smaller screens
+## V1.2.0
+ - Implemented IP/Subnet filter using the config option `ALLOWED_IPS`
+ - Implemented Password authentication of the site and API using config option `PASSWORD`
+ - Implemented max attachment size as mentioned in [#63](https://github.com/HaschekSolutions/opentrashmail/issues/63)
+ - Reworked the navbar header to look better on smaller screens
 
 ## V1.1.5
 - Added support for plaintext file attachments

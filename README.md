@@ -35,7 +35,7 @@
 - Web interface to manage emails
 - Generates random email addresses
 - 100% file based, no database needed
-- Can be used as Email Honeypot
+- Can be used as Email Honeypot or to programmatically solve 2fa emails
 
 # General API calls and functions
 
@@ -64,6 +64,9 @@ Just edit the `config.ini` You can use the following settings
 - `MAILPORT`-> The port the Python-powered SMTP server will listen on. `Default: 25`
 - `ADMIN` -> An email address (doesn't have to exist, just has to be valid) that will list all emails of all addresses the server has received. Kind of a catch-all
 - `DATEFORMAT` -> How should timestamps be shown on the web interface ([moment.js syntax](https://momentjs.com/docs/#/displaying/))
+- `PASSWORD` -> If configured, site and API can't be used without providing it via form, POST/GET variable `password` or http header `PWD` (eg: `curl -H "PWD: 123456" http://localhost:8080/json...`)
+- `ALLOWED_IPS` -> Comma separated list of IPv4 or IPv6 CIDR addresses that are allowed to use the web UI or API
+- `ATTACHMENTS_MAX_SIZE` -> Max size for each individual attachment of an email in Bytes
 
 ## Docker env vars
 In Docker you can use the following environment variables:
@@ -77,7 +80,9 @@ In Docker you can use the following environment variables:
 | ADMIN | If set to a valid email address and this address is entered in the API or webinterface, will show all emails of all accounts. Kind-of catch-all | test@test.com
 | DATEFORMAT  | Will format the received date in the web interface based on [moment.js](https://momentjs.com/) syntax | "MMMM Do YYYY, h:mm:ss a" |
 | SKIP_FILEPERMISSIONS | If set to `true`, won't fix file permissions for the code data folder in the container. Useful for local dev. Default `false` | true,false |
-
+| PASSWORD | If configured, site and API can't be used without providing it via form, POST/GET variable `password` or http header `PWD` | yousrstrongpassword |
+| ALLOWED_IPS | Comma separated list of IPv4 or IPv6 CIDR addresses that are allowed to use the web UI or API | `192.168.5.0/24,2a02:ab:cd:ef::/60,172.16.0.0/16` |
+| ATTACHMENTS_MAX_SIZE | Max size for each individual attachment of an email in Bytes | `2000000` = 2MB |
 
 # Roadmap
 - [x] Mail server
@@ -97,13 +102,13 @@ In Docker you can use the following environment variables:
   - [x] Make better theme
   - [x] Secure HTML, so no malicious things can be loaded
   - [x] Display embedded images inline using Content-ID
-- [ ] Configurable settings
+- [x] Configurable settings
   - [x] Choose domains for random generation
   - [x] Choose if out-of-scope emails are discarded
   - [x] Automated cleanup of old mails
-  - [ ] Honeypot mode where all emails are also saved for a catchall account
-  - [ ] Optionally secure whole site with a password
-  - [ ] Optionally allow site to be seen only from specific IP Range
+  - [x] Optionally secure whole site with a password
+  - [x] Optionally allow site to be seen only from specific IP Range
+  - [x] Honeypot mode where all emails are also saved for a catchall account (implemented with the ADMIN setting)
 
 # Quick start
 

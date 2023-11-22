@@ -9,6 +9,40 @@ $url = array_filter(explode('/',ltrim(parse_url($_SERVER['REQUEST_URI'], PHP_URL
 
 $backend = new OpenTrashmailBackend($url);
 
+$settings = loadSettings();
+
+if($settings['ALLOWED_IPS'])
+{
+    $ip = getUserIP();
+    if(!isIPInRange( $ip, $settings['ALLOWED_IPS'] ))
+        exit("Your IP ($ip) is not allowed to access this site.");
+}
+
+if($settings['PASSWORD']) //site requires a password
+{
+    session_start();
+    $pw = $settings['PASSWORD'];
+    $auth = false;
+    //first check for auth header or POST/GET variable
+    if(isset($_SERVER['HTTP_PWD']) && $_SERVER['HTTP_PWD'] == $pw)
+        $auth = true;
+    else if(isset($_REQUEST['password']) && $_REQUEST['password'] == $pw)
+        $auth = true;
+    // if not, check for session
+    else if(isset($_SESSION['authenticated']) && $_SESSION['authenticated'] == true)
+        $auth = true;
+    // if user sent a pw but it's wrong, show error
+    else if($_REQUEST['password'] != $settings['PASSWORD'])
+        exit($backend->renderTemplate('password.html',[
+            'error'=>'Wrong password',
+        ]));
+    
+    if($auth===true)
+        $_SESSION['authenticated'] = true;
+    else
+        exit($backend->renderTemplate('password.html'));
+}
+
 if($_SERVER['HTTP_HX_REQUEST']!='true')
 {
     if(count($url)==0 || !file_exists(ROOT.DS.implode('/', $url)))

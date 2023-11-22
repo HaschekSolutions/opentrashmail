@@ -11,6 +11,9 @@ services:
       - DATEFORMAT=D.M.YYYY HH:mm
       - SKIP_FILEPERMISSIONS=true
       - DISCARD_UNKNOWN=false
+      # - PASSWORD=123456
+      # - ALLOWED_IPS=192.168.0.0/16,2a02:ab:cd:ef::/60
+      # - ATTACHMENTS_MAX_SIZE=10000000
 
     ports:
       - '2525:25'

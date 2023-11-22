@@ -33,10 +33,13 @@ _buildConfig() {
     echo "SHOW_ACCOUNT_LIST=${SHOW_ACCOUNT_LIST:-false}"
     echo "ADMIN=${ADMIN:-}"
     echo "SHOW_LOGS=${SHOW_LOGS:-false}"
+    echo "PASSWORD=${PASSWORD:-}"
+    echo "ALLOWED_IPS=${ALLOWED_IPS:-}"
 
     echo "[MAILSERVER]"
     echo "MAILPORT=${MAILPORT:-25}"
     echo "DISCARD_UNKNOWN=${DISCARD_UNKNOWN:-true}"
+    echo "ATTACHMENTS_MAX_SIZE=${ATTACHMENTS_MAX_SIZE:-0}"
 
     echo "[DATETIME]"
     echo "DATEFORMAT=${DATEFORMAT:-D.M.YYYY HH:mm}"
