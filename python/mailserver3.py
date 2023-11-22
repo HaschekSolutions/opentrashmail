@@ -56,7 +56,7 @@ class CustomHandler:
                         return '500 Attachment too large. Max size: ' + str(ATTACHMENTS_MAX_SIZE/1000000)+"MB"
                     attachments['file%d' % len(attachments)] = att
                 else:
-                    plaintext += part.get_payload()
+                    plaintext += part.get_payload(decode=True).decode('utf-8')
             elif part.get_content_type() == 'text/html':
                 html += part.get_payload()
             else:
