@@ -35,17 +35,21 @@ _buildConfig() {
     echo "SHOW_LOGS=${SHOW_LOGS:-false}"
     echo "PASSWORD=${PASSWORD:-}"
     echo "ALLOWED_IPS=${ALLOWED_IPS:-}"
-
+    echo ""
     echo "[MAILSERVER]"
     echo "MAILPORT=${MAILPORT:-25}"
     echo "DISCARD_UNKNOWN=${DISCARD_UNKNOWN:-true}"
     echo "ATTACHMENTS_MAX_SIZE=${ATTACHMENTS_MAX_SIZE:-0}"
-
+    echo ""
     echo "[DATETIME]"
     echo "DATEFORMAT=${DATEFORMAT:-D.M.YYYY HH:mm}"
-
+    echo ""
     echo "[CLEANUP]"
     echo "DELETE_OLDER_THAN_DAYS=${DELETE_OLDER_THAN_DAYS:-false}"
+    echo ""
+    GIT_VERSION=$(git describe --tags --always)
+    echo "[VERSION]"
+    echo "VERSION=${GIT_VERSION:-dev}"
 }
 
 _buildConfig > /var/www/opentrashmail/config.ini

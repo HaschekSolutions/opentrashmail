@@ -13,7 +13,7 @@
 
 <body>
   <div class="topnav" id="OTMTopnav">
-    <a href="/"><img src="/imgs/logo_300_light.png" width="50px" /> Open Trashmail</a>
+    <a href="/"><img src="/imgs/logo_300_light.png" width="50px" /> Open Trashmail <small class="version"><?=getVersion()?></small></a>
     <a><input id="email" hx-post="/api/address" hx-target="#main" name="email" type="email" style="margin-bottom:0px" hx-trigger="input changed delay:500ms" placeholder="email address" aria-label="email address"></a>
     <a href="/random" hx-get="/api/random" hx-target="#main"><i class="fas fa-random"></i> Generate random</a>
     <?php if($settings['SHOW_ACCOUNT_LIST']): ?><a href="/listaccounts" hx-get="/api/listaccounts" hx-target="#main" hx-push-url="/listaccounts"><i class="fas fa-list"></i> List accounts</a><?php endif; ?>

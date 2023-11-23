@@ -26,6 +26,10 @@ tr.htmx-swapping td {
     text-align: center;
 }
 
+.version {
+    font-size: 0.8em;
+    color: #999;
+}
 
 /* pico css overrides */
 
