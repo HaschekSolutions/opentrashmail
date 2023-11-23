@@ -268,10 +268,7 @@ function generateRandomEmail()
     $settings = loadSettings();
     $domains = explode(',', $settings['DOMAINS']);
     $dom = $domains[array_rand($domains)];
-
-    $adjectives = ['happy', 'sleepy', 'grumpy', 'dopey', 'sneezy', 'bashful', 'doc'];
-    $nouns = ['apple', 'banana', 'cherry', 'date', 'elderberry', 'fig', 'grape'];
-
+    
     $dom = str_replace('*', $nouns[array_rand($nouns)], $dom);
     while (strpos($dom, '*') !== false) {
         $dom = str_replace('*', $nouns[array_rand($nouns)], $dom);
