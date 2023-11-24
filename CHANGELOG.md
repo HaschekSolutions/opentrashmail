@@ -1,5 +1,9 @@
 # Changelog
 
+## V1.2.3
+- Fixed attachment deletion bug
+- Fixed random email generation
+
 ## V1.2.0
  - Implemented IP/Subnet filter using the config option `ALLOWED_IPS`
  - Implemented Password authentication of the site and API using config option `PASSWORD`
