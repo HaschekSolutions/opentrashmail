@@ -134,17 +134,12 @@ function attachmentExists($email,$id,$attachment=false)
 
 function listAttachmentsOfMailID($email,$id)
 {
-    $o = array();
-    if ($handle = opendir(getDirForEmail($email).DS.'attachments')) {
-        while (false !== ($entry = readdir($handle))) {
-            if (startsWith($entry,$id.'-')) {
-                $o[] = $entry;
-            }
-        }
-        closedir($handle);
-    }
-
-    return $o;
+    $data = json_decode(file_get_contents(getDirForEmail($email).DS.$id.'.json'),true);
+    $attachments = $data['parsed']['attachments'];
+    if(!is_array($attachments))
+        return [];
+    else
+        return $attachments;
 }
 
 function deleteEmail($email,$id)
