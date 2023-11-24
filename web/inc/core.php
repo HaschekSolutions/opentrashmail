@@ -256,7 +256,7 @@ function isIPInRange( $ip, $range ) {
 function getVersion()
 {
     if(file_exists(ROOT.DS.'..'.DS.'VERSION'))
-        return 'v'.trim(file_get_contents(ROOT.DS.'..'.DS.'VERSION'));
+        return trim(file_get_contents(ROOT.DS.'..'.DS.'VERSION'));
     else return '';
 }
 
