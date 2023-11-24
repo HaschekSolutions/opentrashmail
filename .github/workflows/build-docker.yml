@@ -48,6 +48,9 @@ jobs:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Take git tag and put into web/version.txt
+        run: |
+          git describe --tags --always > VERSION
       - name: Build and push
         uses: docker/build-push-action@v5
         with:

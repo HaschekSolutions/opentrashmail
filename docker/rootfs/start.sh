@@ -46,10 +46,6 @@ _buildConfig() {
     echo ""
     echo "[CLEANUP]"
     echo "DELETE_OLDER_THAN_DAYS=${DELETE_OLDER_THAN_DAYS:-false}"
-    echo ""
-    GIT_VERSION=$(git describe --tags --always)
-    echo "[VERSION]"
-    echo "VERSION=${GIT_VERSION:-dev}"
 }
 
 _buildConfig > /var/www/opentrashmail/config.ini
