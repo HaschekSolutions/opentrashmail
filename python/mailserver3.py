@@ -1,4 +1,5 @@
 import asyncio
+import ssl
 from aiosmtpd.controller import Controller
 from email.parser import BytesParser
 from email import policy
@@ -21,6 +22,9 @@ ATTACHMENTS_MAX_SIZE = 0
 DOMAINS = []
 LAST_CLEANUP = 0
 URL = ""
+MAILPORT_STARTTLS = 0
+TLS_CERTIFICATE = ""
+TLS_PRIVATE_KEY = ""
 
 class CustomHandler:
     async def handle_DATA(self, server, session, envelope):
@@ -123,6 +127,8 @@ class CustomHandler:
                 with open("../data/"+em+"/"+filenamebase+".json", "w") as outfile:
                     json.dump(savedata, outfile)
 
+        cleanup()
+        
         return '250 OK'
 
     def handleAttachment(self, part):
@@ -173,8 +179,17 @@ def cleanup():
                     logger.info("Deleted file: " + filepath)
 
 async def run(port):
-    controller = Controller(CustomHandler(), hostname='0.0.0.0', port=port)
-    controller.start()
+
+    if MAILPORT_STARTTLS > 0 and TLS_CERTIFICATE != "" and TLS_PRIVATE_KEY != "":
+        context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
+        context.load_cert_chain(TLS_CERTIFICATE, TLS_PRIVATE_KEY)
+        controller_starttls = Controller(CustomHandler(), hostname='0.0.0.0', port=MAILPORT_STARTTLS, tls_context=context)
+        controller_starttls.start()
+
+    controller_plaintext = Controller(CustomHandler(), hostname='0.0.0.0', port=port)
+    controller_plaintext.start()
+
+
     logger.info("[i] Ready to receive Emails")
     logger.info("")
 
@@ -208,6 +223,13 @@ if __name__ == '__main__':
 
         if("CLEANUP" in Config.sections() and "delete_older_than_days" in Config.options("CLEANUP")):
             DELETE_OLDER_THAN_DAYS = (Config.get("CLEANUP", "DELETE_OLDER_THAN_DAYS").lower() == "true")
+        
+        if("mailport_starttls" in Config.options("MAILSERVER")):
+            MAILPORT_STARTTLS = int(Config.get("MAILSERVER", "MAILPORT_STARTTLS"))
+        if("tls_certificate" in Config.options("MAILSERVER")):
+            TLS_CERTIFICATE = Config.get("MAILSERVER", "TLS_CERTIFICATE")
+        if("tls_private_key" in Config.options("MAILSERVER")):
+            TLS_PRIVATE_KEY = Config.get("MAILSERVER", "TLS_PRIVATE_KEY")
 
     logger.info("[i] Starting Mailserver on port " + str(port))
     logger.info("[i] Discard unknown domains: " + str(DISCARD_UNKNOWN))
