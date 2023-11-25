@@ -1,5 +1,10 @@
 # Changelog
 
+## V1.2.6
+- Fixed link to raw email in RSS template
+- Added version string to branding part of the nav
+- Fixed bug with double "v" in the version string
+
 ## V1.2.3
 - Fixed attachment deletion bug
 - Fixed random email generation
