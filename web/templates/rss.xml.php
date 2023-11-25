@@ -34,7 +34,7 @@
             Email from: <?= escape($d['from']) ?><br/>
             Email to: <?= escape(implode(';',$data['rcpts'])) ?><br/>
             <?= ((count($att_text) > 0) ? 'Attachments:<br/>' . array2ul($att_text) . '<br/>' : '') ?>
-            <a href="<?= $url ?>api/raw/test@0xv.eu/1699459401553">View raw email</a> <br/>
+            <a href="<?= $url ?>/api/raw/<?= $email ?>/<?= $id ?>">View raw email</a> <br/>
             <br/>---------<br/><br/>
             <?= ($data['parsed']['htmlbody'] ? $data['parsed']['htmlbody'] : nl2br(htmlentities($data['parsed']['body']))) ?>
             ]]>
