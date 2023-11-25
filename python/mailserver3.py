@@ -12,6 +12,7 @@ import configparser
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import logging
+from pprint import pprint
 
 logger = logging.getLogger(__name__)
 
@@ -32,8 +33,10 @@ class CustomHandler:
         rcpts = []
         for rcpt in envelope.rcpt_tos:
             rcpts.append(rcpt)
-        
-        logger.debug('Receiving message from: %s:%d' % peer)
+        if(server.tls_context != None):
+            logger.debug('Receiving message from: %s:%d (TLS)' % peer)
+        else:
+            logger.debug('Receiving message from: %s:%d (Plaintext)' % peer)
         logger.debug('Message addressed from: %s' % envelope.mail_from)
         logger.debug('Message addressed to: %s' % str(rcpts))
 
@@ -185,9 +188,12 @@ async def run(port):
         context.load_cert_chain(TLS_CERTIFICATE, TLS_PRIVATE_KEY)
         controller_starttls = Controller(CustomHandler(), hostname='0.0.0.0', port=MAILPORT_STARTTLS, tls_context=context)
         controller_starttls.start()
+        logger.info("[i] Starting TLS Mailserver on port " + str(MAILPORT_STARTTLS))
 
     controller_plaintext = Controller(CustomHandler(), hostname='0.0.0.0', port=port)
     controller_plaintext.start()
+
+    logger.info("[i] Starting plaintext Mailserver on port " + str(port))
 
 
     logger.info("[i] Ready to receive Emails")
@@ -197,7 +203,9 @@ async def run(port):
         while True:
             await asyncio.sleep(1)
     except KeyboardInterrupt:
-        controller.stop()
+        controller_plaintext.stop()
+        if(MAILPORT_STARTTLS > 0 and TLS_CERTIFICATE != "" and TLS_PRIVATE_KEY != ""):
+            controller_starttls.stop()
 
 if __name__ == '__main__':
     ch = logging.StreamHandler()
@@ -231,7 +239,6 @@ if __name__ == '__main__':
         if("tls_private_key" in Config.options("MAILSERVER")):
             TLS_PRIVATE_KEY = Config.get("MAILSERVER", "TLS_PRIVATE_KEY")
 
-    logger.info("[i] Starting Mailserver on port " + str(port))
     logger.info("[i] Discard unknown domains: " + str(DISCARD_UNKNOWN))
     logger.info("[i] Max size of attachments: " + str(ATTACHMENTS_MAX_SIZE))
     logger.info("[i] Listening for domains: " + str(DOMAINS))
