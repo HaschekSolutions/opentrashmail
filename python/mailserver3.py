@@ -23,7 +23,7 @@ ATTACHMENTS_MAX_SIZE = 0
 DOMAINS = []
 LAST_CLEANUP = 0
 URL = ""
-MAILPORT_STARTTLS = 0
+MAILPORT_TLS = 0
 TLS_CERTIFICATE = ""
 TLS_PRIVATE_KEY = ""
 
@@ -34,9 +34,9 @@ class CustomHandler:
         for rcpt in envelope.rcpt_tos:
             rcpts.append(rcpt)
         if(server.tls_context != None):
-            logger.debug('Receiving message from: %s:%d (TLS)' % peer)
+            logger.debug('Receiving message from: %s:%d (STARTTLS)' % peer)
         else:
-            logger.debug('Receiving message from: %s:%d (Plaintext)' % peer)
+            logger.debug('Receiving message from: %s:%d (Plaintext (or TLS))' % peer)
         logger.debug('Message addressed from: %s' % envelope.mail_from)
         logger.debug('Message addressed to: %s' % str(rcpts))
 
@@ -183,17 +183,23 @@ def cleanup():
 
 async def run(port):
 
-    if MAILPORT_STARTTLS > 0 and TLS_CERTIFICATE != "" and TLS_PRIVATE_KEY != "":
+    if TLS_CERTIFICATE != "" and TLS_PRIVATE_KEY != "":
         context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
         context.load_cert_chain(TLS_CERTIFICATE, TLS_PRIVATE_KEY)
-        controller_starttls = Controller(CustomHandler(), hostname='0.0.0.0', port=MAILPORT_STARTTLS, tls_context=context)
-        controller_starttls.start()
-        logger.info("[i] Starting TLS Mailserver on port " + str(MAILPORT_STARTTLS))
+        if MAILPORT_TLS > 0:
+            controller_tls = Controller(CustomHandler(), hostname='0.0.0.0', port=MAILPORT_TLS, ssl_context=context)
+            controller_tls.start()
 
-    controller_plaintext = Controller(CustomHandler(), hostname='0.0.0.0', port=port)
-    controller_plaintext.start()
+        controller_plaintext = Controller(CustomHandler(), hostname='0.0.0.0', port=port,tls_context=context)
+        controller_plaintext.start()
 
-    logger.info("[i] Starting plaintext Mailserver on port " + str(port))
+        logger.info("[i] Starting TLS only Mailserver on port " + str(MAILPORT_TLS))
+        logger.info("[i] Starting plaintext Mailserver (with STARTTLS support) on port " + str(port))
+    else:
+        controller_plaintext = Controller(CustomHandler(), hostname='0.0.0.0', port=port)
+        controller_plaintext.start()
+
+        logger.info("[i] Starting plaintext Mailserver on port " + str(port))
 
 
     logger.info("[i] Ready to receive Emails")
@@ -204,8 +210,8 @@ async def run(port):
             await asyncio.sleep(1)
     except KeyboardInterrupt:
         controller_plaintext.stop()
-        if(MAILPORT_STARTTLS > 0 and TLS_CERTIFICATE != "" and TLS_PRIVATE_KEY != ""):
-            controller_starttls.stop()
+        if(MAILPORT_TLS > 0 and TLS_CERTIFICATE != "" and TLS_PRIVATE_KEY != ""):
+            controller_tls.stop()
 
 if __name__ == '__main__':
     ch = logging.StreamHandler()
@@ -232,8 +238,8 @@ if __name__ == '__main__':
         if("CLEANUP" in Config.sections() and "delete_older_than_days" in Config.options("CLEANUP")):
             DELETE_OLDER_THAN_DAYS = (Config.get("CLEANUP", "DELETE_OLDER_THAN_DAYS").lower() == "true")
         
-        if("mailport_starttls" in Config.options("MAILSERVER")):
-            MAILPORT_STARTTLS = int(Config.get("MAILSERVER", "MAILPORT_STARTTLS"))
+        if("mailport_tls" in Config.options("MAILSERVER")):
+            MAILPORT_TLS = int(Config.get("MAILSERVER", "MAILPORT_TLS"))
         if("tls_certificate" in Config.options("MAILSERVER")):
             TLS_CERTIFICATE = Config.get("MAILSERVER", "TLS_CERTIFICATE")
         if("tls_private_key" in Config.options("MAILSERVER")):
