@@ -30,3 +30,22 @@ Note that if you change cour config.ini, the mail server needs to be restarted b
 ```bash
 cat "tools/testmail.txt" | while read L; do sleep "0.2"; echo "$L"; done  | "nc" -C -v "localhost" "2525"
 ```
+
+### Via TLS
+
+Testing with the TLS version (non-plaintext).
+Needs config options `MAILPORT_TLS`, `TLS_CERTIFICATE` and `TLS_PRIVATE_KEY` set.
+
+```bash
+echo 'Testing' | swaks --to test@example.com --from "something@example.com" --server localhost --port 465 -tlsc
+```
+
+### Via STARTTLS
+
+STARTTOS runs on the default plaintext port and is just a option for servers to upgrade to TLS but starts in plaintext.
+Needs config options `TLS_CERTIFICATE` and `TLS_PRIVATE_KEY` set.
+
+Testing STARTTLS version
+```bash
+echo 'Testing' | swaks --to test@example.com --from "something@example.com" --server localhost -tlsc
+```
