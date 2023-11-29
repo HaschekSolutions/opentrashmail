@@ -37,7 +37,7 @@ Testing with the TLS version (non-plaintext).
 Needs config options `MAILPORT_TLS`, `TLS_CERTIFICATE` and `TLS_PRIVATE_KEY` set.
 
 ```bash
-echo 'Testing' | swaks --to test@example.com --from "something@example.com" --server localhost --port 465 -tlsc
+echo 'Testing' | swaks --to test@example.com --from "something@example.com" --server localhost --port 2525 -tlsc
 ```
 
 ### Via STARTTLS
@@ -47,5 +47,5 @@ Needs config options `TLS_CERTIFICATE` and `TLS_PRIVATE_KEY` set.
 
 Testing STARTTLS version
 ```bash
-echo 'Testing' | swaks --to test@example.com --from "something@example.com" --server localhost -tlsc
+echo 'Testing' | swaks --to test@example.com --from "something@example.com" --server localhost --port 465 -tlsc
 ```

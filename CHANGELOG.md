@@ -1,5 +1,9 @@
 # Changelog
 
+## V1.3.0
+- Added TLS and STARTTLS support
+- Various bug fixes and docs updates
+
 ## V1.2.6
 - Fixed link to raw email in RSS template
 - Added version string to branding part of the nav

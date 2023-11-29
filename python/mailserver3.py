@@ -28,15 +28,18 @@ TLS_CERTIFICATE = ""
 TLS_PRIVATE_KEY = ""
 
 class CustomHandler:
+    connection_type = ''
+    def __init__(self,conntype='Plaintext'):
+        self.connection_type = conntype
+
     async def handle_DATA(self, server, session, envelope):
         peer = session.peer
         rcpts = []
         for rcpt in envelope.rcpt_tos:
             rcpts.append(rcpt)
-        if(server.tls_context != None):
-            logger.debug('Receiving message from: %s:%d (STARTTLS)' % peer)
-        else:
-            logger.debug('Receiving message from: %s:%d (Plaintext (or TLS))' % peer)
+        
+        logger.debug('Receiving message from: %s (%s)', peer,self.connection_type)
+
         logger.debug('Message addressed from: %s' % envelope.mail_from)
         logger.debug('Message addressed to: %s' % str(rcpts))
 
@@ -187,16 +190,16 @@ async def run(port):
         context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
         context.load_cert_chain(TLS_CERTIFICATE, TLS_PRIVATE_KEY)
         if MAILPORT_TLS > 0:
-            controller_tls = Controller(CustomHandler(), hostname='0.0.0.0', port=MAILPORT_TLS, ssl_context=context)
+            controller_tls = Controller(CustomHandler("TLS"), hostname='0.0.0.0', port=MAILPORT_TLS, ssl_context=context)
             controller_tls.start()
 
-        controller_plaintext = Controller(CustomHandler(), hostname='0.0.0.0', port=port,tls_context=context)
+        controller_plaintext = Controller(CustomHandler("Plaintext or STARTTLS"), hostname='0.0.0.0', port=port,tls_context=context)
         controller_plaintext.start()
 
         logger.info("[i] Starting TLS only Mailserver on port " + str(MAILPORT_TLS))
         logger.info("[i] Starting plaintext Mailserver (with STARTTLS support) on port " + str(port))
     else:
-        controller_plaintext = Controller(CustomHandler(), hostname='0.0.0.0', port=port)
+        controller_plaintext = Controller(CustomHandler("Plaintext"), hostname='0.0.0.0', port=port)
         controller_plaintext.start()
 
         logger.info("[i] Starting plaintext Mailserver on port " + str(port))

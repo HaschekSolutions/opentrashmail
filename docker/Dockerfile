@@ -25,7 +25,7 @@ WORKDIR /var/www/opentrashmail
 VOLUME /var/www/opentrashmail/data
 VOLUME /var/www/opentrashmail/logs
 
-EXPOSE 80 25
+EXPOSE 80 25 465
 
 #CMD ["/bin/ash"]
 ENTRYPOINT ["/etc/start.sh"]

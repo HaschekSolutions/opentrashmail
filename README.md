@@ -67,6 +67,9 @@ Just edit the `config.ini` You can use the following settings
 - `PASSWORD` -> If configured, site and API can't be used without providing it via form, POST/GET variable `password` or http header `PWD` (eg: `curl -H "PWD: 123456" http://localhost:8080/json...`)
 - `ALLOWED_IPS` -> Comma separated list of IPv4 or IPv6 CIDR addresses that are allowed to use the web UI or API
 - `ATTACHMENTS_MAX_SIZE` -> Max size for each individual attachment of an email in Bytes
+- `MAILPORT_TLS` -> If set to something higher than 0, this port will be used for TLSC (TLS on Connect). Which means plaintext auth will not be possible. Usually set to `465`. Needs `TLS_CERTIFICATE` and `TLS_PRIVATE_KEY` to work
+- `TLS_CERTIFICATE` -> Path to the certificate (chain). Can be relative to the /python directory or absolute
+- `TLS_PRIVATE_KEY` -> Path to the private key of the certificate. Can be relative to the /python directory or absolute
 
 ## Docker env vars
 In Docker you can use the following environment variables:
@@ -83,6 +86,36 @@ In Docker you can use the following environment variables:
 | PASSWORD | If configured, site and API can't be used without providing it via form, POST/GET variable `password` or http header `PWD` | yousrstrongpassword |
 | ALLOWED_IPS | Comma separated list of IPv4 or IPv6 CIDR addresses that are allowed to use the web UI or API | `192.168.5.0/24,2a02:ab:cd:ef::/60,172.16.0.0/16` |
 | ATTACHMENTS_MAX_SIZE | Max size for each individual attachment of an email in Bytes | `2000000` = 2MB |
+| MAILPORT_TLS        | If set to something higher than 0, this port will be used for TLSC (TLS on Connect). Which means plaintext auth will not be possible. Usually set to `465`. Needs `TLS_CERTIFICATE` and `TLS_PRIVATE_KEY` to work | `465` |
+| TLS_CERTIFICATE     | Path to the certificate (chain). Can be relative to the /python directory or absolute | `/certs/cert.pem` or `cert.pem` if it's inside the python directory |
+| TLS_PRIVATE_KEY     | Path to the private key of the certificate. Can be relative to the /python directory or absolute  | `/certs/privkey.pem` or `key.pem` if it's inside the python directory |
+
+## TLS
+Since v1.3.0 TLS and STARTTLS are supported by OpenTrashmail.
+
+### What you should know
+Be aware there are two ways to use TLS with email
+
+1. STARTTLS
+2. TLS on Connect (TLSC)
+
+**STARTTLS** does not require a specific port as it starts out as plaintext and then upgrades to TLS if the server advertises the "STARTTLS" command (which OpenTrashmail does automatically if the Certificate and key settings are configured). Since it's run on the default `MAILPORT` you don't need to open other ports for it to work.
+
+**TLS on connect** is wrapping TLS around the exposed ports so it's not possible to talk to it in plaintext and therefore it needs a different port to work. Usually port 465 is used for this.
+
+### About the certificates
+For TLS to work you first need a certificate that corresponds with the hostname of the SMTP server. This can be done using Lets'encrypt and even works with wildcard certificates.
+
+For testing environments you can create a certificate by running the following command from inside the python folder:
+
+```bash
+openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem   -days 365 -nodes -subj '/CN=localhost'
+```
+
+You then need to set the settings for `MAILPORT_TLS` (not needed if you only want to support STARTTLS), `TLS_CERTIFICATE` and `TLS_PRIVATE_KEY`.
+
+### Testing TLS
+The [/docs/Dev.md](/docs/Dev.md) file contains a few hints on how to debug and test TLS and TLSC connections. It uses the tool `swaks` which should be avaialable in every package manager.
 
 # Roadmap
 - [x] Mail server
