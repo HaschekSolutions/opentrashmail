@@ -1,6 +1,6 @@
 <p align="center">
   <a href="" rel="noopener">
- <img height=200px src="https://raw.githubusercontent.com/HaschekSolutions/opentrashmail/master/web/imgs/logo_300_roundbg.png" alt="Open Trashmail"></a>
+ <img height=200px src="https://raw.githubusercontent.com/HaschekSolutions/opentrashmail/master/web/imgs/logo-200.png" alt="Open Trashmail"></a>
 </p>
 
 <h1 align="center">Open Trashmail</h1>
@@ -23,19 +23,25 @@
 </div>
 
 
-![Screenshot of Open Trashmail](https://pictshare.net/9tim7k.png)
+![Screenshot of Open Trashmail](https://pictshare.net/7w1iwf.png)
 
 # [Changelog](/CHANGELOG.md)
 
 # Features
 - Python-powered mail server that works out of the box for any domain you throw at it
-- RSS feed for every email address
-- JSON API for integrating it in your own projects. Can be used to automate 2fa emails
+- `RSS feed` for every email address
+- `JSON API` for integrating it in your own projects. Can be used to automate 2fa emails
 - Handles attachments
-- Web interface to manage emails
-- Generates random email addresses
+- Supports `Plaintext`, `STARTTLS` and `TLS on connect`
+- Web interface
+  - Automatic dark/light mode switcher
+  - Download attachments
+  - Delete emails
+  - Generate random email addresses
+  - View server logs and list all accounts as admin
 - 100% file based, no database needed
 - Can be used as Email Honeypot or to programmatically solve 2fa emails
+- No need to pre-create email addresses. Any valid email address can be sent to
 
 # General API calls and functions
 
