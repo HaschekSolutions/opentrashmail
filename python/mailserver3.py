@@ -1,3 +1,4 @@
+import aiohttp
 import asyncio
 import ssl
 from aiosmtpd.controller import Controller
@@ -37,7 +38,7 @@ class CustomHandler:
         rcpts = []
         for rcpt in envelope.rcpt_tos:
             rcpts.append(rcpt)
-        
+
         logger.debug('Receiving message from: %s (%s)', peer,self.connection_type)
 
         logger.debug('Message addressed from: %s' % envelope.mail_from)
@@ -110,7 +111,7 @@ class CustomHandler:
                     'raw':raw_email,
                     'parsed':edata
                 }
-                
+
                 #same attachments if any
                 for att in attachments:
                     if not os.path.exists("../data/"+em+"/attachments"):
@@ -133,9 +134,20 @@ class CustomHandler:
                 with open("../data/"+em+"/"+filenamebase+".json", "w") as outfile:
                     json.dump(savedata, outfile)
 
+                await self.send_to_webhook(savedata)
+
         cleanup()
-        
+
         return '250 OK'
+
+    async def send_to_webhook(self, data):
+        if WEBHOOK_URL != "":
+            try:
+                async with aiohttp.ClientSession() as session:
+                    await session.post(WEBHOOK_URL, json=data)
+                    logger.info("Webhook sent successfully.")
+            except Exception as e:
+                logger.error("Error sending webhook: %s" % str(e))
 
     def handleAttachment(self, part):
         filename = part.get_filename()
@@ -156,7 +168,7 @@ class CustomHandler:
             return False
 
         return (filename,part.get_payload(decode=True),cid,fid)
-    
+
     def replace_cid_with_attachment_id(self, html_content, attachments,filenamebase,email):
         # Replace cid references with attachment filename
         for attachment_id in attachments:
@@ -240,13 +252,19 @@ if __name__ == '__main__':
 
         if("CLEANUP" in Config.sections() and "delete_older_than_days" in Config.options("CLEANUP")):
             DELETE_OLDER_THAN_DAYS = (Config.get("CLEANUP", "DELETE_OLDER_THAN_DAYS").lower() == "true")
-        
+
         if("mailport_tls" in Config.options("MAILSERVER")):
             MAILPORT_TLS = int(Config.get("MAILSERVER", "MAILPORT_TLS"))
         if("tls_certificate" in Config.options("MAILSERVER")):
             TLS_CERTIFICATE = Config.get("MAILSERVER", "TLS_CERTIFICATE")
         if("tls_private_key" in Config.options("MAILSERVER")):
             TLS_PRIVATE_KEY = Config.get("MAILSERVER", "TLS_PRIVATE_KEY")
+
+        if "webhook_url" in Config.options("WEBHOOK"):
+            WEBHOOK_URL = Config.get("WEBHOOK", "WEBHOOK_URL")
+        else:
+            WEBHOOK_URL = ""
+
 
     logger.info("[i] Discard unknown domains: " + str(DISCARD_UNKNOWN))
     logger.info("[i] Max size of attachments: " + str(ATTACHMENTS_MAX_SIZE))

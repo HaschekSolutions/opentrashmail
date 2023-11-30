@@ -49,6 +49,9 @@ _buildConfig() {
     echo ""
     echo "[CLEANUP]"
     echo "DELETE_OLDER_THAN_DAYS=${DELETE_OLDER_THAN_DAYS:-false}"
+    echo ""
+    echo "[WEBHOOK]"
+    echo "WEBHOOK_URL=${WEBHOOK_URL:-}"
 }
 
 _buildConfig > /var/www/opentrashmail/config.ini

@@ -4,7 +4,8 @@ LABEL org.opencontainers.image.source = "https://github.com/HaschekSolutions/ope
 
 RUN apk add --no-cache bash python3 py3-pip socat wget php-fileinfo php-session curl git php php-curl nginx php-openssl php-mbstring php-json php-gd php-dom php-fpm
 RUN pip3 install aiosmtpd
-#RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin --filename=composer 
+RUN pip3 install aiohttp
+#RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin --filename=composer
 RUN mkdir -p /var/www/opentrashmail
 WORKDIR /var/www/opentrashmail
 
