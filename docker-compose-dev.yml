@@ -21,6 +21,7 @@ services:
       # - MAILPORT_TLS=465
       # - TLS_CERTIFICATE=cert.pem
       # - TLS_PRIVATE_KEY=key.pem
+      # - WEBHOOK_URL=https://example.com/webhook
 
     ports:
       - '2525:25'
