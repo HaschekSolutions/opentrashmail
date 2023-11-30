@@ -16,6 +16,7 @@ From the root directory run:
 docker build -f docker/Dockerfile -t opentrashmail .
 docker run --rm -it --name trashmail -p 2525:25 \
 -v $( pwd )/data:/var/www/opentrashmail/data \
+-v $( pwd )/logs:/var/www/opentrashmail/logs \
 -v $( pwd )/config.ini:/var/www/opentrashmail/config.ini:ro opentrashmail
 ```
 
