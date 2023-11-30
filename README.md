@@ -97,7 +97,7 @@ In Docker you can use the following environment variables:
 | MAILPORT_TLS        | If set to something higher than 0, this port will be used for TLSC (TLS on Connect). Which means plaintext auth will not be possible. Usually set to `465`. Needs `TLS_CERTIFICATE` and `TLS_PRIVATE_KEY` to work | `465` |
 | TLS_CERTIFICATE     | Path to the certificate (chain). Can be relative to the /python directory or absolute | `/certs/cert.pem` or `cert.pem` if it's inside the python directory |
 | TLS_PRIVATE_KEY     | Path to the private key of the certificate. Can be relative to the /python directory or absolute  | `/certs/privkey.pem` or `key.pem` if it's inside the python directory |
-| WEBHOOK_URL         | If set, will send a POST request to this URL with the JSON data of the email as body. Can be used to integrate OpenTrashmail in your own projects | `https://mydomain.eu/webhook` |
+| WEBHOOK_URL         | If set, will send a POST request to this URL with the JSON data of the email as body. Can be used to integrate OpenTrashmail in your own projects | `https://example.com/webhook` |
 
 ## TLS
 Since v1.3.0 TLS and STARTTLS are supported by OpenTrashmail.
