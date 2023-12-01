@@ -19,7 +19,7 @@ class OpenTrashmailBackend{
                 case 'read':
                     return $this->readMail($_REQUEST['email']?:$this->url[2],$_REQUEST['id']?:$this->url[3]);
                 case 'listaccounts':
-                    if($this->settings['SHOW_ACCOUNT_LIST'])
+                    if($this->settings['SHOW_ACCOUNT_LIST'] && (($this->settings['ADMIN_PASSWORD'] != "" && $_SESSION['admin'])|| !$this->settings['ADMIN_PASSWORD']))
                         return $this->listAccounts();
                     else return '403 Forbidden';
                 case 'raw-html':
@@ -36,7 +36,7 @@ class OpenTrashmailBackend{
                 case 'deleteaccount':
                     return $this->deleteAccount($_REQUEST['email']?:$this->url[2]);
                 case 'logs':
-                    if($this->settings['SHOW_LOGS'])
+                    if($this->settings['SHOW_LOGS'] && (($this->settings['ADMIN_PASSWORD'] != "" && $_SESSION['admin'])|| !$this->settings['ADMIN_PASSWORD']))
                         return $this->renderTemplate('logs.html',[
                             'lines' => (is_numeric($this->url[2])&&$this->url[2]>0)?$this->url[2]:100,
                             'mailserverlogfile'=>ROOT.DS.'../logs'.DS.'mailserver.log',
