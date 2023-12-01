@@ -27,6 +27,7 @@ URL = ""
 MAILPORT_TLS = 0
 TLS_CERTIFICATE = ""
 TLS_PRIVATE_KEY = ""
+WEBHOOK_URL = ""
 
 class CustomHandler:
     connection_type = ''
