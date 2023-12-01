@@ -1,6 +1,6 @@
 # Changelog
 
-## UNRELEASED
+## V1.4.0
 - Added support for webhooks
 - Moved account list and logs to admin site with optional passwords
 
