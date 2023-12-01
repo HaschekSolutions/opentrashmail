@@ -1,5 +1,8 @@
 # Changelog
 
+## UNRELEASED
+- Added support for webhooks
+
 ## V1.3.0
 - Added TLS and STARTTLS support
 - Various bug fixes and docs updates

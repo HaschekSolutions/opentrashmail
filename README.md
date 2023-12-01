@@ -18,7 +18,7 @@
 [![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2FHaschekSolutions%2Fopentrashmail&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=hits&edge_flat=false)](https://hits.seeyoufarm.com)
 [![](https://img.shields.io/github/stars/HaschekSolutions/opentrashmail.svg?label=Stars&style=social)](https://github.com/HaschekSolutions/opentrashmail)
 
-#### Selfhosted `trashmail` solution - Receive Emails via `Web UI`, `JSON API` and `RSS feed`
+#### Selfhosted `trashmail` solution - Receive Emails via `Web UI`, `JSON API`, `RSS feed` and `Webhook`
   
 </div>
 
@@ -31,6 +31,7 @@
 - Python-powered mail server that works out of the box for any domain you throw at it
 - `RSS feed` for every email address
 - `JSON API` for integrating it in your own projects. Can be used to automate 2fa emails
+- `Webhook` for integrating it in your own projects
 - Handles attachments
 - Supports `Plaintext`, `STARTTLS` and `TLS on connect`
 - Web interface
@@ -76,6 +77,7 @@ Just edit the `config.ini` You can use the following settings
 - `MAILPORT_TLS` -> If set to something higher than 0, this port will be used for TLSC (TLS on Connect). Which means plaintext auth will not be possible. Usually set to `465`. Needs `TLS_CERTIFICATE` and `TLS_PRIVATE_KEY` to work
 - `TLS_CERTIFICATE` -> Path to the certificate (chain). Can be relative to the /python directory or absolute
 - `TLS_PRIVATE_KEY` -> Path to the private key of the certificate. Can be relative to the /python directory or absolute
+- `WEBHOOK_URL` -> If set, will send a POST request to this URL with the JSON data of the email as body. Can be used to integrate OpenTrashmail in your own projects
 
 ## Docker env vars
 In Docker you can use the following environment variables:
@@ -95,6 +97,7 @@ In Docker you can use the following environment variables:
 | MAILPORT_TLS        | If set to something higher than 0, this port will be used for TLSC (TLS on Connect). Which means plaintext auth will not be possible. Usually set to `465`. Needs `TLS_CERTIFICATE` and `TLS_PRIVATE_KEY` to work | `465` |
 | TLS_CERTIFICATE     | Path to the certificate (chain). Can be relative to the /python directory or absolute | `/certs/cert.pem` or `cert.pem` if it's inside the python directory |
 | TLS_PRIVATE_KEY     | Path to the private key of the certificate. Can be relative to the /python directory or absolute  | `/certs/privkey.pem` or `key.pem` if it's inside the python directory |
+| WEBHOOK_URL         | If set, will send a POST request to this URL with the JSON data of the email as body. Can be used to integrate OpenTrashmail in your own projects | `https://example.com/webhook` |
 
 ## TLS
 Since v1.3.0 TLS and STARTTLS are supported by OpenTrashmail.
