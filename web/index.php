@@ -18,9 +18,11 @@ if($settings['ALLOWED_IPS'])
         exit("Your IP ($ip) is not allowed to access this site.");
 }
 
+if($settings['PASSWORD'] || $settings['ADMIN_PASSWORD']) // let's only start a session if we need one
+    session_start();
+
 if($settings['PASSWORD']) //site requires a password
 {
-    session_start();
     $pw = $settings['PASSWORD'];
     $auth = false;
     //first check for auth header or POST/GET variable

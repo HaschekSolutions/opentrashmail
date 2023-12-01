@@ -16,8 +16,7 @@
     <a href="/"><img src="/imgs/logo-50.png" width="50px" /> Open Trashmail <small class="version"><?=getVersion()?></small></a>
     <a><input id="email" hx-post="/api/address" hx-target="#main" name="email" type="email" style="margin-bottom:0px" hx-trigger="input changed delay:500ms" placeholder="email address" aria-label="email address"></a>
     <a href="/random" hx-get="/api/random" hx-target="#main"><i class="fas fa-random"></i> Generate random</a>
-    <?php if($settings['SHOW_ACCOUNT_LIST']): ?><a href="/listaccounts" hx-get="/api/listaccounts" hx-target="#main" hx-push-url="/listaccounts"><i class="fas fa-list"></i> List accounts</a><?php endif; ?>
-    <?php if($settings['SHOW_LOGS']==true): ?><a href="/logs" hx-get="/api/logs" hx-target="#main" hx-push-url="/logs"><i class="fas fa-list"></i> Show logs</a><?php endif; ?>
+    <?php if($this->settings['ADMIN_ENABLED']==true):?><a href="/admin" hx-get="/api/admin" hx-target="#main" hx-push-url="/admin"><i class="fas fa-user-shield"></i> Admin</a><?php endif; ?>
     <a href="javascript:void(0);" class="icon" onclick="navbarmanager()">
       <i class="fa fa-bars"></i>
     </a>

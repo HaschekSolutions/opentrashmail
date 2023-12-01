@@ -78,6 +78,8 @@ Just edit the `config.ini` You can use the following settings
 - `TLS_CERTIFICATE` -> Path to the certificate (chain). Can be relative to the /python directory or absolute
 - `TLS_PRIVATE_KEY` -> Path to the private key of the certificate. Can be relative to the /python directory or absolute
 - `WEBHOOK_URL` -> If set, will send a POST request to this URL with the JSON data of the email as body. Can be used to integrate OpenTrashmail in your own projects
+- `ADMIN_ENABLED` -> Enables the admin menu. Default `false`
+- `ADMIN_PASSWORD` -> If set, needs this password to access the admin menu
 
 ## Docker env vars
 In Docker you can use the following environment variables:
@@ -98,6 +100,8 @@ In Docker you can use the following environment variables:
 | TLS_CERTIFICATE     | Path to the certificate (chain). Can be relative to the /python directory or absolute | `/certs/cert.pem` or `cert.pem` if it's inside the python directory |
 | TLS_PRIVATE_KEY     | Path to the private key of the certificate. Can be relative to the /python directory or absolute  | `/certs/privkey.pem` or `key.pem` if it's inside the python directory |
 | WEBHOOK_URL         | If set, will send a POST request to this URL with the JSON data of the email as body. Can be used to integrate OpenTrashmail in your own projects | `https://example.com/webhook` |
+| ADMIN_ENABLED     | Enables the admin menu. Default `false` | `false` / `true` |
+| ADMIN_PASSWORD      | If set, needs this password to access the admin menu | `123456` |
 
 ## TLS
 Since v1.3.0 TLS and STARTTLS are supported by OpenTrashmail.

@@ -2,6 +2,7 @@
 
 ## UNRELEASED
 - Added support for webhooks
+- Moved account list and logs to admin site with optional passwords
 
 ## V1.3.0
 - Added TLS and STARTTLS support

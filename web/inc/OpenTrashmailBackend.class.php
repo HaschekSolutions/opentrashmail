@@ -45,6 +45,12 @@ class OpenTrashmailBackend{
                             'configfile' => ROOT.DS.'../config.ini',
                         ]);
                     else return '403 Forbidden';
+                case 'admin':
+                    if($this->settings['ADMIN_ENABLED']==true)
+                        return $this->renderTemplate('admin.html',[
+                            'settings'=>$this->settings,
+                        ]);
+                    else return '403 Not activated in config.ini';
                 default:
                     return false;
             }

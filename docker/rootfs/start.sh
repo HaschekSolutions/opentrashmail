@@ -30,9 +30,6 @@ _buildConfig() {
     echo "[GENERAL]"
     echo "DOMAINS=${DOMAINS:-localhost}"
     echo "URL=${URL:-http://localhost:8080}"
-    echo "SHOW_ACCOUNT_LIST=${SHOW_ACCOUNT_LIST:-false}"
-    echo "ADMIN=${ADMIN:-}"
-    echo "SHOW_LOGS=${SHOW_LOGS:-false}"
     echo "PASSWORD=${PASSWORD:-}"
     echo "ALLOWED_IPS=${ALLOWED_IPS:-}"
     echo ""
@@ -52,6 +49,12 @@ _buildConfig() {
     echo ""
     echo "[WEBHOOK]"
     echo "WEBHOOK_URL=${WEBHOOK_URL:-}"
+    echo ""
+    echo "[ADMIN]"
+    echo "ADMIN_ENABLED=${ADMIN_ENABLED:-}"
+    echo "SHOW_ACCOUNT_LIST=${SHOW_ACCOUNT_LIST:-false}"
+    echo "ADMIN=${ADMIN:-}"
+    echo "SHOW_LOGS=${SHOW_LOGS:-false}"
 }
 
 _buildConfig > /var/www/opentrashmail/config.ini
