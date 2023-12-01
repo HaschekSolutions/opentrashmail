@@ -52,6 +52,7 @@ _buildConfig() {
     echo ""
     echo "[ADMIN]"
     echo "ADMIN_ENABLED=${ADMIN_ENABLED:-}"
+    echo "ADMIN_PASSWORD=${ADMIN_PASSWORD:-}"
     echo "SHOW_ACCOUNT_LIST=${SHOW_ACCOUNT_LIST:-false}"
     echo "ADMIN=${ADMIN:-}"
     echo "SHOW_LOGS=${SHOW_LOGS:-false}"
