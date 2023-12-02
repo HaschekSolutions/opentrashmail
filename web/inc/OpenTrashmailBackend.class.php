@@ -78,7 +78,7 @@ class OpenTrashmailBackend{
             header("Content-Type: application/json; charset=UTF8");
             if($this->url[1]=='listaccounts')
             {
-                if($this->settings['SHOW_ACCOUNT_LIST'])
+                if($this->settings['SHOW_ACCOUNT_LIST'] && (($this->settings['ADMIN_PASSWORD'] != "" && $_REQUEST['password']==$this->settings['ADMIN_PASSWORD'])|| !$this->settings['ADMIN_PASSWORD']))
                     return json_encode(listEmailAdresses());
                 else exit(json_encode(['error'=>'403 Forbidden']));
             }
