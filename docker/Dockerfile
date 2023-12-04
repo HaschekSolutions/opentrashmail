@@ -19,6 +19,7 @@ ADD docker/rootfs/nginx.conf /etc/nginx/http.d/default.conf
 RUN mkdir -p /run/nginx
 RUN mkdir -p /var/log/nginx
 RUN sed -i 's/nobody/nginx/g' /etc/php81/php-fpm.d/www.conf
+RUN sed -i 's/E_ALL \& ~E_DEPRECATED \& ~E_STRICT/E_ALL \& ~E_DEPRECATED \& ~E_STRICT \& ~E_NOTICE \& ~E_WARNING/g' /etc/php81/php.ini
 
 WORKDIR /var/www/opentrashmail
 
