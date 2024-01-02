@@ -19,6 +19,7 @@ mkdir -p /var/log/nginx/opentrashmail
 touch /var/log/nginx/opentrashmail/web.access.log
 touch /var/log/nginx/opentrashmail/web.error.log
 
+mkdir -p /run/nginx
 nginx
 
 
