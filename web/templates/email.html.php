@@ -11,7 +11,7 @@
         <p>Received: <span id="date2-<?= $mailid ?>"><script>document.getElementById('date2-<?= $mailid ?>').innerHTML = moment.unix(parseInt(<?=$mailid?>/1000)).format('<?= $dateformat; ?>');</script></span></p>
 
         <p>
-            Reciepients:
+            Recipients:
             <?php foreach ($emaildata['rcpts'] as $to) : ?>
                 <small class="badge"><?= escape($to) ?></small>
             <?php endforeach; ?>
