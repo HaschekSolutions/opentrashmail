@@ -3,6 +3,7 @@ import asyncio
 import ssl
 from aiosmtpd.controller import Controller
 from email.parser import BytesParser
+from email.header import decode_header, make_header
 from email import policy
 import os
 import re
@@ -52,6 +53,8 @@ class CustomHandler:
 
         # Parse the email
         message = BytesParser(policy=policy.default).parsebytes(envelope.content)
+        subject = str(make_header(decode_header(message['subject'])))
+
 
         # Separate HTML and plaintext parts
         plaintext = ''
@@ -99,7 +102,7 @@ class CustomHandler:
 
 
                 edata = {
-                    'subject': message['subject'],
+                    'subject': subject,
                     'body': plaintext,
                     'htmlbody': self.replace_cid_with_attachment_id(html, attachments,filenamebase,em),
                     'from': message['from'],
