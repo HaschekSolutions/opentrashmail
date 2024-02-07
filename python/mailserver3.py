@@ -190,6 +190,7 @@ def cleanup():
     if(DELETE_OLDER_THAN_DAYS == False or time.time() - LAST_CLEANUP < 86400):
         return
     logger.info("Cleaning up")
+    LAST_CLEANUP = time.time()
     rootdir = '../data/'
     for subdir, dirs, files in os.walk(rootdir):
         for file in files:
