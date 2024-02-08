@@ -73,7 +73,7 @@ class CustomHandler:
                 else:
                     plaintext += part.get_payload(decode=True).decode('utf-8')
             elif part.get_content_type() == 'text/html':
-                html += part.get_payload()
+                html += part.get_payload().get_payload(decode=True).decode('utf-8')
             else:
                 att = self.handleAttachment(part)
                 if(att == False):
@@ -190,6 +190,7 @@ def cleanup():
     if(DELETE_OLDER_THAN_DAYS == False or time.time() - LAST_CLEANUP < 86400):
         return
     logger.info("Cleaning up")
+    LAST_CLEANUP = time.time()
     rootdir = '../data/'
     for subdir, dirs, files in os.walk(rootdir):
         for file in files:
