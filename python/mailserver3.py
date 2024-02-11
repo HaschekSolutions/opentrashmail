@@ -200,6 +200,11 @@ def cleanup():
                 if(time.time() - file_modified > (DELETE_OLDER_THAN_DAYS * 86400)):
                     os.remove(filepath)
                     logger.info("Deleted file: " + filepath)
+                        # delete empty folders now
+    for entry in os.scandir(rootdir):
+        if entry.is_dir() and not os.listdir(entry.path) :
+            os.rmdir(entry.path)
+            logger.info("Deleted folder: " + entry.path)
 
 async def run(port):
 
@@ -256,7 +261,7 @@ if __name__ == '__main__':
             ATTACHMENTS_MAX_SIZE = int(Config.get("MAILSERVER", "ATTACHMENTS_MAX_SIZE"))
 
         if("CLEANUP" in Config.sections() and "delete_older_than_days" in Config.options("CLEANUP")):
-            DELETE_OLDER_THAN_DAYS = (Config.get("CLEANUP", "DELETE_OLDER_THAN_DAYS").lower() == "true")
+            DELETE_OLDER_THAN_DAYS = Config.getfloat("CLEANUP", "DELETE_OLDER_THAN_DAYS")
 
         if("mailport_tls" in Config.options("MAILSERVER")):
             MAILPORT_TLS = int(Config.get("MAILSERVER", "MAILPORT_TLS"))
