@@ -73,7 +73,7 @@ class CustomHandler:
                 else:
                     plaintext += part.get_payload(decode=True).decode('utf-8')
             elif part.get_content_type() == 'text/html':
-                html += part.get_payload().get_payload(decode=True).decode('utf-8')
+                html += part.get_payload(decode=True).decode('utf-8')
             else:
                 att = self.handleAttachment(part)
                 if(att == False):
