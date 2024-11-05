@@ -69,13 +69,29 @@ class CustomHandler:
                     att = self.handleAttachment(part)
                     if(att == False):
                         return '500 Attachment too large. Max size: ' + str(ATTACHMENTS_MAX_SIZE/1000000)+"MB"
-                    attachments['file%d' % len(attachments)] = att
-                else:
-                    plaintext += part.get_payload(decode=True).decode('utf-8')
-            elif part.get_content_type() == 'text/html':
-                html += part.get_payload(decode=True).decode('utf-8')
-            else:
-                att = self.handleAttachment(part)
+                    attachments['file%d' % len(attachments)] = att                                            
+                else:                                                                                         
+                    try:                                                                                      
+                        plaintext += part.get_payload(decode=True).decode('utf-8')                            
+                        logger.debug('UTF-8 received')                                                        
+                    except UnicodeDecodeError:                                                                
+                        plaintext += part.get_payload(decode=True).decode('latin1')                           
+                        logger.debug('latin1 received')                                                       
+                    except Exception as e:                                                                    
+                        print(f"Error decoding payload: {e}")                                                 
+                        logger.debug(e)                                                                       
+            elif part.get_content_type() == 'text/html':                                                      
+                try:                                                                                          
+                    html += part.get_payload(decode=True).decode('utf-8')
+                    logger.debug('UTF-8 received')
+                except UnicodeDecodeError:                                                                    
+                    html += part.get_payload(decode=True).decode('latin1')
+                    logger.debug('latin1 received')                                                       
+                except Exception as e:                                                                        
+                    print(f"Error decoding payload: {e}")                                                     
+                    logger.debug(e)                                                                           
+            else:                                                                                             
+                att = self.handleAttachment(part)  
                 if(att == False):
                     return '500 Attachment too large. Max size: ' + str(ATTACHMENTS_MAX_SIZE/1000000)+"MB"
                 attachments['file%d' % len(attachments)] = att
