@@ -69,13 +69,29 @@ class CustomHandler:
                     att = self.handleAttachment(part)
                     if(att == False):
                         return '500 Attachment too large. Max size: ' + str(ATTACHMENTS_MAX_SIZE/1000000)+"MB"
-                    attachments['file%d' % len(attachments)] = att
-                else:
-                    plaintext += part.get_payload(decode=True).decode('utf-8')
-            elif part.get_content_type() == 'text/html':
-                html += part.get_payload(decode=True).decode('utf-8')
-            else:
-                att = self.handleAttachment(part)
+                    attachments['file%d' % len(attachments)] = att                                            
+                else:                                                                                         
+                    try:                                                                                      
+                        plaintext += part.get_payload(decode=True).decode('utf-8')                            
+                        logger.debug('UTF-8 received')                                                        
+                    except UnicodeDecodeError:                                                                
+                        plaintext += part.get_payload(decode=True).decode('latin1')                           
+                        logger.debug('latin1 received')                                                       
+                    except Exception as e:                                                                    
+                        print(f"Error decoding payload: {e}")                                                 
+                        logger.debug(e)                                                                       
+            elif part.get_content_type() == 'text/html':                                                      
+                try:                                                                                          
+                    html += part.get_payload(decode=True).decode('utf-8')
+                    logger.debug('UTF-8 received')
+                except UnicodeDecodeError:                                                                    
+                    html += part.get_payload(decode=True).decode('latin1')
+                    logger.debug('latin1 received')                                                       
+                except Exception as e:                                                                        
+                    print(f"Error decoding payload: {e}")                                                     
+                    logger.debug(e)                                                                           
+            else:                                                                                             
+                att = self.handleAttachment(part)  
                 if(att == False):
                     return '500 Attachment too large. Max size: ' + str(ATTACHMENTS_MAX_SIZE/1000000)+"MB"
                 attachments['file%d' % len(attachments)] = att
@@ -200,7 +216,11 @@ def cleanup():
                 if(time.time() - file_modified > (DELETE_OLDER_THAN_DAYS * 86400)):
                     os.remove(filepath)
                     logger.info("Deleted file: " + filepath)
-
+                        # delete empty folders now
+    for entry in os.scandir(rootdir):
+        if entry.is_dir() and not os.listdir(entry.path) :
+            os.rmdir(entry.path)
+            logger.info("Deleted folder: " + entry.path)
 async def run(port):
 
     if TLS_CERTIFICATE != "" and TLS_PRIVATE_KEY != "":
@@ -256,7 +276,7 @@ if __name__ == '__main__':
             ATTACHMENTS_MAX_SIZE = int(Config.get("MAILSERVER", "ATTACHMENTS_MAX_SIZE"))
 
         if("CLEANUP" in Config.sections() and "delete_older_than_days" in Config.options("CLEANUP")):
-            DELETE_OLDER_THAN_DAYS = (Config.get("CLEANUP", "DELETE_OLDER_THAN_DAYS").lower() == "true")
+            DELETE_OLDER_THAN_DAYS = Config.getfloat("CLEANUP", "DELETE_OLDER_THAN_DAYS")
 
         if("mailport_tls" in Config.options("MAILSERVER")):
             MAILPORT_TLS = int(Config.get("MAILSERVER", "MAILPORT_TLS"))
