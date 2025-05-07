@@ -274,10 +274,16 @@ if __name__ == '__main__':
         URL = Config.get("GENERAL", "URL")
         if("attachments_max_size" in Config.options("MAILSERVER")):
             ATTACHMENTS_MAX_SIZE = int(Config.get("MAILSERVER", "ATTACHMENTS_MAX_SIZE"))
-
-        if("CLEANUP" in Config.sections() and "delete_older_than_days" in Config.options("CLEANUP")):
-            DELETE_OLDER_THAN_DAYS = Config.getfloat("CLEANUP", "DELETE_OLDER_THAN_DAYS")
-
+        if "CLEANUP" in Config.sections() and "delete_older_than_days" in Config.options("CLEANUP"):
+            raw_val = Config.get("CLEANUP", "DELETE_OLDER_THAN_DAYS").strip().lower()
+            try:
+                if raw_val in ["false", "off", "no", "none"]:
+                    DELETE_OLDER_THAN_DAYS = 0
+                else:
+                    DELETE_OLDER_THAN_DAYS = float(raw_val)
+            except ValueError:
+                logger.warning("Invalid value for DELETE_OLDER_THAN_DAYS: %s. Defaulting to 0." % raw_val)
+                DELETE_OLDER_THAN_DAYS = 0
         if("mailport_tls" in Config.options("MAILSERVER")):
             MAILPORT_TLS = int(Config.get("MAILSERVER", "MAILPORT_TLS"))
         if("tls_certificate" in Config.options("MAILSERVER")):
