@@ -24,10 +24,18 @@
 
   <button class="htmx-indicator" aria-busy="true">Loading…</button>
 
-  <main id="main" class="container" hx-get="/api/<?= $url ?>" hx-trigger="load">
+  <main id="main" class="container" hx-get="/api/<?= $url ?>" hx-trigger="load, every30s from:body">
 
   </main>
-
+  <script>
+    function pollIfVisible() {
+      if (document.visibilityState === 'visible') {
+        htmx.trigger(document.body, "every30s");
+      }
+    }
+    document.addEventListener("visibilitychange", pollIfVisible);
+    setInterval(pollIfVisible, 30000);
+  </script>
   <script src="/js/opentrashmail.js"></script>
   <script src="/js/htmx.min.js"></script>
   <script src="/js/moment-with-locales.min.js"></script>
