@@ -158,6 +158,7 @@ class OpenTrashmailBackend{
 
     function getAttachment($email,$attachment)
     {
+        $attachment = basename(urldecode($attachment));
         if(!filter_var($email, FILTER_VALIDATE_EMAIL))
             return $this->error('Invalid email address');
         else if(!attachmentExists($email,$attachment))
