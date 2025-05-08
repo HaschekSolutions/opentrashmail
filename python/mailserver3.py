@@ -53,7 +53,7 @@ class CustomHandler:
 
         # Parse the email
         message = BytesParser(policy=policy.default).parsebytes(envelope.content)
-        subject = str(make_header(decode_header(message['subject'])))
+        subject = str(make_header(decode_header(message['subject']))) if message['subject'] else "(No Subject)"
 
 
         # Separate HTML and plaintext parts
