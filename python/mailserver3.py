@@ -10,6 +10,7 @@ import re
 import time
 import json
 import hashlib
+import hmac
 import configparser
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -154,20 +155,149 @@ class CustomHandler:
                 with open("../data/"+em+"/"+filenamebase+".json", "w") as outfile:
                     json.dump(savedata, outfile)
 
-                await self.send_to_webhook(savedata)
+                await self.send_to_webhook(em, savedata)
 
         cleanup()
 
         return '250 OK'
 
-    async def send_to_webhook(self, data):
-        if WEBHOOK_URL != "":
+    async def send_to_webhook(self, email, data):
+        # Try per-email webhook first
+        webhook_config = self.load_webhook_config(email)
+        
+        if webhook_config and webhook_config.get('enabled'):
+            await self.send_configured_webhook(email, data, webhook_config)
+        elif WEBHOOK_URL != "":
+            # Fallback to global webhook
+            await self.send_global_webhook(data)
+    
+    def load_webhook_config(self, email):
+        webhook_file = "../data/" + email + "/webhook.json"
+        if os.path.exists(webhook_file):
+            try:
+                with open(webhook_file, 'r') as f:
+                    config = json.load(f)
+                    # Validate config structure
+                    if not isinstance(config, dict):
+                        logger.error("Invalid webhook config format for %s: not a dictionary" % email)
+                        return None
+                    return config
+            except json.JSONDecodeError as e:
+                logger.error("Invalid JSON in webhook config for %s: %s" % (email, str(e)))
+            except Exception as e:
+                logger.error("Error loading webhook config for %s: %s" % (email, str(e)))
+        return None
+    
+    def replace_template_variables(self, template, data):
+        """Replace {{variable}} placeholders in template with actual data"""
+        try:
+            # Helper function to escape JSON strings
+            def json_escape(value):
+                if value is None:
+                    return ''
+                # For non-string values, convert to string first
+                str_value = str(value)
+                # Escape special characters for JSON
+                return (str_value.replace('\\', '\\\\')
+                               .replace('"', '\\"')
+                               .replace('\n', '\\n')
+                               .replace('\r', '\\r')
+                               .replace('\t', '\\t'))
+            
+            replacements = {
+                '{{to}}': json_escape(data['rcpts'][0] if data.get('rcpts') else ''),
+                '{{from}}': json_escape(data.get('parsed', {}).get('from', '')),
+                '{{subject}}': json_escape(data.get('parsed', {}).get('subject', '')),
+                '{{body}}': json_escape(data.get('parsed', {}).get('body', '')),
+                '{{htmlbody}}': json_escape(data.get('parsed', {}).get('htmlbody', '')),
+                '{{sender_ip}}': json_escape(data.get('sender_ip', '')),
+                '{{attachments}}': json.dumps(data.get('parsed', {}).get('attachments_details', []))
+            }
+            
+            result = template
+            for key, value in replacements.items():
+                result = result.replace(key, value)
+            
+            return result
+        except Exception as e:
+            logger.error("Error replacing template variables: %s" % str(e))
+            return template
+    
+    def sign_payload(self, payload, secret_key):
+        """Generate HMAC signature for webhook payload"""
+        if not secret_key:
+            return None
+        
+        signature = hmac.new(
+            secret_key.encode('utf-8'),
+            payload.encode('utf-8'),
+            hashlib.sha256
+        ).hexdigest()
+        
+        return signature
+    
+    async def send_configured_webhook(self, email, data, config):
+        """Send webhook with custom configuration and retry logic"""
+        webhook_url = config.get('webhook_url')
+        if not webhook_url:
+            logger.error("No webhook URL configured for %s" % email)
+            return
+        
+        # Prepare payload from template
+        template = config.get('payload_template', '{}')
+        payload_str = self.replace_template_variables(template, data)
+        
+        try:
+            payload = json.loads(payload_str)
+        except json.JSONDecodeError as e:
+            logger.error("Invalid JSON in webhook payload template for %s: %s" % (email, str(e)))
+            logger.error("Template: %s" % template)
+            logger.error("Payload string: %s" % payload_str)
+            return
+        
+        # Retry configuration
+        retry_config = config.get('retry_config', {})
+        max_attempts = retry_config.get('max_attempts', 3)
+        backoff_multiplier = retry_config.get('backoff_multiplier', 2)
+        
+        # Prepare headers
+        headers = {'Content-Type': 'application/json'}
+        
+        # Add signature if secret key is configured
+        secret_key = config.get('secret_key')
+        if secret_key:
+            signature = self.sign_payload(json.dumps(payload), secret_key)
+            headers['X-Webhook-Signature'] = signature
+        
+        # Send with retry logic
+        for attempt in range(max_attempts):
             try:
                 async with aiohttp.ClientSession() as session:
-                    await session.post(WEBHOOK_URL, json=data)
-                    logger.info("Webhook sent successfully.")
+                    async with session.post(webhook_url, json=payload, headers=headers, timeout=aiohttp.ClientTimeout(total=30)) as response:
+                        if response.status >= 200 and response.status < 300:
+                            logger.info("Webhook sent successfully to %s for %s (attempt %d)" % (webhook_url, email, attempt + 1))
+                            return
+                        else:
+                            logger.warning("Webhook failed with status %d for %s (attempt %d)" % (response.status, email, attempt + 1))
             except Exception as e:
-                logger.error("Error sending webhook: %s" % str(e))
+                logger.error("Error sending webhook for %s (attempt %d): %s" % (email, attempt + 1, str(e)))
+            
+            # Wait before retry (exponential backoff)
+            if attempt < max_attempts - 1:
+                wait_time = (backoff_multiplier ** attempt) * 1  # Start with 1 second
+                logger.info("Retrying webhook for %s in %d seconds..." % (email, wait_time))
+                await asyncio.sleep(wait_time)
+        
+        logger.error("Failed to send webhook for %s after %d attempts" % (email, max_attempts))
+    
+    async def send_global_webhook(self, data):
+        """Send to global webhook URL (backward compatibility)"""
+        try:
+            async with aiohttp.ClientSession() as session:
+                await session.post(WEBHOOK_URL, json=data)
+                logger.info("Global webhook sent successfully.")
+        except Exception as e:
+            logger.error("Error sending global webhook: %s" % str(e))
 
     def handleAttachment(self, part):
         filename = part.get_filename()

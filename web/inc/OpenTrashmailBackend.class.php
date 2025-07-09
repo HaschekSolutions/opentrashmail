@@ -51,6 +51,15 @@ class OpenTrashmailBackend{
                             'settings'=>$this->settings,
                         ]);
                     else return '403 Not activated in config.ini';
+                case 'webhook':
+                    if($this->url[2] == 'get') {
+                        return $this->getWebhook($_REQUEST['email']?:$this->url[3]);
+                    } else if($this->url[2] == 'save') {
+                        return $this->saveWebhook($_REQUEST['email']?:$this->url[3], $_REQUEST);
+                    } else if($this->url[2] == 'delete') {
+                        return $this->deleteWebhook($_REQUEST['email']?:$this->url[3]);
+                    }
+                    break;
                 default:
                     return false;
             }
@@ -226,6 +235,99 @@ class OpenTrashmailBackend{
         ob_end_clean();
     
         return $rendered;
+    }
+
+    public function getWebhook($email)
+    {
+        if(!filter_var($email, FILTER_VALIDATE_EMAIL))
+            return $this->error('Invalid email address');
+        
+        header("Content-Type: application/json; charset=UTF8");
+        $config = getWebhookConfig($email);
+        return json_encode($config ?: ['enabled' => false]);
+    }
+
+    public function saveWebhook($email, $data)
+    {
+        if(!filter_var($email, FILTER_VALIDATE_EMAIL))
+            return $this->error('Invalid email address');
+        
+        header("Content-Type: application/json; charset=UTF8");
+        
+        // Validate webhook URL
+        $webhook_url = isset($data['webhook_url']) ? filter_var($data['webhook_url'], FILTER_SANITIZE_URL) : '';
+        if($webhook_url && !filter_var($webhook_url, FILTER_VALIDATE_URL)) {
+            return json_encode(['success' => false, 'message' => 'Invalid webhook URL']);
+        }
+        
+        // Prevent SSRF by blocking internal IPs and local domains
+        if($webhook_url) {
+            $parsed = parse_url($webhook_url);
+            $host = $parsed['host'] ?? '';
+            
+            // Block localhost and common internal hostnames
+            $blocked_hosts = ['localhost', '127.0.0.1', '0.0.0.0', '[::1]', 'host.docker.internal'];
+            if(in_array(strtolower($host), $blocked_hosts)) {
+                return json_encode(['success' => false, 'message' => 'Webhook URL cannot point to internal services']);
+            }
+            
+            // Block private IP ranges
+            if(filter_var($host, FILTER_VALIDATE_IP)) {
+                if(!filter_var($host, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
+                    return json_encode(['success' => false, 'message' => 'Webhook URL cannot point to private IP addresses']);
+                }
+            }
+        }
+        
+        // Validate payload template is valid JSON
+        $payload_template = isset($data['payload_template']) ? $data['payload_template'] : '{"email":"{{to}}","from":"{{from}}","subject":"{{subject}}","body":"{{body}}"}';
+        $test_json = str_replace(['{{to}}','{{from}}','{{subject}}','{{body}}','{{htmlbody}}','{{sender_ip}}','{{attachments}}'], 
+                                 ['test','test','test','test','test','test','[]'], $payload_template);
+        if(json_decode($test_json) === null && json_last_error() !== JSON_ERROR_NONE) {
+            return json_encode(['success' => false, 'message' => 'Invalid JSON in payload template']);
+        }
+        
+        // Validate retry config
+        $max_attempts = isset($data['max_attempts']) ? intval($data['max_attempts']) : 3;
+        if($max_attempts < 1 || $max_attempts > 10) {
+            return json_encode(['success' => false, 'message' => 'Max attempts must be between 1 and 10']);
+        }
+        
+        $backoff_multiplier = isset($data['backoff_multiplier']) ? floatval($data['backoff_multiplier']) : 2;
+        if($backoff_multiplier < 1 || $backoff_multiplier > 5) {
+            return json_encode(['success' => false, 'message' => 'Backoff multiplier must be between 1 and 5']);
+        }
+        
+        $config = [
+            'enabled' => isset($data['enabled']) ? filter_var($data['enabled'], FILTER_VALIDATE_BOOLEAN) : false,
+            'webhook_url' => $webhook_url,
+            'payload_template' => $payload_template,
+            'retry_config' => [
+                'max_attempts' => $max_attempts,
+                'backoff_multiplier' => $backoff_multiplier
+            ],
+            'secret_key' => isset($data['secret_key']) ? substr($data['secret_key'], 0, 255) : ''
+        ];
+        
+        if(saveWebhookConfig($email, $config)) {
+            return json_encode(['success' => true, 'message' => 'Webhook configuration saved']);
+        } else {
+            return json_encode(['success' => false, 'message' => 'Failed to save webhook configuration']);
+        }
+    }
+
+    public function deleteWebhook($email)
+    {
+        if(!filter_var($email, FILTER_VALIDATE_EMAIL))
+            return $this->error('Invalid email address');
+        
+        header("Content-Type: application/json; charset=UTF8");
+        
+        if(deleteWebhookConfig($email)) {
+            return json_encode(['success' => true, 'message' => 'Webhook configuration deleted']);
+        } else {
+            return json_encode(['success' => false, 'message' => 'Failed to delete webhook configuration']);
+        }
     }
 
 }

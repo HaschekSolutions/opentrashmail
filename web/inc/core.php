@@ -317,3 +317,42 @@ function delTree($dir) {
      return rmdir($dir);
  
    }
+
+function getWebhookConfig($email)
+{
+    $webhookFile = getDirForEmail($email).DS.'webhook.json';
+    if (file_exists($webhookFile)) {
+        return json_decode(file_get_contents($webhookFile), true);
+    }
+    return null;
+}
+
+function saveWebhookConfig($email, $config)
+{
+    // Validate email format first
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        return false;
+    }
+    
+    $dir = getDirForEmail($email);
+    if (!$dir) {
+        return false;
+    }
+    
+    if (!is_dir($dir)) {
+        if (!mkdir($dir, 0755, true)) {
+            return false;
+        }
+    }
+    $webhookFile = $dir.DS.'webhook.json';
+    return file_put_contents($webhookFile, json_encode($config, JSON_PRETTY_PRINT)) !== false;
+}
+
+function deleteWebhookConfig($email)
+{
+    $webhookFile = getDirForEmail($email).DS.'webhook.json';
+    if (file_exists($webhookFile)) {
+        return unlink($webhookFile);
+    }
+    return true;
+}
