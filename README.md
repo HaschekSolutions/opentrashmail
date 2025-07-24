@@ -19,7 +19,7 @@
 [![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2FHaschekSolutions%2Fopentrashmail&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=hits&edge_flat=false)](https://hits.seeyoufarm.com)
 [![](https://img.shields.io/github/stars/HaschekSolutions/opentrashmail.svg?label=Stars&style=social)](https://github.com/HaschekSolutions/opentrashmail)
 
-#### Selfhosted `trashmail` solution - Receive Emails via `Web UI`, `JSON API`, `RSS feed` and `Webhook`
+#### Selfhosted `trashmail` solution - Receive Emails via `Web UI`, `JSON API`, `RSS feed` and `Custom Webhooks`
   
 </div>
 
@@ -32,7 +32,7 @@
 - Python-powered mail server that works out of the box for any domain you throw at it
 - `RSS feed` for every email address
 - `JSON API` for integrating it in your own projects. Can be used to automate 2fa emails
-- `Webhook` for integrating it in your own projects
+- `Webhooks` with per-email configuration and customizable JSON payloads
 - Handles attachments
 - Supports `Plaintext`, `STARTTLS` and `TLS on connect`
 - Web interface
@@ -54,6 +54,9 @@
 | /api/attachment`[email-address]/[attachment-id]` | Returns the attachment with the correct mime type as header | |
 | /api/delete/`[email-address]/[id]`  | Deletes a specific email message and their attachments | |
 | /api/deleteaccount/`[email-address]`| Deletes all messages and attachments of this email account | |
+| /api/webhook/get/`[email-address]` | Get webhook configuration for an email address | |
+| /api/webhook/save/`[email-address]` | Save webhook configuration for an email address | |
+| /api/webhook/delete/`[email-address]` | Delete webhook configuration for an email address | |
 
 # JSON API
 
@@ -78,7 +81,7 @@ Just edit the `config.ini` You can use the following settings
 - `MAILPORT_TLS` -> If set to something higher than 0, this port will be used for TLSC (TLS on Connect). Which means plaintext auth will not be possible. Usually set to `465`. Needs `TLS_CERTIFICATE` and `TLS_PRIVATE_KEY` to work
 - `TLS_CERTIFICATE` -> Path to the certificate (chain). Can be relative to the /python directory or absolute
 - `TLS_PRIVATE_KEY` -> Path to the private key of the certificate. Can be relative to the /python directory or absolute
-- `WEBHOOK_URL` -> If set, will send a POST request to this URL with the JSON data of the email as body. Can be used to integrate OpenTrashmail in your own projects
+- `WEBHOOK_URL` -> Global webhook URL. If set, will send a POST request to this URL with the JSON data of the email as body for all emails (unless overridden by per-email webhook)
 - `ADMIN_ENABLED` -> Enables the admin menu. Default `false`
 - `ADMIN_PASSWORD` -> If set, needs this password to access the admin menu
 
@@ -202,3 +205,137 @@ docker run -d --restart=unless-stopped --name opentrashmail -e "DOMAINS=mydomain
 # How it works
 
 The heart of Open Trashmail is a **Python-powered SMTP server** that listens on incoming emails and stores them as JSON files. The server doesn't have to know the right email domain, it will just **catch everything** it receives. You only have to **expose port 25 to the web** and set an **MX record** of your domain pointing to the IP address of your machine.
+
+# Webhook Configuration
+
+OpenTrashmail supports both global and per-email webhooks for maximum flexibility:
+
+## Quick Start
+
+1. **Via Web UI**: Click "Configure Webhook" on any email address page
+2. **Via API**: `POST /api/webhook/save/email@example.com` with your configuration
+
+## Features
+
+### Per-Email Webhooks
+- Custom endpoint URL for each email address
+- Customizable JSON payloads with template placeholders
+- Automatic retry with exponential backoff (max 10 attempts)
+- HMAC-SHA256 signature for security
+- Simple web interface configuration
+
+### Payload Template Placeholders
+| Placeholder | Description | Example |
+|------------|-------------|---------|
+| `{{to}}` | Recipient email | test@example.com |
+| `{{from}}` | Sender email | sender@domain.com |
+| `{{subject}}` | Email subject | Hello World |
+| `{{body}}` | Plain text body | Email content... |
+| `{{htmlbody}}` | HTML body | `<p>Email content...</p>` |
+| `{{sender_ip}}` | Sender's IP | 192.168.1.100 |
+| `{{attachments}}` | Attachment array | `[{"filename":"doc.pdf","size":1024}]` |
+
+### Example Configuration
+
+```
+{
+  "email": "{{to}}",
+  "from": "{{from}}",
+  "subject": "{{subject}}",
+  "body": "{{body}}",
+  "attachments": {{attachments}}
+}
+```
+
+**Note**: `{{attachments}}` outputs a JSON array - don't wrap it in quotes.
+
+## API Reference
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/webhook/get/[email]` | GET | Get webhook configuration |
+| `/api/webhook/save/[email]` | POST | Save webhook configuration |
+| `/api/webhook/delete/[email]` | DELETE | Delete webhook configuration |
+
+### Save Webhook Example
+
+```bash
+curl -X POST http://localhost:8080/api/webhook/save/test@example.com \
+  -d "enabled=true" \
+  -d "webhook_url=https://myapi.com/webhook" \
+  -d 'payload_template={"email":"{{to}}","subject":"{{subject}}"}' \
+  -d "max_attempts=5" \
+  -d "secret_key=your-secret-key"
+```
+
+## Security: Verifying Webhook Signatures
+
+When a secret key is configured, OpenTrashmail includes an `X-Webhook-Signature` header with each request containing the HMAC-SHA256 signature of the request body.
+
+### Verification Examples
+
+**PHP:**
+```php
+$payload = file_get_contents('php://input');
+$signature = $_SERVER['HTTP_X_WEBHOOK_SIGNATURE'] ?? '';
+$expected = hash_hmac('sha256', $payload, 'your-secret-key');
+
+if (!hash_equals($expected, $signature)) {
+    http_response_code(401);
+    exit('Invalid signature');
+}
+```
+
+**Python:**
+```python
+import hmac
+import hashlib
+
+def verify_webhook(request):
+    payload = request.body
+    signature = request.headers.get('X-Webhook-Signature', '')
+    expected = hmac.new(
+        b'your-secret-key',
+        payload,
+        hashlib.sha256
+    ).hexdigest()
+    
+    if not hmac.compare_digest(expected, signature):
+        return HttpResponse('Invalid signature', status=401)
+```
+
+**Node.js:**
+```javascript
+const crypto = require('crypto');
+
+function verifyWebhook(req, res) {
+    const signature = req.headers['x-webhook-signature'];
+    const expected = crypto
+        .createHmac('sha256', 'your-secret-key')
+        .update(req.rawBody)
+        .digest('hex');
+    
+    if (signature !== expected) {
+        return res.status(401).send('Invalid signature');
+    }
+}
+```
+
+## Testing
+
+Use the included test script for quick verification:
+
+```bash
+# Simple test
+python3 tools/test_webhook.py test@example.com --send-email
+
+# With signature verification
+python3 tools/test_webhook.py test@example.com --secret "your-secret-key" --send-email
+```
+
+## Limitations & Security
+
+- Webhook URLs cannot point to localhost or private IP ranges (SSRF protection)
+- Maximum 10 retry attempts to prevent resource exhaustion
+- Payload templates must be valid JSON
+- All placeholders are properly escaped to prevent JSON injection

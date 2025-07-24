@@ -1,5 +1,12 @@
 # Changelog
 
+## V1.5.0
+- Added per-email webhook configuration with customizable JSON payloads
+- Implemented webhook retry mechanism with exponential backoff
+- Added HMAC signature support for webhook security
+- Created web UI for webhook configuration management
+- Maintained backward compatibility with global webhook configuration
+
 ## V1.4.0
 - Added support for webhooks
 - Moved account list and logs to admin site with optional passwords
