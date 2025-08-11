@@ -333,6 +333,7 @@ class CustomHandler:
         return html_content
 
 def cleanup():
+    global LAST_CLEANUP
     if(DELETE_OLDER_THAN_DAYS == False or time.time() - LAST_CLEANUP < 86400):
         return
     logger.info("Cleaning up")
