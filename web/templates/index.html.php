@@ -25,7 +25,7 @@
   <button class="htmx-indicator" aria-busy="true">Loading…</button>
 
   <main id="main" class="container" hx-get="/api/<?= $url ?>" hx-trigger="load, every 30s">
-
+    <main id="main" class="container" hx-get="/api/<?= $url ?>" hx-trigger="load">
   </main>
 
   <script src="/js/opentrashmail.js"></script>
