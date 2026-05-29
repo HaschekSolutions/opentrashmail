@@ -42,6 +42,7 @@ class OpenTrashmailBackend{
                             'mailserverlogfile'=>ROOT.DS.'../logs'.DS.'mailserver.log',
                             'webservererrorlogfile'=>ROOT.DS.'../logs'.DS.'web.error.log',
                             'webserveraccesslogfile'=>ROOT.DS.'../logs'.DS.'web.access.log',
+                            'url'=>$this->settings['URL'],
                             'configfile' => ROOT.DS.'../config.ini',
                         ]);
                     else return '403 Forbidden';
@@ -133,6 +134,7 @@ class OpenTrashmailBackend{
         $accounts = listEmailAdresses();
         return $this->renderTemplate('account-list.html',[
             'emails'=>$accounts,
+            'url'=>$this->settings['URL'],
             'dateformat'=>$this->settings['DATEFORMAT']
         ]);
     }
@@ -198,6 +200,7 @@ class OpenTrashmailBackend{
             'emaildata'=>$emaildata,
             'email'=>$email,
             'mailid'=>$id,
+            'url'=>$this->settings['URL'],
             'dateformat'=>$this->settings['DATEFORMAT']
         ]);
 
@@ -213,6 +216,7 @@ class OpenTrashmailBackend{
             'isadmin'=>($this->settings['ADMIN']==$email),
             'email'=>$email,
             'emails'=>$emails,
+            'url'=>$this->settings['URL'],
             'dateformat'=>$this->settings['DATEFORMAT']
         ]);
     }

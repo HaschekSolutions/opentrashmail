@@ -8,8 +8,8 @@
 
 <div>
   <a role="button" class="outline" href="#" id="copyemailbtn" onclick="copyEmailToClipboard();return false;"><i class="far fa-clipboard"></i> Copy address to clipboard</a>
-  <a role="button" class="outline" href="/rss/<?= $email ?>" target="_blank"><i class="fas fa-rss"></i> RSS Feed</a>
-  <a role="button" class="outline" href="/json/<?= $email ?>" target="_blank"><i class="fas fa-file-code"></i> JSON API</a>
+  <a role="button" class="outline" href="<?= $url ?>/rss/<?= $email ?>" target="_blank"><i class="fas fa-rss"></i> RSS Feed</a>
+  <a role="button" class="outline" href="<?= $url ?>/json/<?= $email ?>" target="_blank"><i class="fas fa-file-code"></i> JSON API</a>
   <a role="button" class="outline" href="#" onclick="openWebhookModal();return false;"><i class="fas fa-plug"></i> Configure Webhook</a>
 </div>
 
@@ -41,18 +41,18 @@
             <td><?= escape($ed['subject']) ?></td>
             <td>
               <?php if($isadmin==true): ?>
-                  <a href="/read/<?= $ed['email'] ?>/<?= $ed['id'] ?>" hx-get="/api/read/<?= $ed['email'] ?>/<?= $ed['id'] ?>" hx-push-url="/read/<?= $ed['email'] ?>/<?= $ed['id'] ?>" hx-target="#main" role="button">Open</a>
-                  <a href="#" hx-get="/api/delete/<?= $ed['email'] ?>/<?= $ed['id'] ?>" hx-confirm="Are you sure?" hx-target="closest tr" hx-swap="outerHTML swap:1s" role="button">Delete</a>
+                  <a href="<?= $url ?>/read/<?= $ed['email'] ?>/<?= $ed['id'] ?>" hx-get="<?= $url ?>/api/read/<?= $ed['email'] ?>/<?= $ed['id'] ?>" hx-push-url="<?= $url ?>/read/<?= $ed['email'] ?>/<?= $ed['id'] ?>" hx-target="#main" role="button">Open</a>
+                  <a href="#" hx-get="<?= $url ?>/api/delete/<?= $ed['email'] ?>/<?= $ed['id'] ?>" hx-confirm="Are you sure?" hx-target="closest tr" hx-swap="outerHTML swap:1s" role="button">Delete</a>
               <?php else: ?>
-                  <a href="/read/<?= $email ?>/<?= $ed['id'] ?>" hx-get="/api/read/<?= $email ?>/<?= $ed['id'] ?>" hx-push-url="/read/<?= $email ?>/<?= $ed['id'] ?>" hx-target="#main" role="button">Open</a>
-                  <a href="#" hx-get="/api/delete/<?= $email ?>/<?= $ed['id'] ?>" hx-confirm="Are you sure?" hx-target="closest tr" hx-swap="outerHTML swap:1s" role="button">Delete</a>
+                  <a href="<?= $url ?>/read/<?= $email ?>/<?= $ed['id'] ?>" hx-get="<?= $url ?>/api/read/<?= $email ?>/<?= $ed['id'] ?>" hx-push-url="<?= $url ?>/read/<?= $email ?>/<?= $ed['id'] ?>" hx-target="#main" role="button">Open</a>
+                  <a href="#" hx-get="<?= $url ?>/api/delete/<?= $email ?>/<?= $ed['id'] ?>" hx-confirm="Are you sure?" hx-target="closest tr" hx-swap="outerHTML swap:1s" role="button">Delete</a>
               <?php endif; ?>
             </td>
         </tr>
     <?php endforeach; ?>
 </table>
 
-<script>history.pushState({urlpath:"/address/<?= $email ?>"}, "", "/address/<?= $email ?>");</script>
+<script>history.pushState({urlpath:"<?= $url ?>/address/<?= $email ?>"}, "", "<?= $url ?>/address/<?= $email ?>");</script>
 <script>
   function copyEmailToClipboard(){
     navigator.clipboard.writeText("<?= $email ?>");

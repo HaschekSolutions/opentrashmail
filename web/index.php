@@ -52,6 +52,7 @@ if($_SERVER['HTTP_HX_REQUEST']!='true')
             exit($backend->renderTemplate('index.html',[
                 'url'=>implode('/', $url),
                 'settings'=>loadSettings(),
+                'url'=>$settings["URL"],
             ]));
 }
 else if(count($url)==1 && $url[0] == 'api') {

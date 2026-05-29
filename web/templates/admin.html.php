@@ -8,7 +8,7 @@
 ?>
 
 <?php if($settings['ADMIN_PASSWORD'] != "" && !$_SESSION['admin']): ?>
-    <form method="post" hx-post="/api/admin" hx-target="#main">
+    <form method="post" hx-post="<?= $url ?>/api/admin" hx-target="#main">
         <input type="password" name="password" placeholder="password" />
         <input type="submit" value="Login" />
     </form>
@@ -17,8 +17,8 @@
 
 <nav>
   <ul>
-    <li><?php if($settings['SHOW_ACCOUNT_LIST']): ?><a href="/listaccounts" hx-get="/api/listaccounts" hx-target="#adminmain" hx-push-url="/listaccounts"><i class="fas fa-list"></i> List accounts</a><?php endif; ?></li>
-    <li><?php if($settings['SHOW_LOGS']==true): ?><a href="/logs" hx-get="/api/logs" hx-target="#adminmain" hx-push-url="/logs"><i class="fas fa-list"></i> Show logs</a><?php endif; ?></li>
+    <li><?php if($settings['SHOW_ACCOUNT_LIST']): ?><a href="<?= $url ?>/listaccounts" hx-get="<?= $url ?>/api/listaccounts" hx-target="#adminmain" hx-push-url="<?= $url ?>/listaccounts"><i class="fas fa-list"></i> List accounts</a><?php endif; ?></li>
+    <li><?php if($settings['SHOW_LOGS']==true): ?><a href="<?= $url ?>/logs" hx-get="<?= $url ?>/api/logs" hx-target="#adminmain" hx-push-url="<?= $url ?>/logs"><i class="fas fa-list"></i> Show logs</a><?php endif; ?></li>
   </ul>
 </nav>
 
