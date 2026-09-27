@@ -77,6 +77,8 @@ Just edit the `config.ini` You can use the following settings
 - `DATEFORMAT` -> How should timestamps be shown on the web interface ([moment.js syntax](https://momentjs.com/docs/#/displaying/))
 - `PASSWORD` -> If configured, site and API can't be used without providing it via form, POST/GET variable `password` or http header `PWD` (eg: `curl -H "PWD: 123456" http://localhost:8080/json...`)
 - `ALLOWED_IPS` -> Comma separated list of IPv4 or IPv6 CIDR addresses that are allowed to use the web UI or API
+- `TRUSTED_PROXIES` -> Comma separated list of CIDR ranges of reverse proxies whose `X-Forwarded-For`/`CF-Connecting-IP` headers are trusted for `ALLOWED_IPS`. Proxies in private networks are always trusted. Only needed if a public proxy (eg. Cloudflare) connects directly to OpenTrashmail
+- `SMTP_HOSTNAME` -> Hostname the mail server uses in its greeting and EHLO response. Should be the name your MX record points to (eg. `mail.example.com`). Defaults to the first domain in `DOMAINS`
 - `ATTACHMENTS_MAX_SIZE` -> Max size for each individual attachment of an email in Bytes
 - `MAILPORT_TLS` -> If set to something higher than 0, this port will be used for TLSC (TLS on Connect). Which means plaintext auth will not be possible. Usually set to `465`. Needs `TLS_CERTIFICATE` and `TLS_PRIVATE_KEY` to work
 - `TLS_CERTIFICATE` -> Path to the certificate (chain). Can be relative to the /python directory or absolute
@@ -91,7 +93,7 @@ In Docker you can use the following environment variables:
 | ENV var | What it does | Example values |
 | --------|--------------|----------|
 | URL | The URL of the web interface. Used by the API and RSS feed | http://localhost:8080 |
-| DISCARD_UNKNOWN | Tells the Mailserver to wether or not delete emails that are addressed to domains that are not configured | true, false |
+| DISCARD_UNKNOWN | If `true` the mail server rejects recipients on domains that are not in `DOMAINS`. Strongly recommended on public servers, with `false` the server accepts mail for any domain which looks like an open relay to blacklist operators | true, false |
 | DOMAINS | The whitelisted Domains the server will listen for. If DISCARD_UNKNOWN is set to false, this will only be used to generate random emails in the webinterface |
 | SHOW_ACCOUNT_LIST | If set to `true`, all accounts that have previously received emails can be listed via API or webinterface | true,false |
 | ADMIN | If set to a valid email address and this address is entered in the API or webinterface, will show all emails of all accounts. Kind-of catch-all | test@test.com
@@ -99,6 +101,8 @@ In Docker you can use the following environment variables:
 | SKIP_FILEPERMISSIONS | If set to `true`, won't fix file permissions for the code data folder in the container. Useful for local dev. Default `false` | true,false |
 | PASSWORD | If configured, site and API can't be used without providing it via form, POST/GET variable `password` or http header `PWD` | yousrstrongpassword |
 | ALLOWED_IPS | Comma separated list of IPv4 or IPv6 CIDR addresses that are allowed to use the web UI or API | `192.168.5.0/24,2a02:ab:cd:ef::/60,172.16.0.0/16` |
+| TRUSTED_PROXIES | CIDR ranges of public reverse proxies whose client IP headers are trusted for `ALLOWED_IPS` (proxies in private networks are always trusted) | `173.245.48.0/20,103.21.244.0/22` |
+| SMTP_HOSTNAME | Hostname used in the SMTP greeting and EHLO response. Set it to the host your MX record points to. Defaults to the first domain in `DOMAINS` | `mail.example.com` |
 | ATTACHMENTS_MAX_SIZE | Max size for each individual attachment of an email in Bytes | `2000000` = 2MB |
 | MAILPORT_TLS        | If set to something higher than 0, this port will be used for TLSC (TLS on Connect). Which means plaintext auth will not be possible. Usually set to `465`. Needs `TLS_CERTIFICATE` and `TLS_PRIVATE_KEY` to work | `465` |
 | TLS_CERTIFICATE     | Path to the certificate (chain). Can be relative to the /python directory or absolute | `/certs/cert.pem` or `cert.pem` if it's inside the python directory |
@@ -199,12 +203,30 @@ docker run -p 80:80 -p 25:25 -e URL="https://localhost:80" -v /path/on/host/wher
 Complete example with running as daemon, persistence, a domain for auto-generation of emails, acceptng only emails for configured domains, cleanup for mails older than 90 days and auto restart
 
 ```bash
-docker run -d --restart=unless-stopped --name opentrashmail -e "DOMAINS=mydomain.eu" -e "DATEFORMAT='D.M.YYYY HH:mm'" -e "DISCARD_UNKNOWN=false" -e "DELETE_OLDER_THAN_DAYS=90" -p 80:80 -p 25:25 -v /path/on/host/where/to/save/data:/var/www/opentrashmail/data hascheksolutions/opentrashmail:1
+docker run -d --restart=unless-stopped --name opentrashmail -e "DOMAINS=mydomain.eu" -e "SMTP_HOSTNAME=mail.mydomain.eu" -e "DATEFORMAT='D.M.YYYY HH:mm'" -e "DISCARD_UNKNOWN=true" -e "DELETE_OLDER_THAN_DAYS=90" -p 80:80 -p 25:25 -v /path/on/host/where/to/save/data:/var/www/opentrashmail/data hascheksolutions/opentrashmail:1
 ```
 
 # How it works
 
-The heart of Open Trashmail is a **Python-powered SMTP server** that listens on incoming emails and stores them as JSON files. The server doesn't have to know the right email domain, it will just **catch everything** it receives. You only have to **expose port 25 to the web** and set an **MX record** of your domain pointing to the IP address of your machine.
+The heart of Open Trashmail is a **Python-powered SMTP server** that listens on incoming emails and stores them as JSON files. Every address on your domains works without creating it first, the server will just **catch everything** it receives. You only have to **expose port 25 to the web** and set an **MX record** of your domain pointing to the IP address of your machine.
+
+## Keeping your domain off disposable email lists
+
+Many websites refuse addresses from known trashmail domains. These lists are mostly built by crawling public trashmail sites and by probing mail servers. Out of the box OpenTrashmail:
+
+- Greets like a regular mail server (`220 mail.example.com ESMTP`) instead of announcing the software it runs on
+- Rejects recipients on foreign domains during the SMTP dialog (with `DISCARD_UNKNOWN=true`) so it doesn't look like an open relay
+- Answers temporary errors with `451` so senders retry instead of bouncing, and never leaks internal error messages
+- Tells search engines not to index the web UI, API and RSS feeds (`robots.txt`, `X-Robots-Tag` header and meta tags)
+- Sends `Referrer-Policy: no-referrer` so websites don't see your trashmail URL when you click a link in an email
+- Hides the nginx and PHP versions
+
+What you should do yourself:
+
+- **Host the web interface on a different domain than the ones you receive mail on**, so visiting your mail domain doesn't lead to a trashmail site. Optionally protect it with `PASSWORD` or `ALLOWED_IPS`
+- Set `SMTP_HOSTNAME` to the name your MX record points to and set a matching reverse DNS (PTR) record for your server's IP
+- Configure `TLS_CERTIFICATE` and `TLS_PRIVATE_KEY` so senders can use STARTTLS. A mail server without TLS looks unusual these days
+- Don't share addresses from your domain publicly (e.g. in forums), and use a domain that's not used by many people
 
 # Webhook Configuration
 

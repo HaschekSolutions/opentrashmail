@@ -5,7 +5,7 @@ define('ROOT', dirname(__FILE__));
 include_once(ROOT.DS.'inc'.DS.'OpenTrashmailBackend.class.php');
 include_once(ROOT.DS.'inc'.DS.'core.php');
 
-$url = array_filter(explode('/',ltrim(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH),'/')));
+$url = array_values(array_filter(array_map('rawurldecode', explode('/',ltrim(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH),'/'))), 'strlen'));
 
 $backend = new OpenTrashmailBackend($url);
 
@@ -15,7 +15,10 @@ if($settings['ALLOWED_IPS'])
 {
     $ip = getUserIP();
     if(!isIPInRange( $ip, $settings['ALLOWED_IPS'] ))
-        exit("Your IP ($ip) is not allowed to access this site.");
+    {
+        http_response_code(403);
+        exit("Your IP (".escape($ip).") is not allowed to access this site.");
+    }
 }
 
 if($settings['PASSWORD'] || $settings['ADMIN_PASSWORD']) // let's only start a session if we need one
@@ -26,15 +29,15 @@ if($settings['PASSWORD']) //site requires a password
     $pw = $settings['PASSWORD'];
     $auth = false;
     //first check for auth header or POST/GET variable
-    if(isset($_SERVER['HTTP_PWD']) && $_SERVER['HTTP_PWD'] == $pw)
+    if(isset($_SERVER['HTTP_PWD']) && hash_equals((string)$pw, (string)$_SERVER['HTTP_PWD']))
         $auth = true;
-    else if(isset($_REQUEST['password']) && $_REQUEST['password'] == $pw)
+    else if(isset($_REQUEST['password']) && hash_equals((string)$pw, (string)$_REQUEST['password']))
         $auth = true;
     // if not, check for session
     else if(isset($_SESSION['authenticated']) && $_SESSION['authenticated'] == true)
         $auth = true;
     // if user sent a pw but it's wrong, show error
-    else if($_REQUEST['password'] != $settings['PASSWORD'])
+    else if(isset($_REQUEST['password']))
         exit($backend->renderTemplate('password.html',[
             'error'=>'Wrong password',
         ]));

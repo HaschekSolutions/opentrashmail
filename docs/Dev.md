@@ -22,6 +22,15 @@ docker run --rm -it --name trashmail -p 2525:25 \
 
 This binds the mailserver on port 2525 and also mounts the local data directory and your `config.ini` to the container. So emails you receive will show up in your `data` folder.
 
+## Running the tests
+
+The mail server has end-to-end tests that start the SMTP server on a random port and send emails to it. They need `aiosmtpd` and `aiohttp` installed
+
+```bash
+cd python
+python3 -m unittest test_mailserver3
+```
+
 ## Sending debug emails from the command line
 
 Using the text file `tools/testmail.txt` and the following line of bash you can send emails to your python mailserver and test if it's acceping emails like you want.

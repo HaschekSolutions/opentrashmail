@@ -9,7 +9,23 @@ on:
       - "main"
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: pip install aiosmtpd aiohttp
+      - name: Run mail server tests
+        working-directory: python
+        run: python -m unittest -v test_mailserver3
+
   docker:
+    needs: test
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

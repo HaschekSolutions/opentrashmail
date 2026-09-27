@@ -5,7 +5,7 @@ echo 'Starting Open Trashmail'
 cd /var/www/opentrashmail
 
 echo ' [+] Starting php'
-php-fpm81
+php-fpm83
 
 if [[ ${SKIP_FILEPERMISSIONS:=false} != true ]]; then
   chown -R nginx:nginx /var/www/
@@ -33,6 +33,7 @@ _buildConfig() {
     echo "URL=${URL:-http://localhost:8080}"
     echo "PASSWORD=${PASSWORD:-}"
     echo "ALLOWED_IPS=${ALLOWED_IPS:-}"
+    echo "TRUSTED_PROXIES=${TRUSTED_PROXIES:-}"
     echo ""
     echo "[MAILSERVER]"
     echo "MAILPORT=${MAILPORT:-25}"
@@ -40,7 +41,8 @@ _buildConfig() {
     echo "ATTACHMENTS_MAX_SIZE=${ATTACHMENTS_MAX_SIZE:-0}"
     echo "MAILPORT_TLS=${MAILPORT_TLS:-0}"
     echo "TLS_CERTIFICATE=${TLS_CERTIFICATE:-}"
-    echo "TLS_PRIVATE_KEY=${TLS_PRIVATE_KEY:-0}"
+    echo "TLS_PRIVATE_KEY=${TLS_PRIVATE_KEY:-}"
+    echo "SMTP_HOSTNAME=${SMTP_HOSTNAME:-}"
     echo ""
     echo "[DATETIME]"
     echo "DATEFORMAT=${DATEFORMAT:-D.M.YYYY HH:mm}"

@@ -159,15 +159,25 @@ class OpenTrashmailBackend{
             return $this->error('Email not found');
         $emaildata = getEmail($email,$id);
         if($htmlbody)
+        {
+            // Inside the UI the HTML is shown in a sandboxed iframe so scripts in emails can't access the site
+            if($_SERVER['HTTP_HX_REQUEST']=='true')
+                exit('<iframe class="emailframe" sandbox="allow-popups allow-popups-to-escape-sandbox" referrerpolicy="no-referrer" src="/api/raw-html/'.escape(rawurlencode($email)).'/'.escape($id).'"></iframe>');
+            header('Content-Type: text/html; charset=UTF-8');
+            header('Content-Security-Policy: sandbox allow-popups allow-popups-to-escape-sandbox');
             exit($emaildata['parsed']['htmlbody']);
-        header('Content-Type: text/plain');
+        }
+        // htmx would insert the raw email as HTML
+        if($_SERVER['HTTP_HX_REQUEST']=='true')
+            exit(escape($emaildata['raw']));
+        header('Content-Type: text/plain; charset=UTF-8');
         echo $emaildata['raw'];
         exit;
     }
 
     function getAttachment($email,$attachment)
     {
-        $attachment = basename(urldecode($attachment));
+        $attachment = basename($attachment);
         if(!filter_var($email, FILTER_VALIDATE_EMAIL))
             return $this->error('Invalid email address');
         else if(!attachmentExists($email,$attachment))
@@ -176,6 +186,10 @@ class OpenTrashmailBackend{
         $file = $dir.DS.'attachments'.DS.$attachment;
         $mime = mime_content_type($file);
         header('Content-Type: '.$mime);
+        // attachments are sender controlled. Never let them run as part of this site
+        header('Content-Security-Policy: sandbox');
+        if(!in_array($mime, ['image/png','image/jpeg','image/gif','image/webp','text/plain']))
+            header('Content-Disposition: attachment; filename*=UTF-8\'\''.rawurlencode(preg_replace('/^\d+-/', '', $attachment)));
         header('Content-Length: ' . filesize($file));
         readfile($file);
         exit;

@@ -113,3 +113,9 @@ tr.htmx-swapping td {
     color: var(--primary);
     cursor: pointer;
   }
+  .emailframe {
+    width: 100%;
+    height: 75vh;
+    border: 0;
+    background: #fff;
+  }

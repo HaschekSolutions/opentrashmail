@@ -1,10 +1,8 @@
-FROM alpine:3.18
+FROM alpine:3.22
 
 LABEL org.opencontainers.image.source = "https://github.com/HaschekSolutions/opentrashmail"
 
-RUN apk add --no-cache bash python3 py3-pip socat wget php-fileinfo php-session curl git php php-curl nginx php-openssl php-mbstring php-json php-gd php-dom php-fpm
-RUN pip3 install aiosmtpd
-RUN pip3 install aiohttp
+RUN apk add --no-cache bash python3 py3-aiosmtpd py3-aiohttp socat wget curl git nginx php83 php83-fpm php83-fileinfo php83-session php83-curl php83-openssl php83-mbstring php83-gd php83-dom
 #RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin --filename=composer
 RUN mkdir -p /var/www/opentrashmail
 WORKDIR /var/www/opentrashmail
@@ -18,8 +16,10 @@ RUN chmod +x /etc/start.sh
 ADD docker/rootfs/nginx.conf /etc/nginx/http.d/default.conf
 RUN mkdir -p /run/nginx
 RUN mkdir -p /var/log/nginx
-RUN sed -i 's/nobody/nginx/g' /etc/php81/php-fpm.d/www.conf
-RUN sed -i 's/E_ALL \& ~E_DEPRECATED \& ~E_STRICT/E_ALL \& ~E_DEPRECATED \& ~E_STRICT \& ~E_NOTICE \& ~E_WARNING/g' /etc/php81/php.ini
+RUN sed -i 's/nobody/nginx/g' /etc/php83/php-fpm.d/www.conf
+RUN sed -i 's/^error_reporting = .*/error_reporting = E_ALL \& ~E_DEPRECATED \& ~E_STRICT \& ~E_NOTICE \& ~E_WARNING/' /etc/php83/php.ini
+# don't advertise the PHP version in the X-Powered-By header
+RUN sed -i 's/^expose_php = .*/expose_php = Off/' /etc/php83/php.ini
 
 WORKDIR /var/www/opentrashmail
 

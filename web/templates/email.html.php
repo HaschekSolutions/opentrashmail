@@ -1,6 +1,6 @@
 <nav aria-label="breadcrumb">
   <ul>
-    <li><a href="/address/<?= $email ?>" hx-get="/api/address/<?= $email ?>" hx-target="#main"><?= escape($email) ?></a></li>
+    <li><a href="/address/<?= escape($email) ?>" hx-get="/api/address/<?= escape($email) ?>" hx-target="#main"><?= escape($email) ?></a></li>
     <li><?= escape($emaildata['parsed']['subject']) ?></li>
   </ul>
 </nav>
@@ -20,7 +20,7 @@
     
     <div id="emailbody">
         <?php if($emaildata['parsed']['htmlbody']): ?>
-            <a href="#" hx-confirm="Warning: HTML may contain tracking functionality or scripts. Do you want to proceed?" hx-get="/api/raw-html/<?= $email ?>/<?= $mailid ?>" hx-target="#emailbody" role="button" class="secondary outline">Render email in HTML</a>
+            <a href="#" hx-confirm="Warning: HTML may contain tracking functionality or scripts. Do you want to proceed?" hx-get="/api/raw-html/<?= escape($email) ?>/<?= $mailid ?>" hx-target="#emailbody" role="button" class="secondary outline">Render email in HTML</a>
         <?php endif; ?>
         <hr>
         <pre><?= nl2br(escape($emaildata['parsed']['body'])) ?></pre>
@@ -32,9 +32,9 @@
                 <small class="secondary">No attachments</small>
             <?php endif; ?>
             <ul>
-                <?php foreach ($emaildata['parsed']['attachments'] as $attachment) : ?>
+                <?php foreach ($emaildata['parsed']['attachments'] as $i => $attachment) : ?>
                     <li>
-                        <a target="_blank" href="/api/attachment/<?= $email ?>/<?= $attachment ?>"><?= escape($attachment) ?></a>
+                        <a target="_blank" href="/api/attachment/<?= escape(rawurlencode($email)) ?>/<?= escape(rawurlencode($attachment)) ?>"><?= escape($emaildata['parsed']['attachments_details'][$i]['filename'] ?? $attachment) ?></a>
                     </li>
                 <?php endforeach; ?>
             </ul>
@@ -44,9 +44,9 @@
 
 <article>
     <header>Raw email</header>
-    <a href="/api/raw/<?= $email ?>/<?= $mailid ?>" target="_blank">Open in new Window</a>
-    <pre><button hx-get="/api/raw/<?= $email ?>/<?= $mailid ?>" hx-swap="outerHTML">Load Raw Email</button></pre>
+    <a href="/api/raw/<?= escape($email) ?>/<?= $mailid ?>" target="_blank">Open in new Window</a>
+    <pre><button hx-get="/api/raw/<?= escape($email) ?>/<?= $mailid ?>" hx-swap="outerHTML">Load Raw Email</button></pre>
 </article>
 
 <!-- 
-<script>history.pushState({email:"<?= $email ?>",id:"<?= $mailid ?>"}, "", "/read/<?= $email ?>/<?= $mailid ?>");</script> -->
+<script>history.pushState({email:"<?= escape($email) ?>",id:"<?= $mailid ?>"}, "", "/read/<?= escape($email) ?>/<?= $mailid ?>");</script> -->

@@ -4,3 +4,4 @@ data/*
 .github
 docs
 logs/*
+python/test_*.py

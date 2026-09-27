@@ -8,8 +8,8 @@
 
 <div>
   <a role="button" class="outline" href="#" id="copyemailbtn" onclick="copyEmailToClipboard();return false;"><i class="far fa-clipboard"></i> Copy address to clipboard</a>
-  <a role="button" class="outline" href="/rss/<?= $email ?>" target="_blank"><i class="fas fa-rss"></i> RSS Feed</a>
-  <a role="button" class="outline" href="/json/<?= $email ?>" target="_blank"><i class="fas fa-file-code"></i> JSON API</a>
+  <a role="button" class="outline" href="/rss/<?= escape($email) ?>" target="_blank"><i class="fas fa-rss"></i> RSS Feed</a>
+  <a role="button" class="outline" href="/json/<?= escape($email) ?>" target="_blank"><i class="fas fa-file-code"></i> JSON API</a>
   <a role="button" class="outline" href="#" onclick="openWebhookModal();return false;"><i class="fas fa-plug"></i> Configure Webhook</a>
 </div>
 
@@ -37,25 +37,25 @@
             <th scope="row"><?= ++$i; ?></th>
             <td id="date-td-<?= $i ?>"><script>document.getElementById('date-td-<?= $i ?>').innerHTML = moment.unix(parseInt(<?=$unixtime?>/1000)).format('<?= $dateformat; ?>');</script></td>
             <td><?= escape($ed['from']) ?></td>
-            <?php if($isadmin==true): ?><td><?= $ed['email'] ?></td><?php endif; ?>
+            <?php if($isadmin==true): ?><td><?= escape($ed['email']) ?></td><?php endif; ?>
             <td><?= escape($ed['subject']) ?></td>
             <td>
               <?php if($isadmin==true): ?>
-                  <a href="/read/<?= $ed['email'] ?>/<?= $ed['id'] ?>" hx-get="/api/read/<?= $ed['email'] ?>/<?= $ed['id'] ?>" hx-push-url="/read/<?= $ed['email'] ?>/<?= $ed['id'] ?>" hx-target="#main" role="button">Open</a>
-                  <a href="#" hx-get="/api/delete/<?= $ed['email'] ?>/<?= $ed['id'] ?>" hx-confirm="Are you sure?" hx-target="closest tr" hx-swap="outerHTML swap:1s" role="button">Delete</a>
+                  <a href="/read/<?= escape($ed['email']) ?>/<?= $ed['id'] ?>" hx-get="/api/read/<?= escape($ed['email']) ?>/<?= $ed['id'] ?>" hx-push-url="/read/<?= escape($ed['email']) ?>/<?= $ed['id'] ?>" hx-target="#main" role="button">Open</a>
+                  <a href="#" hx-get="/api/delete/<?= escape($ed['email']) ?>/<?= $ed['id'] ?>" hx-confirm="Are you sure?" hx-target="closest tr" hx-swap="outerHTML swap:1s" role="button">Delete</a>
               <?php else: ?>
-                  <a href="/read/<?= $email ?>/<?= $ed['id'] ?>" hx-get="/api/read/<?= $email ?>/<?= $ed['id'] ?>" hx-push-url="/read/<?= $email ?>/<?= $ed['id'] ?>" hx-target="#main" role="button">Open</a>
-                  <a href="#" hx-get="/api/delete/<?= $email ?>/<?= $ed['id'] ?>" hx-confirm="Are you sure?" hx-target="closest tr" hx-swap="outerHTML swap:1s" role="button">Delete</a>
+                  <a href="/read/<?= escape($email) ?>/<?= $ed['id'] ?>" hx-get="/api/read/<?= escape($email) ?>/<?= $ed['id'] ?>" hx-push-url="/read/<?= escape($email) ?>/<?= $ed['id'] ?>" hx-target="#main" role="button">Open</a>
+                  <a href="#" hx-get="/api/delete/<?= escape($email) ?>/<?= $ed['id'] ?>" hx-confirm="Are you sure?" hx-target="closest tr" hx-swap="outerHTML swap:1s" role="button">Delete</a>
               <?php endif; ?>
             </td>
         </tr>
     <?php endforeach; ?>
 </table>
 
-<script>history.pushState({urlpath:"/address/<?= $email ?>"}, "", "/address/<?= $email ?>");</script>
+<script>history.pushState({urlpath:"/address/"+encodeURIComponent(<?= json_encode($email, JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_HEX_AMP) ?>)}, "", "/address/"+encodeURIComponent(<?= json_encode($email, JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_HEX_AMP) ?>));</script>
 <script>
   function copyEmailToClipboard(){
-    navigator.clipboard.writeText("<?= $email ?>");
+    navigator.clipboard.writeText(<?= json_encode($email, JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_HEX_AMP) ?>);
     document.getElementById('copyemailbtn').innerHTML = '<i class="fas fa-check-circle" style="color: green;"></i> Copied!';
   }
 </script>
@@ -117,12 +117,12 @@
 </dialog>
 
 <script>
-let currentWebhookConfig = null;
+var currentWebhookConfig = null;
 
 async function openWebhookModal() {
   // Load current configuration
   try {
-    const response = await fetch('/api/webhook/get/<?= $email ?>');
+    const response = await fetch('/api/webhook/get/' + encodeURIComponent(<?= json_encode($email, JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_HEX_AMP) ?>));
     if (response.ok) {
       currentWebhookConfig = await response.json();
       
@@ -148,7 +148,7 @@ function closeWebhookModal() {
 async function saveWebhookConfig() {
   const formData = new FormData(document.getElementById('webhookForm'));
   const config = {
-    email: '<?= $email ?>',
+    email: <?= json_encode($email, JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_HEX_AMP) ?>,
     enabled: formData.get('enabled') === 'on',
     webhook_url: formData.get('webhook_url'),
     payload_template: formData.get('payload_template'),
@@ -158,7 +158,7 @@ async function saveWebhookConfig() {
   };
   
   try {
-    const response = await fetch('/api/webhook/save/<?= $email ?>', {
+    const response = await fetch('/api/webhook/save/' + encodeURIComponent(<?= json_encode($email, JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_HEX_AMP) ?>), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',

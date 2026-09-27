@@ -2,6 +2,8 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="utf-8">
+    <meta name="robots" content="noindex, nofollow, noarchive">
     <title>Password Form</title>
 </head>
 <body>
@@ -13,6 +15,6 @@
         <input type="submit" value="Submit">
     </form>
 
-    <h2><?=$error?></h2>
+    <h2><?= isset($error) ? escape($error) : '' ?></h2>
 </body>
 </html>

@@ -1,3 +1,4 @@
 config.ini
 web/version.txt
 python/*.pem
+__pycache__/

@@ -2,7 +2,7 @@
 
 function getDirForEmail($email)
 {
-    return realpath(ROOT.DS.'..'.DS.'data'.DS.$email);
+    return realpath(ROOT.DS.'..'.DS.'data'.DS.strtolower($email));
 }
 
 function startsWith($haystack, $needle)
@@ -19,6 +19,11 @@ function endsWith($haystack, $needle)
     }
 
     return (substr($haystack, -$length) === $needle);
+}
+
+function isEmailFile($filename)
+{
+    return preg_match('/^\d+\.json$/', $filename) === 1;
 }
 
 function getEmail($email,$id)
@@ -52,7 +57,7 @@ function getEmailsOfEmail($email,$includebody=false,$includeattachments=false)
             {
                 if ($handle = opendir(getDirForEmail($email))) {
                     while (false !== ($entry = readdir($handle))) {
-                        if (endsWith($entry,'.json')) {
+                        if (isEmailFile($entry)) {
                             $time = substr($entry,0,-5);
                             $json = json_decode(file_get_contents(getDirForEmail($email).DS.$entry),true);
                             $o[$time] = array(
@@ -69,7 +74,7 @@ function getEmailsOfEmail($email,$includebody=false,$includeattachments=false)
                                     $o[$time]['attachments'] = $json['parsed']['attachments'];
                                     //add url to attachments
                                     foreach($o[$time]['attachments'] as $k=>$v)
-                                        $o[$time]['attachments'][$k] = $settings['URL'].'/api/attachment/'.$email.'/'. $v;
+                                        $o[$time]['attachments'][$k] = $settings['URL'].'/api/attachment/'.rawurlencode($email).'/'.rawurlencode($v);
                                 }
                         }
                     }
@@ -82,7 +87,7 @@ function getEmailsOfEmail($email,$includebody=false,$includeattachments=false)
     {
         if ($handle = opendir(getDirForEmail($email))) {
             while (false !== ($entry = readdir($handle))) {
-                if (endsWith($entry,'.json')) {
+                if (isEmailFile($entry)) {
                     $time = substr($entry,0,-5);
                     $json = json_decode(file_get_contents(getDirForEmail($email).DS.$entry),true);
                     $o[$time] = array(
@@ -99,7 +104,7 @@ function getEmailsOfEmail($email,$includebody=false,$includeattachments=false)
                                         $o[$time]['attachments'] = $json['parsed']['attachments'];
                                         //add url to attachments
                                         foreach($o[$time]['attachments'] as $k=>$v)
-                                            $o[$time]['attachments'][$k] = $settings['URL'].'/api/attachment/'.$email.'/'. $v;
+                                            $o[$time]['attachments'][$k] = $settings['URL'].'/api/attachment/'.rawurlencode($email).'/'.rawurlencode($v);
                                     }
                 }                   
             }
@@ -129,7 +134,7 @@ function listEmailAdresses()
 
 function attachmentExists($email,$id,$attachment=false)
 {
-    return file_exists(getDirForEmail($email).DS.'attachments'.DS.$id.(($attachment)?'-'.$attachment:''));
+    return is_file(getDirForEmail($email).DS.'attachments'.DS.basename($id.(($attachment)?'-'.$attachment:'')));
 }
 
 function listAttachmentsOfMailID($email,$id)
@@ -147,7 +152,8 @@ function deleteEmail($email,$id)
     $dir = getDirForEmail($email);
     $attachments = listAttachmentsOfMailID($email,$id);
     foreach($attachments as $attachment)
-        unlink($dir.DS.'attachments'.DS.$attachment);
+        if(file_exists($dir.DS.'attachments'.DS.basename($attachment)))
+            unlink($dir.DS.'attachments'.DS.basename($attachment));
     return unlink($dir.DS.$id.'.json');
 }
 
@@ -183,11 +189,19 @@ function tailShell($filepath, $lines = 1) {
 
 function getUserIP()
 {
-    if($_SERVER['HTTP_CF_CONNECTING_IP'])
+	$remote  = $_SERVER['REMOTE_ADDR'];
+    // Proxy headers can be set by anyone. Only trust them if the request comes from a reverse proxy
+    // in a private network or from one configured in TRUSTED_PROXIES (eg. Cloudflare's IP ranges)
+    $settings = loadSettings();
+    $trusted = !filter_var($remote, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE);
+    if(!$trusted && !empty($settings['TRUSTED_PROXIES']))
+        $trusted = isIPInRange($remote, $settings['TRUSTED_PROXIES']);
+    if(!$trusted)
+        return $remote;
+    if(filter_var(@$_SERVER['HTTP_CF_CONNECTING_IP'], FILTER_VALIDATE_IP))
         return $_SERVER['HTTP_CF_CONNECTING_IP'];
 	$client  = @$_SERVER['HTTP_CLIENT_IP'];
 	$forward = @$_SERVER['HTTP_X_FORWARDED_FOR'];
-	$remote  = $_SERVER['REMOTE_ADDR'];
 	
     if(strpos($forward,','))
     {
@@ -301,10 +315,10 @@ function countEmailsOfAddress($email)
     $count = 0;
     if ($handle = opendir(getDirForEmail($email))) {
         while (false !== ($entry = readdir($handle)))
-            if (endsWith($entry,'.json'))
+            if (isEmailFile($entry))
                 $count++;
+        closedir($handle);
     }
-    closedir($handle);
     return $count;
 }
 
