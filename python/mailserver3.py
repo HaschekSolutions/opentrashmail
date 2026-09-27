@@ -8,7 +8,7 @@ from aiosmtpd.smtp import SMTP
 from email.parser import BytesParser
 from email.header import decode_header, make_header
 from email import policy
-from urllib.parse import quote
+from urllib.parse import quote, urlparse
 import os
 import re
 import time
@@ -17,6 +17,8 @@ import hashlib
 import hmac
 import configparser
 import logging
+import mimetypes
+import pwd
 
 logger = logging.getLogger(__name__)
 
@@ -285,7 +287,8 @@ class CustomHandler:
                 maildir = mailbox_dir(em)
                 os.makedirs(maildir, 0o755, exist_ok=True)
 
-                attachment_base_url = "/api/attachment/" + quote(em, safe="@+") + "/"
+                # relative to the web UI, which might be hosted under a path (eg. https://example.com/trashmail)
+                attachment_base_url = urlparse(URL).path.rstrip('/') + "/api/attachment/" + quote(em, safe="@+") + "/"
 
                 edata = {
                     'subject': parsed['subject'],
@@ -313,7 +316,7 @@ class CustomHandler:
                             "filename":filename,
                             "cid":cid,
                             "id":file_id,
-                            "download_url":URL+attachment_base_url+quote(file_id, safe=""),
+                            "download_url":URL.rstrip('/')+"/api/attachment/"+quote(em, safe="@+")+"/"+quote(file_id, safe=""),
                             "size":len(payload)
                         })
 
@@ -467,7 +470,7 @@ class CustomHandler:
         else:
             payload = part.get_payload(decode=True) or b''
         if filename is None:
-            filename = 'untitled'
+            filename = 'untitled' + (mimetypes.guess_extension(part.get_content_type()) or '')
         filename = safe_filename(filename)
         cid = part.get('Content-ID')
         if cid is not None:
@@ -536,6 +539,14 @@ def start_controller(handler, port, **kwargs):
                 raise
             logger.info("[i] Could not listen on all interfaces (%s), falling back to IPv4 only" % e)
 
+def drop_privileges(username):
+    # Ports below 1024 need root to bind. After that there's no reason to keep running as root
+    user = pwd.getpwnam(username)
+    os.setgroups([])
+    os.setgid(user.pw_gid)
+    os.setuid(user.pw_uid)
+    logger.info("[i] Running as user %s (uid %d, gid %d)" % (username, user.pw_uid, user.pw_gid))
+
 async def run(port):
     controllers = []
     if TLS_CERTIFICATE != "" and TLS_PRIVATE_KEY != "":
@@ -550,6 +561,9 @@ async def run(port):
     else:
         controllers.append(start_controller(CustomHandler("Plaintext"), port))
         logger.info("[i] Starting plaintext Mailserver on port " + str(port))
+
+    if os.getuid() == 0 and os.environ.get('MAILSERVER_USER'):
+        drop_privileges(os.environ['MAILSERVER_USER'])
 
     logger.info("[i] Ready to receive Emails")
     logger.info("")

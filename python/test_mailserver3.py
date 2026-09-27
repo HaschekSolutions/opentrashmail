@@ -188,6 +188,10 @@ class MailserverTest(unittest.TestCase):
         ids = self.stored('a@example.com')[0]['parsed']['attachments']
         self.assertEqual(len(set(ids)), 2)
 
+    def test_unnamed_attachment_gets_extension(self):
+        self.send(multipart(('Content-Type: image/png\r\nContent-Transfer-Encoding: base64', b'AAAA')))
+        self.assertTrue(self.stored('a@example.com')[0]['parsed']['attachments'][0].endswith('-untitled.png'))
+
     def test_inline_image_cid_points_to_stored_attachment(self):
         self.send(multipart(('Content-Type: text/html; charset=utf-8', b'<img src="cid:logo@x">'),
                             ('Content-Type: image/png\r\nContent-ID: <logo@x>\r\nContent-Disposition: inline; filename="logo.png"\r\n'
@@ -198,6 +202,15 @@ class MailserverTest(unittest.TestCase):
         details = mail['parsed']['attachments_details'][0]
         self.assertEqual(details['cid'], 'logo@x')
         self.assertEqual(details['download_url'], 'http://localhost:8080/api/attachment/a@example.com/' + file_id)
+
+    def test_inline_image_links_include_web_ui_path(self):
+        ms.URL = 'https://example.com/trash/'
+        self.send(multipart(('Content-Type: text/html; charset=utf-8', b'<img src="cid:logo@x">'),
+                            ('Content-Type: image/png\r\nContent-ID: <logo@x>\r\nContent-Transfer-Encoding: base64', b'AAAA')))
+        mail = self.stored('a@example.com')[0]
+        file_id = mail['parsed']['attachments'][0]
+        self.assertEqual(mail['parsed']['htmlbody'], '<img src="/trash/api/attachment/a@example.com/%s">' % file_id)
+        self.assertEqual(mail['parsed']['attachments_details'][0]['download_url'], 'https://example.com/trash/api/attachment/a@example.com/' + file_id)
 
     def test_attachment_too_large_is_rejected_with_proper_code(self):
         ms.ATTACHMENTS_MAX_SIZE = 2

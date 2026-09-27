@@ -4,6 +4,24 @@ echo 'Starting Open Trashmail'
 
 cd /var/www/opentrashmail
 
+# Run as a custom user/group id, eg. to match the owner of mounted folders or SMB shares
+if [[ -n "$PUID" || -n "$PGID" ]]; then
+  if [[ ! "${PUID:-0}" =~ ^[0-9]+$ || ! "${PGID:-0}" =~ ^[0-9]+$ ]]; then
+    echo ' [ERR] PUID and PGID must be numeric'
+    exit 1
+  fi
+  if [[ -n "$PGID" ]]; then
+    sed -i -E "s/^nginx:x:[0-9]+:/nginx:x:${PGID}:/" /etc/group
+    sed -i -E "s/^(nginx:x:[0-9]+:)[0-9]+:/\1${PGID}:/" /etc/passwd
+  fi
+  if [[ -n "$PUID" ]]; then
+    sed -i -E "s/^nginx:x:[0-9]+:/nginx:x:${PUID}:/" /etc/passwd
+  fi
+  mkdir -p /run/nginx
+  chown -R nginx:nginx /var/lib/nginx /run/nginx /var/log/nginx
+fi
+echo " [+] Running as uid $(id -u nginx) gid $(id -g nginx)"
+
 echo ' [+] Starting php'
 php-fpm83
 
@@ -11,6 +29,14 @@ if [[ ${SKIP_FILEPERMISSIONS:=false} != true ]]; then
   chown -R nginx:nginx /var/www/
   chown -R nginx:nginx /var/www/opentrashmail/data
 fi
+
+for dir in data logs; do
+  if ! su nginx -s /bin/sh -c "test -w /var/www/opentrashmail/$dir"; then
+    echo " [ERR] /var/www/opentrashmail/$dir is not writable by uid $(id -u nginx) gid $(id -g nginx)"
+    echo "       Change the owner of the mounted folder (eg. chown -R $(id -u nginx):$(id -g nginx) ./$dir) or set PUID and PGID to its owner"
+    exit 1
+  fi
+done
 
 
 echo ' [+] Starting nginx'
@@ -33,6 +59,7 @@ _buildConfig() {
     echo "URL=${URL:-http://localhost:8080}"
     echo "PASSWORD=${PASSWORD:-}"
     echo "ALLOWED_IPS=${ALLOWED_IPS:-}"
+    echo "NOTICE=\"${NOTICE//\"/\'}\""
     echo "TRUSTED_PROXIES=${TRUSTED_PROXIES:-}"
     echo ""
     echo "[MAILSERVER]"
@@ -64,4 +91,7 @@ _buildConfig() {
 _buildConfig > /var/www/opentrashmail/config.ini
 
 echo ' [+] Starting Mailserver'
-su - nginx -s /bin/ash -c 'cd /var/www/opentrashmail/python;python3 -u mailserver3.py >> /var/www/opentrashmail/logs/mailserver.log 2>&1 '
+# Started as root so it can bind to port 25 (or any other port below 1024), it then continues as the nginx user.
+# The log is written as nginx user too, root might not be allowed to write to network shares
+cd /var/www/opentrashmail/python
+MAILSERVER_USER=nginx python3 -u mailserver3.py 2>&1 | su nginx -s /bin/sh -c 'cat >> /var/www/opentrashmail/logs/mailserver.log'

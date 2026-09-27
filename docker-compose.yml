@@ -20,6 +20,9 @@ services:
       # - TLS_CERTIFICATE=cert.pem
       # - TLS_PRIVATE_KEY=key.pem
       # - WEBHOOK_URL=https://example.com/webhook
+      # - PUID=1000
+      # - PGID=1000
+      # - NOTICE=Emails are deleted after 30 days
 
     ports:
       - '2525:25'

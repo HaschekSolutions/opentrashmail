@@ -1,5 +1,17 @@
 # Changelog
 
+## V1.7.0
+- Fixed a cross site scripting issue in V1.6.0 via crafted links to the web UI
+- Web UI can be hosted in a sub folder, the path is taken from the `URL` setting [#111](https://github.com/HaschekSolutions/opentrashmail/issues/111)
+- Fixed RSS feed of the admin (catch-all) address [#108](https://github.com/HaschekSolutions/opentrashmail/issues/108). Emails with multiple recipients are now listed for each of them in the admin view
+- Mail server can bind to port 25 on Docker hosts that don't allow unprivileged users to use it. It starts as root and then drops to the nginx user [#88](https://github.com/HaschekSolutions/opentrashmail/issues/88)
+- New Docker options `PUID` and `PGID` to run as the owner of mounted folders, and a clear error message if `data` or `logs` aren't writable [#86](https://github.com/HaschekSolutions/opentrashmail/issues/86) [#81](https://github.com/HaschekSolutions/opentrashmail/issues/81)
+- Word lists for random addresses moved to `wordlists/` so they can be replaced [#102](https://github.com/HaschekSolutions/opentrashmail/issues/102), idea by [@Aejs](https://github.com/Aejs) in [#113](https://github.com/HaschekSolutions/opentrashmail/pull/113). Removed words with spaces that created invalid addresses
+- Domain dropdown next to the address field, typing just the name is enough [#83](https://github.com/HaschekSolutions/opentrashmail/issues/83)
+- New `NOTICE` setting to show a message on every page, download emails as `.eml` and delete all emails of an address [#91](https://github.com/HaschekSolutions/opentrashmail/issues/91)
+- Admin page explains what to enable when it's empty [#89](https://github.com/HaschekSolutions/opentrashmail/issues/89)
+- Attachments without a name get a file extension based on their type
+
 ## V1.6.0
 - Fixed emails being rejected by the mail server: 8-bit/non UTF-8 messages, lines longer than 1000 characters, forwarded emails (message/rfc822 attachments) and attachments with a `/` in the filename
 - Fixed path traversal: recipient addresses and attachment filenames could write files outside of the data directory

@@ -5,11 +5,16 @@ define('ROOT', dirname(__FILE__));
 include_once(ROOT.DS.'inc'.DS.'OpenTrashmailBackend.class.php');
 include_once(ROOT.DS.'inc'.DS.'core.php');
 
-$url = array_values(array_filter(array_map('rawurldecode', explode('/',ltrim(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH),'/'))), 'strlen'));
+$settings = loadSettings();
+define('BASE_PATH', getBasePath($settings));
+
+$path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+// reverse proxies that don't strip the prefix of the path the UI is hosted under
+if(BASE_PATH && ($path === BASE_PATH || startsWith($path, BASE_PATH.'/')))
+    $path = substr($path, strlen(BASE_PATH));
+$url = array_values(array_filter(array_map('rawurldecode', explode('/',ltrim($path,'/'))), 'strlen'));
 
 $backend = new OpenTrashmailBackend($url);
-
-$settings = loadSettings();
 
 if($settings['ALLOWED_IPS'])
 {
@@ -53,7 +58,7 @@ if($_SERVER['HTTP_HX_REQUEST']!='true')
     if(count($url)==0 || !file_exists(ROOT.DS.implode('/', $url)))
         if($url[0]!='api' && $url[0]!='rss' && $url[0]!='json')
             exit($backend->renderTemplate('index.html',[
-                'url'=>implode('/', $url),
+                'url'=>implode('/', array_map('rawurlencode', $url)),
                 'settings'=>loadSettings(),
             ]));
 }

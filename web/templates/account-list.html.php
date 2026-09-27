@@ -1,5 +1,5 @@
 <div>
-  <a role="button" class="outline" href="/json/listaccounts" target="_blank"><i class="fas fa-file-code"></i> JSON API</a>
+  <a role="button" class="outline" href="<?= BASE_PATH ?>/json/listaccounts" target="_blank"><i class="fas fa-file-code"></i> JSON API</a>
 </div>
 
 <table>
@@ -14,14 +14,14 @@
     <?php foreach($emails as $email): ?>
         <tr>
             <td>
-                <a href="/address/<?= escape($email) ?>" hx-get="/api/address/<?= escape($email) ?>" hx-push-url="/address/<?= escape($email) ?>" hx-target="#main">
+                <a href="<?= BASE_PATH ?>/address/<?= escape($email) ?>" hx-get="<?= BASE_PATH ?>/api/address/<?= escape($email) ?>" hx-push-url="<?= BASE_PATH ?>/address/<?= escape($email) ?>" hx-target="#main">
                     <?= escape($email) ?>
                 </a>
             </td>
             <td><?= countEmailsOfAddress($email); ?></td>
             <td>
-            <a href="/address/<?= escape($email) ?>" hx-get="/api/address/<?= escape($email) ?>" hx-push-url="/address/<?= escape($email) ?>" hx-target="#main" role="button" >Show</a>
-            <a href="#" role="button" hx-get="/api/deleteaccount/<?= escape($email) ?>" hx-confirm="Are you sure to delete this account and all its emails?" hx-target="closest tr" hx-swap="outerHTML swap:1s">Delete</a>
+            <a href="<?= BASE_PATH ?>/address/<?= escape($email) ?>" hx-get="<?= BASE_PATH ?>/api/address/<?= escape($email) ?>" hx-push-url="<?= BASE_PATH ?>/address/<?= escape($email) ?>" hx-target="#main" role="button" >Show</a>
+            <a href="#" role="button" hx-get="<?= BASE_PATH ?>/api/deleteaccount/<?= escape($email) ?>" hx-confirm="Are you sure to delete this account and all its emails?" hx-target="closest tr" hx-swap="outerHTML swap:1s">Delete</a>
             </td>
         </tr>
     <?php endforeach; ?>

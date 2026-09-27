@@ -8,7 +8,7 @@
 </head>
 <body>
     <h1>Enter Password</h1>
-    <form action="/" method="POST">
+    <form action="<?= BASE_PATH ?>/" method="POST">
         <label for="password">Password:</label>
         <input type="password" id="password" name="password" required>
         <br><br>

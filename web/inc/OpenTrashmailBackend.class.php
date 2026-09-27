@@ -26,6 +26,8 @@ class OpenTrashmailBackend{
                     return $this->getRawMail($this->url[2],$this->url[3],true);
                 case 'raw':
                     return $this->getRawMail($this->url[2],$this->url[3]);
+                case 'download':
+                    return $this->downloadMail($this->url[2],$this->url[3]);
                 case 'attachment':
                     return $this->getAttachment($this->url[2],$this->url[3]);
                 case 'delete':
@@ -35,6 +37,8 @@ class OpenTrashmailBackend{
                     return $this->listAccount($addr);
                 case 'deleteaccount':
                     return $this->deleteAccount($_REQUEST['email']?:$this->url[2]);
+                case 'deleteall':
+                    return $this->deleteAllMails($_REQUEST['email']?:$this->url[2]);
                 case 'logs':
                     if($this->settings['SHOW_LOGS'] && (($this->settings['ADMIN_PASSWORD'] != "" && $_SESSION['admin'])|| !$this->settings['ADMIN_PASSWORD']))
                         return $this->renderTemplate('logs.html',[
@@ -128,6 +132,30 @@ class OpenTrashmailBackend{
             delTree($path);
     }
 
+    // deletes all emails of an address but keeps its webhook configuration
+    function deleteAllMails($email)
+    {
+        if(!filter_var($email, FILTER_VALIDATE_EMAIL))
+            return $this->error('Invalid email address');
+        foreach(getEmailsOfEmail($email) as $mail)
+            deleteEmail($email, $mail['id']);
+        return $this->listAccount($email);
+    }
+
+    function downloadMail($email,$id)
+    {
+        if(!filter_var($email, FILTER_VALIDATE_EMAIL))
+            return $this->error('Invalid email address');
+        else if(!is_numeric($id))
+            return $this->error('Invalid id');
+        else if(!emailIDExists($email,$id))
+            return $this->error('Email not found');
+        header('Content-Type: message/rfc822');
+        header('Content-Disposition: attachment; filename="'.$id.'.eml"');
+        echo getRawEmail($email,$id);
+        exit;
+    }
+
     function listAccounts()
     {
         $accounts = listEmailAdresses();
@@ -162,10 +190,14 @@ class OpenTrashmailBackend{
         {
             // Inside the UI the HTML is shown in a sandboxed iframe so scripts in emails can't access the site
             if($_SERVER['HTTP_HX_REQUEST']=='true')
-                exit('<iframe class="emailframe" sandbox="allow-popups allow-popups-to-escape-sandbox" referrerpolicy="no-referrer" src="/api/raw-html/'.escape(rawurlencode($email)).'/'.escape($id).'"></iframe>');
+                exit('<iframe class="emailframe" sandbox="allow-popups allow-popups-to-escape-sandbox" referrerpolicy="no-referrer" src="'.escape(BASE_PATH).'/api/raw-html/'.escape(rawurlencode($email)).'/'.escape($id).'"></iframe>');
             header('Content-Type: text/html; charset=UTF-8');
             header('Content-Security-Policy: sandbox allow-popups allow-popups-to-escape-sandbox');
-            exit($emaildata['parsed']['htmlbody']);
+            // inline images of emails received before the UI was moved under a path
+            $html = $emaildata['parsed']['htmlbody'];
+            if(BASE_PATH)
+                $html = preg_replace('#(["\'])/api/attachment/#', '$1'.BASE_PATH.'/api/attachment/', $html);
+            exit($html);
         }
         // htmx would insert the raw email as HTML
         if($_SERVER['HTTP_HX_REQUEST']=='true')

@@ -70,7 +70,7 @@
 # Configuration
 Just edit the `config.ini` You can use the following settings
 
-- `URL` -> The url under which the GUI will be hosted. No tailing slash! example: https://trashmail.mydomain.eu
+- `URL` -> The url under which the GUI will be hosted. No tailing slash! example: https://trashmail.mydomain.eu. Can contain a path if the UI is hosted in a sub folder behind a reverse proxy (eg. `https://mydomain.eu/trashmail`)
 - `DOMAINS` -> Comma separated list of domains this mail server will be receiving emails on. It's just so the web interface can generate random addresses
 - `MAILPORT`-> The port the Python-powered SMTP server will listen on. `Default: 25`
 - `ADMIN` -> An email address (doesn't have to exist, just has to be valid) that will list all emails of all addresses the server has received. Kind of a catch-all
@@ -86,6 +86,7 @@ Just edit the `config.ini` You can use the following settings
 - `WEBHOOK_URL` -> Global webhook URL. If set, will send a POST request to this URL with the JSON data of the email as body for all emails (unless overridden by per-email webhook)
 - `ADMIN_ENABLED` -> Enables the admin menu. Default `false`
 - `ADMIN_PASSWORD` -> If set, needs this password to access the admin menu
+- `NOTICE` -> Optional text shown on top of every page, eg. to tell your users that emails are deleted after 30 days. Use `\n` for line breaks
 
 ## Docker env vars
 In Docker you can use the following environment variables:
@@ -99,6 +100,8 @@ In Docker you can use the following environment variables:
 | ADMIN | If set to a valid email address and this address is entered in the API or webinterface, will show all emails of all accounts. Kind-of catch-all | test@test.com
 | DATEFORMAT  | Will format the received date in the web interface based on [moment.js](https://momentjs.com/) syntax | "MMMM Do YYYY, h:mm:ss a" |
 | SKIP_FILEPERMISSIONS | If set to `true`, won't fix file permissions for the code data folder in the container. Useful for local dev. Default `false` | true,false |
+| PUID / PGID | Run the web server and mail server as this user/group id instead of 100/101. Use the owner of your mounted `data` and `logs` folders, eg. for network shares | `1000` / `100` |
+| NOTICE | Text shown on top of every page. `\n` for line breaks | `Emails are deleted after 30 days` |
 | PASSWORD | If configured, site and API can't be used without providing it via form, POST/GET variable `password` or http header `PWD` | yousrstrongpassword |
 | ALLOWED_IPS | Comma separated list of IPv4 or IPv6 CIDR addresses that are allowed to use the web UI or API | `192.168.5.0/24,2a02:ab:cd:ef::/60,172.16.0.0/16` |
 | TRUSTED_PROXIES | CIDR ranges of public reverse proxies whose client IP headers are trusted for `ALLOWED_IPS` (proxies in private networks are always trusted) | `173.245.48.0/20,103.21.244.0/22` |
@@ -110,6 +113,24 @@ In Docker you can use the following environment variables:
 | WEBHOOK_URL         | If set, will send a POST request to this URL with the JSON data of the email as body. Can be used to integrate OpenTrashmail in your own projects | `https://example.com/webhook` |
 | ADMIN_ENABLED     | Enables the admin menu. Default `false` | `false` / `true` |
 | ADMIN_PASSWORD      | If set, needs this password to access the admin menu | `123456` |
+
+## Hosting the web UI in a sub folder
+
+Set `URL` to the full address including the path (eg. `https://example.com/trashmail`). All links, API calls and inline images will use that path. Your reverse proxy should strip the path before passing requests to OpenTrashmail, eg. for nginx:
+
+```nginx
+location /trashmail/ {
+    proxy_pass http://opentrashmail:80/;
+}
+```
+
+## Custom words for random addresses
+
+The "Generate random" button builds addresses from the word lists in [wordlists/adjectives.txt](wordlists/adjectives.txt) and [wordlists/nouns.txt](wordlists/nouns.txt) (one word per line, only `a-z`, `0-9` and `-` are used). To use your own words in Docker, mount your files over them:
+
+```bash
+-v /path/to/nouns.txt:/var/www/opentrashmail/wordlists/nouns.txt:ro
+```
 
 ## TLS
 Since v1.3.0 TLS and STARTTLS are supported by OpenTrashmail.

@@ -1,8 +1,8 @@
-<a href="#" hx-push-url="/logs/10" hx-get="/api/logs/10" <?= $lines==10?'disabled':'' ?> hx-target="#adminmain" role="button">Last 10 lines</a>
-<a href="#" hx-push-url="/logs/50" hx-get="/api/logs/50" <?= $lines==50?'disabled':'' ?> hx-target="#adminmain" role="button">Last 50 lines</a>
-<a href="#" hx-push-url="/logs/100" hx-get="/api/logs/100" <?= $lines==100?'disabled':'' ?> hx-target="#adminmain" role="button">Last 100 lines</a>
-<a href="#" hx-push-url="/logs/200" hx-get="/api/logs/200" <?= $lines==200?'disabled':'' ?> hx-target="#adminmain" role="button">Last 200 lines</a>
-<a href="#" hx-push-url="/logs/500" hx-get="/api/logs/500" <?= $lines==500?'disabled':'' ?> hx-target="#adminmain" role="button">Last 500 lines</a>
+<a href="#" hx-push-url="<?= BASE_PATH ?>/logs/10" hx-get="<?= BASE_PATH ?>/api/logs/10" <?= $lines==10?'disabled':'' ?> hx-target="#adminmain" role="button">Last 10 lines</a>
+<a href="#" hx-push-url="<?= BASE_PATH ?>/logs/50" hx-get="<?= BASE_PATH ?>/api/logs/50" <?= $lines==50?'disabled':'' ?> hx-target="#adminmain" role="button">Last 50 lines</a>
+<a href="#" hx-push-url="<?= BASE_PATH ?>/logs/100" hx-get="<?= BASE_PATH ?>/api/logs/100" <?= $lines==100?'disabled':'' ?> hx-target="#adminmain" role="button">Last 100 lines</a>
+<a href="#" hx-push-url="<?= BASE_PATH ?>/logs/200" hx-get="<?= BASE_PATH ?>/api/logs/200" <?= $lines==200?'disabled':'' ?> hx-target="#adminmain" role="button">Last 200 lines</a>
+<a href="#" hx-push-url="<?= BASE_PATH ?>/logs/500" hx-get="<?= BASE_PATH ?>/api/logs/500" <?= $lines==500?'disabled':'' ?> hx-target="#adminmain" role="button">Last 500 lines</a>
 
 <hr>
 
@@ -26,4 +26,4 @@
     <pre><code class="language-ini"><?= file_exists($configfile)?escape(file_get_contents($configfile)):'- Config file not found -' ?></code></pre>
 </div>
 
-<script src="/js/prism.js"></script>
+<script src="<?= BASE_PATH ?>/js/prism.js"></script>
