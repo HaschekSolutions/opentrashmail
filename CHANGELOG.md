@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+- Global webhook configuration in `data/webhook.json` with the same features as per-email webhooks (payload template, retries, signature). Used for all addresses without an enabled webhook of their own, takes precedence over `WEBHOOK_URL`
+- "Resend to webhook" button on emails and API endpoint `/api/webhook/resend/[email]/[id]`
+
 ## V1.7.0
 - Fixed a cross site scripting issue in V1.6.0 via crafted links to the web UI
 - Web UI can be hosted in a sub folder, the path is taken from the `URL` setting [#111](https://github.com/HaschekSolutions/opentrashmail/issues/111)

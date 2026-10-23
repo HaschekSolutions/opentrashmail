@@ -387,3 +387,78 @@ function deleteWebhookConfig($email)
     }
     return true;
 }
+
+// Used by the mail server for every address without an enabled webhook of its own. Same format as the per-email config
+function getGlobalWebhookConfig()
+{
+    $webhookFile = ROOT.DS.'..'.DS.'data'.DS.'webhook.json';
+    if (file_exists($webhookFile)) {
+        return json_decode(file_get_contents($webhookFile), true);
+    }
+    return null;
+}
+
+// The webhook the mail server sends emails of this address to, or null if there is none
+function getActiveWebhookConfig($email)
+{
+    $config = getWebhookConfig($email);
+    if (!is_array($config) || empty($config['enabled']))
+        $config = getGlobalWebhookConfig();
+    if (!is_array($config) || empty($config['enabled']) || empty($config['webhook_url']))
+        return null;
+    return $config;
+}
+
+// Fills the payload template the same way as replace_template_variables() in python/mailserver3.py
+function renderWebhookPayload($template, $emaildata)
+{
+    $flags = JSON_INVALID_UTF8_SUBSTITUTE;
+    $escape = function($value) use ($flags) {
+        return substr(json_encode((string)$value, $flags), 1, -1);
+    };
+    return strtr($template, [
+        '{{to}}' => $escape($emaildata['rcpts'][0] ?? ''),
+        '{{from}}' => $escape($emaildata['parsed']['from'] ?? ''),
+        '{{subject}}' => $escape($emaildata['parsed']['subject'] ?? ''),
+        '{{body}}' => $escape($emaildata['parsed']['body'] ?? ''),
+        '{{htmlbody}}' => $escape($emaildata['parsed']['htmlbody'] ?? ''),
+        '{{sender_ip}}' => $escape($emaildata['sender_ip'] ?? ''),
+        '{{attachments}}' => json_encode($emaildata['parsed']['attachments_details'] ?? [], $flags),
+    ]);
+}
+
+// Sends a stored email to its webhook again. One attempt, returns [success, message]
+function resendWebhookForEmail($email, $id)
+{
+    $config = getActiveWebhookConfig($email);
+    if (!$config)
+        return [false, 'No active webhook configured for this address'];
+
+    $payload = renderWebhookPayload($config['payload_template'] ?? '{}', getEmail($email, $id));
+    json_decode($payload);
+    if (json_last_error() !== JSON_ERROR_NONE)
+        return [false, 'Invalid JSON in webhook payload template'];
+
+    $headers = ['Content-Type: application/json'];
+    if (!empty($config['secret_key']))
+        $headers[] = 'X-Webhook-Signature: '.hash_hmac('sha256', $payload, $config['secret_key']);
+
+    $ch = curl_init($config['webhook_url']);
+    curl_setopt_array($ch, [
+        CURLOPT_POST => true,
+        CURLOPT_POSTFIELDS => $payload,
+        CURLOPT_HTTPHEADER => $headers,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_TIMEOUT => 30,
+        CURLOPT_PROTOCOLS => CURLPROTO_HTTP | CURLPROTO_HTTPS,
+    ]);
+    curl_exec($ch);
+    $status = curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
+    $error = curl_error($ch);
+
+    if ($error)
+        return [false, 'Webhook failed: '.$error];
+    if ($status >= 200 && $status < 300)
+        return [true, 'Webhook sent (HTTP '.$status.')'];
+    return [false, 'Webhook failed with HTTP '.$status];
+}

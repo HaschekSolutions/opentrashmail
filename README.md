@@ -57,6 +57,7 @@
 | /api/webhook/get/`[email-address]` | Get webhook configuration for an email address | |
 | /api/webhook/save/`[email-address]` | Save webhook configuration for an email address | |
 | /api/webhook/delete/`[email-address]` | Delete webhook configuration for an email address | |
+| /api/webhook/resend/`[email-address]`/`[id]` | Send an email to its webhook again (POST) | |
 
 # JSON API
 
@@ -266,6 +267,7 @@ OpenTrashmail supports both global and per-email webhooks for maximum flexibilit
 - Automatic retry with exponential backoff (max 10 attempts)
 - HMAC-SHA256 signature for security
 - Simple web interface configuration
+- "Resend to webhook" button on every email, eg. after your endpoint was down. Uses the per-email or global webhook, one attempt without retries
 
 ### Global Webhook
 To send the emails of all addresses to one endpoint with the same features (payload template, retries, signature), put a configuration in the same format as a per-email webhook in `data/webhook.json`:
@@ -314,6 +316,7 @@ It is used for every address that has no enabled webhook of its own and takes pr
 | `/api/webhook/get/[email]` | GET | Get webhook configuration |
 | `/api/webhook/save/[email]` | POST | Save webhook configuration |
 | `/api/webhook/delete/[email]` | DELETE | Delete webhook configuration |
+| `/api/webhook/resend/[email]/[id]` | POST | Send a received email to its webhook again |
 
 ### Save Webhook Example
 

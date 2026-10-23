@@ -62,6 +62,8 @@ class OpenTrashmailBackend{
                         return $this->saveWebhook($_REQUEST['email']?:$this->url[3], $_REQUEST);
                     } else if($this->url[2] == 'delete') {
                         return $this->deleteWebhook($_REQUEST['email']?:$this->url[3]);
+                    } else if($this->url[2] == 'resend') {
+                        return $this->resendWebhook($_REQUEST['email']?:$this->url[3], $_REQUEST['id']?:$this->url[4]);
                     }
                     break;
                 default:
@@ -244,7 +246,8 @@ class OpenTrashmailBackend{
             'emaildata'=>$emaildata,
             'email'=>$email,
             'mailid'=>$id,
-            'dateformat'=>$this->settings['DATEFORMAT']
+            'dateformat'=>$this->settings['DATEFORMAT'],
+            'webhook'=>getActiveWebhookConfig($email)!==null,
         ]);
 
     }
@@ -360,6 +363,22 @@ class OpenTrashmailBackend{
         } else {
             return json_encode(['success' => false, 'message' => 'Failed to save webhook configuration']);
         }
+    }
+
+    public function resendWebhook($email, $id)
+    {
+        if(!filter_var($email, FILTER_VALIDATE_EMAIL))
+            return $this->error('Invalid email address');
+        else if(!is_numeric($id))
+            return $this->error('Invalid id');
+        else if(!emailIDExists($email,$id))
+            return $this->error('Email not found');
+        // sends a request to another server, so not via links or images
+        else if($_SERVER['REQUEST_METHOD'] !== 'POST')
+            return $this->error('Method not allowed');
+
+        list($success, $message) = resendWebhookForEmail($email, $id);
+        return '<small><i class="fas fa-'.($success?'check':'exclamation-triangle').'"></i> '.escape($message).'</small>';
     }
 
     public function deleteWebhook($email)

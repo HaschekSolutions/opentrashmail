@@ -16,6 +16,13 @@
                 <small class="badge"><?= escape($to) ?></small>
             <?php endforeach; ?>
         </p>
+
+        <?php if($webhook): ?>
+        <p>
+            <button class="outline secondary" hx-post="<?= BASE_PATH ?>/api/webhook/resend/<?= escape(rawurlencode($email)) ?>/<?= $mailid ?>" hx-target="#webhookresult" hx-disabled-elt="this"><i class="fas fa-paper-plane"></i> Resend to webhook</button>
+            <span id="webhookresult"></span>
+        </p>
+        <?php endif; ?>
     </header>
     
     <div id="emailbody">
