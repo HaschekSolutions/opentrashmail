@@ -1,4 +1,5 @@
 """End-to-end tests for the SMTP server. Run from the python directory: python3 -m unittest test_mailserver3"""
+import asyncio
 import json
 import os
 import shutil
@@ -248,6 +249,52 @@ class MailserverTest(unittest.TestCase):
         self.assertIn('still here', mail['parsed']['body'])
         self.assertEqual(mail['parsed']['attachments'], [])
 
+    # --- webhooks ---
+
+    def write_webhook_config(self, path, url, enabled=True):
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        with open(path, 'w') as f:
+            json.dump({'enabled': enabled, 'webhook_url': url, 'payload_template': '{}'}, f)
+
+    def webhook_used_for(self, email):
+        # records which webhook send_to_webhook() picks instead of sending a request
+        used = []
+        handler = ms.CustomHandler()
+        async def configured(email, data, config):
+            used.append(config['webhook_url'])
+        async def simple(data):
+            used.append('WEBHOOK_URL')
+        handler.send_configured_webhook = configured
+        handler.send_global_webhook = simple
+        asyncio.run(handler.send_to_webhook(email, {'rcpts': [email], 'parsed': {}}))
+        return used
+
+    def test_global_webhook_config_is_used_for_all_addresses(self):
+        self.write_webhook_config(os.path.join(ms.DATA_DIR, 'webhook.json'), 'https://global.test/hook')
+        ms.WEBHOOK_URL = 'https://simple.test/hook'
+        self.assertEqual(self.webhook_used_for('a@example.com'), ['https://global.test/hook'])
+
+    def test_per_email_webhook_overrides_global_webhook_config(self):
+        self.write_webhook_config(os.path.join(ms.DATA_DIR, 'webhook.json'), 'https://global.test/hook')
+        self.write_webhook_config(os.path.join(ms.DATA_DIR, 'a@example.com', 'webhook.json'), 'https://a.test/hook')
+        self.write_webhook_config(os.path.join(ms.DATA_DIR, 'b@example.com', 'webhook.json'), 'https://b.test/hook', enabled=False)
+        self.assertEqual(self.webhook_used_for('a@example.com'), ['https://a.test/hook'])
+        self.assertEqual(self.webhook_used_for('b@example.com'), ['https://global.test/hook'])
+
+    def test_webhook_url_is_used_without_enabled_global_webhook_config(self):
+        ms.WEBHOOK_URL = 'https://simple.test/hook'
+        self.assertEqual(self.webhook_used_for('a@example.com'), ['WEBHOOK_URL'])
+        self.write_webhook_config(os.path.join(ms.DATA_DIR, 'webhook.json'), 'https://global.test/hook', enabled=False)
+        self.assertEqual(self.webhook_used_for('a@example.com'), ['WEBHOOK_URL'])
+        ms.WEBHOOK_URL = ''
+        self.assertEqual(self.webhook_used_for('a@example.com'), [])
+
+    def test_invalid_global_webhook_config_is_ignored(self):
+        with open(os.path.join(ms.DATA_DIR, 'webhook.json'), 'w') as f:
+            f.write('["not", "a", "config"]')
+        ms.WEBHOOK_URL = 'https://simple.test/hook'
+        self.assertEqual(self.webhook_used_for('a@example.com'), ['WEBHOOK_URL'])
+
     # --- cleanup ---
 
     def test_cleanup_keeps_webhook_config_and_removes_attachments(self):
@@ -264,6 +311,14 @@ class MailserverTest(unittest.TestCase):
         ms.cleanup()
         self.assertEqual(os.listdir(maildir), ['webhook.json'])
         self.assertFalse(os.path.exists(os.path.join(ms.DATA_DIR, 'b@example.com')))
+
+    def test_cleanup_keeps_global_webhook_config(self):
+        self.write_webhook_config(os.path.join(ms.DATA_DIR, 'webhook.json'), 'https://global.test/hook')
+        old = time.time() - 3 * 86400
+        os.utime(os.path.join(ms.DATA_DIR, 'webhook.json'), (old, old))
+        ms.DELETE_OLDER_THAN_DAYS = 1
+        ms.cleanup()
+        self.assertTrue(os.path.isfile(os.path.join(ms.DATA_DIR, 'webhook.json')))
 
 
 if __name__ == '__main__':

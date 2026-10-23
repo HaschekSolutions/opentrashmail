@@ -152,6 +152,23 @@ def iter_parts(part):
         yield part
 
 
+def read_webhook_config(webhook_file, name):
+    if os.path.exists(webhook_file):
+        try:
+            with open(webhook_file, 'r') as f:
+                config = json.load(f)
+                # Validate config structure
+                if not isinstance(config, dict):
+                    logger.error("Invalid webhook config format for %s: not a dictionary" % name)
+                    return None
+                return config
+        except json.JSONDecodeError as e:
+            logger.error("Invalid JSON in webhook config for %s: %s" % (name, str(e)))
+        except Exception as e:
+            logger.error("Error loading webhook config for %s: %s" % (name, str(e)))
+    return None
+
+
 class AttachmentTooLarge(Exception):
     pass
 
@@ -330,8 +347,10 @@ class CustomHandler:
         return saved
 
     async def send_to_webhook(self, email, data):
-        # Try per-email webhook first
+        # Try per-email webhook first, then the global webhook config
         webhook_config = self.load_webhook_config(email)
+        if not (webhook_config and webhook_config.get('enabled')):
+            webhook_config = self.load_global_webhook_config()
 
         if webhook_config and webhook_config.get('enabled'):
             await self.send_configured_webhook(email, data, webhook_config)
@@ -340,21 +359,11 @@ class CustomHandler:
             await self.send_global_webhook(data)
 
     def load_webhook_config(self, email):
-        webhook_file = os.path.join(mailbox_dir(email), "webhook.json")
-        if os.path.exists(webhook_file):
-            try:
-                with open(webhook_file, 'r') as f:
-                    config = json.load(f)
-                    # Validate config structure
-                    if not isinstance(config, dict):
-                        logger.error("Invalid webhook config format for %s: not a dictionary" % email)
-                        return None
-                    return config
-            except json.JSONDecodeError as e:
-                logger.error("Invalid JSON in webhook config for %s: %s" % (email, str(e)))
-            except Exception as e:
-                logger.error("Error loading webhook config for %s: %s" % (email, str(e)))
-        return None
+        return read_webhook_config(os.path.join(mailbox_dir(email), "webhook.json"), email)
+
+    def load_global_webhook_config(self):
+        # Same format as the per-email config, used for all addresses without an enabled webhook of their own
+        return read_webhook_config(os.path.join(DATA_DIR, "webhook.json"), "the global webhook")
 
     def replace_template_variables(self, template, data):
         """Replace {{variable}} placeholders in template with actual data"""

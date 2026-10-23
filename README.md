@@ -83,7 +83,7 @@ Just edit the `config.ini` You can use the following settings
 - `MAILPORT_TLS` -> If set to something higher than 0, this port will be used for TLSC (TLS on Connect). Which means plaintext auth will not be possible. Usually set to `465`. Needs `TLS_CERTIFICATE` and `TLS_PRIVATE_KEY` to work
 - `TLS_CERTIFICATE` -> Path to the certificate (chain). Can be relative to the /python directory or absolute
 - `TLS_PRIVATE_KEY` -> Path to the private key of the certificate. Can be relative to the /python directory or absolute
-- `WEBHOOK_URL` -> Global webhook URL. If set, will send a POST request to this URL with the JSON data of the email as body for all emails (unless overridden by per-email webhook)
+- `WEBHOOK_URL` -> Global webhook URL. If set, will send a POST request to this URL with the JSON data of the email as body for all emails (unless overridden by a per-email webhook or the [global webhook config](#global-webhook))
 - `ADMIN_ENABLED` -> Enables the admin menu. Default `false`
 - `ADMIN_PASSWORD` -> If set, needs this password to access the admin menu
 - `NOTICE` -> Optional text shown on top of every page, eg. to tell your users that emails are deleted after 30 days. Use `\n` for line breaks
@@ -266,6 +266,21 @@ OpenTrashmail supports both global and per-email webhooks for maximum flexibilit
 - Automatic retry with exponential backoff (max 10 attempts)
 - HMAC-SHA256 signature for security
 - Simple web interface configuration
+
+### Global Webhook
+To send the emails of all addresses to one endpoint with the same features (payload template, retries, signature), put a configuration in the same format as a per-email webhook in `data/webhook.json`:
+
+```json
+{
+  "enabled": true,
+  "webhook_url": "https://api.example.com/webhook",
+  "payload_template": "{\"email\":\"{{to}}\",\"subject\":\"{{subject}}\",\"attachments\":{{attachments}}}",
+  "retry_config": {"max_attempts": 3, "backoff_multiplier": 2},
+  "secret_key": "your-secret-key"
+}
+```
+
+It is used for every address that has no enabled webhook of its own and takes precedence over `WEBHOOK_URL`. Changes are picked up with the next email, no restart needed.
 
 ### Payload Template Placeholders
 | Placeholder | Description | Example |
