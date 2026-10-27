@@ -51,40 +51,48 @@ nginx
 
 echo ' [+] Setting up config.ini'
 
+ini_quote() {
+    local value="${1-}"
+    value="${value//\\/\\\\}"
+    value="${value//\"/\\\"}"
+    value="${value//\$/\\\$}"
+    printf '"%s"' "$value"
+}
+
 
 
 _buildConfig() {
     echo "[GENERAL]"
-    echo "DOMAINS=${DOMAINS:-localhost}"
-    echo "URL=${URL:-http://localhost:8080}"
-    echo "PASSWORD=${PASSWORD:-}"
-    echo "ALLOWED_IPS=${ALLOWED_IPS:-}"
+    printf 'DOMAINS=%s\n' "$(ini_quote "${DOMAINS:-localhost}")"
+    printf 'URL=%s\n' "$(ini_quote "${URL:-http://localhost:8080}")"
+    printf 'PASSWORD=%s\n' "$(ini_quote "${PASSWORD:-}")"
+    printf 'ALLOWED_IPS=%s\n' "$(ini_quote "${ALLOWED_IPS:-}")"
     echo "NOTICE=\"${NOTICE//\"/\'}\""
-    echo "TRUSTED_PROXIES=${TRUSTED_PROXIES:-}"
+    printf 'TRUSTED_PROXIES=%s\n' "$(ini_quote "${TRUSTED_PROXIES:-}")"
     echo ""
     echo "[MAILSERVER]"
     echo "MAILPORT=${MAILPORT:-25}"
     echo "DISCARD_UNKNOWN=${DISCARD_UNKNOWN:-true}"
     echo "ATTACHMENTS_MAX_SIZE=${ATTACHMENTS_MAX_SIZE:-0}"
     echo "MAILPORT_TLS=${MAILPORT_TLS:-0}"
-    echo "TLS_CERTIFICATE=${TLS_CERTIFICATE:-}"
-    echo "TLS_PRIVATE_KEY=${TLS_PRIVATE_KEY:-}"
-    echo "SMTP_HOSTNAME=${SMTP_HOSTNAME:-}"
+    printf 'TLS_CERTIFICATE=%s\n' "$(ini_quote "${TLS_CERTIFICATE:-}")"
+    printf 'TLS_PRIVATE_KEY=%s\n' "$(ini_quote "${TLS_PRIVATE_KEY:-}")"
+    printf 'SMTP_HOSTNAME=%s\n' "$(ini_quote "${SMTP_HOSTNAME:-}")"
     echo ""
     echo "[DATETIME]"
-    echo "DATEFORMAT=${DATEFORMAT:-D.M.YYYY HH:mm}"
+    printf 'DATEFORMAT=%s\n' "$(ini_quote "${DATEFORMAT:-D.M.YYYY HH:mm}")"
     echo ""
     echo "[CLEANUP]"
     echo "DELETE_OLDER_THAN_DAYS=${DELETE_OLDER_THAN_DAYS:-false}"
     echo ""
     echo "[WEBHOOK]"
-    echo "WEBHOOK_URL=${WEBHOOK_URL:-}"
+    printf 'WEBHOOK_URL=%s\n' "$(ini_quote "${WEBHOOK_URL:-}")"
     echo ""
     echo "[ADMIN]"
     echo "ADMIN_ENABLED=${ADMIN_ENABLED:-}"
-    echo "ADMIN_PASSWORD=${ADMIN_PASSWORD:-}"
+    printf 'ADMIN_PASSWORD=%s\n' "$(ini_quote "${ADMIN_PASSWORD:-}")"
     echo "SHOW_ACCOUNT_LIST=${SHOW_ACCOUNT_LIST:-false}"
-    echo "ADMIN=${ADMIN:-}"
+    printf 'ADMIN=%s\n' "$(ini_quote "${ADMIN:-}")"
     echo "SHOW_LOGS=${SHOW_LOGS:-false}"
 }
 

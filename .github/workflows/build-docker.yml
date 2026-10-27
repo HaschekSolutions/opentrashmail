@@ -20,6 +20,12 @@ jobs:
           python-version: "3.12"
       - name: Install dependencies
         run: pip install aiosmtpd aiohttp
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.3"
+      - name: Run config.ini regression test
+        run: bash tools/test_config_ini.sh
       - name: Run mail server tests
         working-directory: python
         run: python -m unittest -v test_mailserver3
